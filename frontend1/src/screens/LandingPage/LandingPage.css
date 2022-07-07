@@ -1,0 +1,43 @@
+.main {
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  background-image: url("../../Background.jpg");
+  background-position: center;
+  background-size: cover;
+}
+.title {
+  font-size: 95px;
+}
+.subtitle {
+  font-size: 25px;
+  padding-top: 10px;
+}
+.intro-text {
+  width: 100%;
+  text-align: center;
+}
+
+@media only screen and (min-width: 1200px) {
+  .title {
+    padding: 0 100px;
+  }
+}
+@media only screen and (max-width: 1200px) {
+  .title {
+    font-size: 70px;
+  }
+
+  .subtitle {
+    font-size: 20px;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .title {
+    font-size: 50px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+  }
+}
