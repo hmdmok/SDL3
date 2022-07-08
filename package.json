@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon backend/server.js",
-    "client": "npm start --prefix frontend",
+    "client": "npm start --prefix frontend1",
     "dev": "concurrently \"npm start\" \"npm run client\""
   },
   "author": "HMDMOK",
