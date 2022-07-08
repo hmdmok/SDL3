@@ -4,13 +4,17 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon backend/server.js"
+    "start": "nodemon backend/server.js",
+    "client": "npm start --prefix frontend",
+    "dev": "concurrently \"npm start\" \"npm run client\""
   },
   "author": "HMDMOK",
   "license": "ISC",
   "dependencies": {
+    "concurrently": "^7.2.2",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
+    "mongoose": "^6.4.3",
     "nodemon": "^2.0.19"
   }
 }
