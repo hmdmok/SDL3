@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs/dist/bcrypt");
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
+const generateToken = require("../utils/generateToken");
 
 const addNewUser = asyncHandler(async (req, res) => {
   const {
@@ -39,7 +40,16 @@ const addNewUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    res.status(201).json({ user });
+    res.status(201).json({
+      _id: user._id,
+      username: user.username,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      birthday: user.birthday,
+      usertype: user.usertype,
+      photo_link: user.photo_link,
+      token: generateToken(user._id),
+    });
   } else {
     res.status(400);
     throw new Error("Error Reating new user !");
@@ -56,6 +66,7 @@ const authUser = asyncHandler(async (req, res) => {
       firstname: user.firstname,
       lastname: user.lastname,
       photo_link: user.photo_link,
+      token: generateToken(user._id),
     });
   } else {
     res.status(400);

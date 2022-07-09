@@ -1,11 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./LandingPage.css";
 import logoPic from "../../apartment.png";
-
+import { useNavigate } from "react-router-dom";
 import { Col, Container, Row } from "react-bootstrap";
 import Logo from "../../components/Logo/Logo";
 
+
+
 const LandingPage = () => {
+  let history = useNavigate();
+  // useEffect(() => {
+  //   const userInfo = localStorage.getItem("userInfo");
+  //   if (userInfo) {
+  //     history("/home");
+  //   }
+  // }, [history]);
   return (
     <div className="main">
       <Container>

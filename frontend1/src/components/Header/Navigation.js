@@ -9,21 +9,14 @@ import {
   Container,
 } from "react-bootstrap";
 import apartment from "./apartment.png";
-// import { use// history } from "react-router-dom";
 
 const Navigation = () => {
-  // let // history = use// history();
   return (
     <Navbar bg="primary" expand="lg" variant="dark">
       <Container className="d-flex flex-row-reverse text-center">
-        <Navbar.Brand
-          onClick={() => {
-            // history.push("/DisplayForm");
-          }}
-        >
+        <Navbar.Brand href="/">
           <img src={apartment} alt="logo" width="50" height="50" />
         </Navbar.Brand>
-        {/* <Navbar.Brand href="#home">متابعة طلبات السكن</Navbar.Brand> */}
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse
           className="d-lg-flex flex-lg-row-reverse justify-content-lg-between text-center"
@@ -36,16 +29,12 @@ const Navigation = () => {
               id="basic-nav-dropdown"
             >
               <NavDropdown.Item
-                onClick={() => {
-                  // history.push("/Demandeur");
-                }}
+               href="#addperson"
               >
                 تسجيل طالب سكن
               </NavDropdown.Item>
               <NavDropdown.Item
-                onClick={() => {
-                  // history.push("/Dossier");
-                }}
+                 href="/adddossiers"
               >
                 حجز ملف طلب السكن
               </NavDropdown.Item>
@@ -101,7 +90,7 @@ const Navigation = () => {
               <NavDropdown.Item href="#action/3.3">
                 قائمة المستخدمين
               </NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.3">
+              <NavDropdown.Item href="/adduser">
                 تسيير المستخدمين
               </NavDropdown.Item>
               <NavDropdown.Divider />
