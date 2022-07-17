@@ -1,6 +1,5 @@
 const express = require("express");
 const userControllers = require("../controllers/userControllers");
-<<<<<<< HEAD
 const multer = require("multer");
 const { protect } = require("../middlewares/authMiddleware");
 const userPhotoStorage = multer.diskStorage({
@@ -34,12 +33,5 @@ router
   .get(userControllers.getUserById)
   .put(protect, uploadUserPhoto.single("photo_link"), userControllers.editUser)
   .delete(protect, userControllers.deleteUser);
-=======
-
-const router = express.Router();
-
-router.route("/").post(userControllers.addNewUser);
-router.route("/login").post(userControllers.authUser);
->>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
 
 module.exports = router;

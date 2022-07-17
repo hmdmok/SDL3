@@ -1,5 +1,4 @@
 import React from "react";
-<<<<<<< HEAD
 import Logo from "../../components/Logo/Logo";
 import MainScreen from "../../components/MainScreen/MainScreen";
 import file from "./file.png";
@@ -40,11 +39,6 @@ function HomeScreen() {
       </Row>
     </MainScreen>
   );
-=======
-
-function HomeScreen() {
-  return <div>HomeScreen</div>;
->>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
 }
 
 export default HomeScreen;

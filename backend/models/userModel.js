@@ -32,10 +32,6 @@ const userSchema = mongoose.Schema(
     },
     email: {
       type: String,
-<<<<<<< HEAD
-=======
-      required: true,
->>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
       unique: true,
     },
     phone: {
@@ -43,13 +39,6 @@ const userSchema = mongoose.Schema(
     },
     photo_link: {
       type: String,
-<<<<<<< HEAD
-
-=======
-      required: true,
-      default:
-        "https://www.seekpng.com/png/detail/73-730482_existing-user-default-avatar.png",
->>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
     },
   },
   {

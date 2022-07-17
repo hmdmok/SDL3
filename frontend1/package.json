@@ -2,15 +2,10 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-<<<<<<< HEAD
   "proxy": "http://127.0.0.1:4000",
   "dependencies": {
     "@redux-devtools/core": "^3.13.1",
     "@reduxjs/toolkit": "^1.8.3",
-=======
-  "proxy":"http://127.0.0.1:4000",
-  "dependencies": {
->>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
@@ -20,17 +15,12 @@
     "react-bootstrap": "^2.4.0",
     "react-dom": "^18.2.0",
     "react-parallax-tilt": "^1.7.43",
-<<<<<<< HEAD
     "react-redux": "^8.0.2",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
     "redux": "^4.2.0",
     "redux-devtools-extension": "^2.13.9",
     "redux-thunk": "^2.4.1",
-=======
-    "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.1",
->>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
     "web-vitals": "^2.1.4"
   },
   "scripts": {

@@ -102,14 +102,14 @@ function Dossiers() {
                     <Button href={"#"} variant="success" className="mx-2">
                       {"(ة)تعديل معلومات الزوج"}
                     </Button>
-                  ) : (
+                  ) : dossierMap.saisi_conj === "false" ? (
                     <Button href={"#"} variant="success" className="mx-2">
                       {"(ة)ادخال معلومات الزوج"}
                     </Button>
-                  )}
+                  ) : null}
                   <Button href={"#"} variant="success" className="mx-2">
-                      {"تعديل معلومات طالب السكن"}
-                    </Button>
+                    {"تعديل معلومات طالب السكن"}
+                  </Button>
 
                   <table className="table table-hover">
                     <tbody>
