@@ -3,11 +3,14 @@ const dossiers = require("./DataBase/dossiers");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
+<<<<<<< HEAD
 const dossiersRoutes = require("./routes/dossiersRoutes");
 const notesRoutes = require("./routes/notesRoutes");
 const wilayasRoutes = require("./routes/wilayasRoutes");
 const communesRoutes = require("./routes/communesRoutes");
 const personsRoutes = require("./routes/personsRoutes");
+=======
+>>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
 const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
 
 const app = express();
@@ -28,6 +31,11 @@ app.use("/api/persons", personsRoutes);
 
 app.use("/usersPicUpload", express.static("usersPicUpload"));
 app.use("/dossiersScanUpload", express.static("dossiersScanUpload"));
+
+app.use(notFound);
+app.use(errorHandler);
+
+app.use("/api/users", userRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

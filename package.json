@@ -18,7 +18,10 @@
     "express-async-handler": "^1.2.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.4.3",
+<<<<<<< HEAD
     "multer": "^1.4.5-lts.1",
+=======
+>>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
     "nodemon": "^2.0.19"
   }
 }

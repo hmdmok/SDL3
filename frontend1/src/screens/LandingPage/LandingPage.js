@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import "./LandingPage.css";
 import logoPic from "../../apartment.png";
 import { useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 import { Card, Col, Container, Row } from "react-bootstrap";
 import Logo from "../../components/Logo/Logo";
 
@@ -17,6 +18,25 @@ const LandingPage = () => {
     <div className="main">
       <Container >
         <Row className="d-flex justify-content-center">
+=======
+import { Col, Container, Row } from "react-bootstrap";
+import Logo from "../../components/Logo/Logo";
+
+
+
+const LandingPage = () => {
+  let history = useNavigate();
+  // useEffect(() => {
+  //   const userInfo = localStorage.getItem("userInfo");
+  //   if (userInfo) {
+  //     history("/home");
+  //   }
+  // }, [history]);
+  return (
+    <div className="main">
+      <Container>
+        <Row>
+>>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
           <div className="intro-text">
             <div>
               <h1 className="title">مرحبا بكم في تطبيق متابعة ملفات السكن</h1>
@@ -26,6 +46,7 @@ const LandingPage = () => {
               </p>
             </div>
           </div>
+<<<<<<< HEAD
           <Card  style={{ width: "17rem" }}>
             <Card.Header as="h3" className="text-center">
               يمكنكم التواصل معنا عبر هذه القنوات
@@ -38,6 +59,8 @@ const LandingPage = () => {
               <a href="mailto:hmd.moknine@gmail.com">hmd.moknine@gmail.com</a>
             </Card.Body>
           </Card>
+=======
+>>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
         </Row>
         <Row>
           <Col className="p-5 d-flex flex-column align-items-center">

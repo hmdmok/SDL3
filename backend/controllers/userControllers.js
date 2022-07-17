@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs/dist/bcrypt");
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
 const generateToken = require("../utils/generateToken");
+<<<<<<< HEAD
 const jwt = require("jsonwebtoken");
 
 const addNewUser = asyncHandler(async (req, res) => {
@@ -9,6 +10,10 @@ const addNewUser = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("المستخدم غير مرخص");
   }
+=======
+
+const addNewUser = asyncHandler(async (req, res) => {
+>>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
   const {
     firstname,
     username,
@@ -20,10 +25,16 @@ const addNewUser = asyncHandler(async (req, res) => {
     remark,
     email,
     phone,
+<<<<<<< HEAD
   } = req.body;
 
   const photo_link = req.file?.path;
 
+=======
+    photo_link,
+  } = req.body;
+
+>>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
   const userExists = await User.findOne({ username });
 
   if (userExists) {
@@ -71,7 +82,10 @@ const authUser = asyncHandler(async (req, res) => {
       username: user.username,
       firstname: user.firstname,
       lastname: user.lastname,
+<<<<<<< HEAD
       usertype: user.usertype,
+=======
+>>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
       photo_link: user.photo_link,
       token: generateToken(user._id),
     });
@@ -80,6 +94,7 @@ const authUser = asyncHandler(async (req, res) => {
     throw new Error("Error authontificating User !");
   }
 });
+<<<<<<< HEAD
 
 const getUsers = asyncHandler(async (req, res) => {
   if (req.user.usertype !== "super" && req.user.usertype !== "admin") {
@@ -175,3 +190,6 @@ module.exports = {
   editUser,
   deleteUser,
 };
+=======
+module.exports = { addNewUser, authUser };
+>>>>>>> f9cbda4159e1e2f63160d254598efa594eabbc4a
