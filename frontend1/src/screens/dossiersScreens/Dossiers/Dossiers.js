@@ -99,15 +99,23 @@ function Dossiers() {
                     </Button>
                   )}
                   {dossierMap.saisi_conj === "true" ? (
-                    <Button href={"#"} variant="success" className="mx-2">
+                    <Button href={`/updateConjoin/${dossierMap?._id}`} variant="success" className="mx-2">
                       {"(ة)تعديل معلومات الزوج"}
                     </Button>
                   ) : dossierMap.saisi_conj === "false" ? (
-                    <Button href={"#"} variant="success" className="mx-2">
+                    <Button
+                      href={`/conjoin/${dossierMap?._id}`}
+                      variant="success"
+                      className="mx-2"
+                    >
                       {"(ة)ادخال معلومات الزوج"}
                     </Button>
                   ) : null}
-                  <Button href={"#"} variant="success" className="mx-2">
+                  <Button
+                    href={`/demandeur/${dossierMap?._id}`}
+                    variant="success"
+                    className="mx-2"
+                  >
                     {"تعديل معلومات طالب السكن"}
                   </Button>
 

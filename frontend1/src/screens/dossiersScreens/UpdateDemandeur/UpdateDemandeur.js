@@ -1,16 +1,26 @@
-import React, { useEffect, useState } from "react";
-import { Col, Form, Row } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { Button, Col, Form, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams, useNavigate } from "react-router-dom";
+
 import { listCommunesByWilayaAction } from "../../../actions/communeActions";
 import { listWilayasAction } from "../../../actions/wilayaActions";
-import { addDemandeurAction } from "../../../actions/demandeurActions";
+import {
+  getDemandeurAction,
+  updateDemandeurAction,
+} from "../../../actions/demandeurActions";
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
 import MainScreen from "../../../components/MainScreen/MainScreen";
-import { addDossierAction } from "../../../actions/dossierActions";
-import { useNavigate } from "react-router-dom";
+import {
+  getDossierAction,
+  updateDossierAction,
+} from "../../../actions/dossierActions";
 
-function Demandeur() {
+function UpdateDemandeur() {
+  const { id } = useParams();
+  let navigate = useNavigate();
+
   const [prenom, setPrenom] = useState("");
   const [prenom_fr, setPrenom_fr] = useState("");
   const [nom, setNom] = useState("");
@@ -40,19 +50,37 @@ function Demandeur() {
 
   const [date_depo, setDate_depo] = useState("");
   const [num_dos, setNum_dos] = useState("");
+  const [saisi_conj, setSaisi_conj] = useState("");
 
   const dispatch = useDispatch();
 
-  const demandeurAdd = useSelector((state) => state.demandeurAdd);
-  const { loading, demandeur, success, error } = demandeurAdd;
-
-  const dossierAdd = useSelector((state) => state.dossierAdd);
+  const demandeurGet = useSelector((state) => state.demandeurGet);
   const {
-    loading: loadingDossierAdd,
+    loading: loadingdemandeurGet,
+    demandeur,
+    error: errordemandeurGet,
+  } = demandeurGet;
+
+  const dossierGet = useSelector((state) => state.dossierGet);
+  const {
+    loading: loadingdossierGet,
     dossier,
-    success: successDossierAdd,
-    error: errorDossierAdd,
-  } = dossierAdd;
+    error: errordossierGet,
+  } = dossierGet;
+
+  const demandeurUpdate = useSelector((state) => state.demandeurUpdate);
+  const {
+    loading: loadingdemandeurUpdate,
+    demandeur: UpdatedDemandeur,
+    error: errordemandeurUpdate,
+  } = demandeurUpdate;
+
+  const dossierUpdate = useSelector((state) => state.dossierUpdate);
+  const {
+    loading: loadingDossierUpdate,
+    dossier: UpdatedDossier,
+    error: errorDossierUpdate,
+  } = dossierUpdate;
 
   const communeGetByWilaya = useSelector((state) => state.communeGetByWilaya);
   const {
@@ -72,6 +100,47 @@ function Demandeur() {
   }, [userInfo]);
 
   useEffect(() => {
+    dispatch(getDossierAction(id));
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    if (dossier) {
+      dispatch(getDemandeurAction(dossier?.id_demandeur));
+      setDate_depo(dossier?.date_depo);
+      setNum_dos(dossier?.num_dos);
+      setSaisi_conj(dossier?.saisi_conj);
+    }
+  }, [dispatch, dossier]);
+
+  useEffect(() => {
+    if (demandeur) {
+      setPrenom(demandeur.prenom);
+      setPrenom_fr(demandeur.prenom_fr);
+      setNom(demandeur.nom);
+      setNom_fr(demandeur.nom_fr);
+      setGender(demandeur.gender);
+      setNum_act(demandeur.num_act);
+      setDate_n(demandeur.date_n);
+      setLieu_n(demandeur.lieu_n);
+      setLieu_n_fr(demandeur.lieu_n_fr);
+      setWil_n(demandeur.wil_n);
+      setCom_n(demandeur.com_n);
+      setPrenom_p(demandeur.prenom_p);
+      setPrenom_p_fr(demandeur.prenom_p_fr);
+      setPrenom_m(demandeur.prenom_m);
+      setPrenom_m_fr(demandeur.prenom_m_fr);
+      setNom_m(demandeur.nom_m);
+      setNom_m_fr(demandeur.nom_m_fr);
+      setNum_i_n(demandeur.num_i_n);
+      setStuation_f(demandeur.stuation_f);
+      setSituation_p(demandeur.situation_p);
+      setProfession(demandeur.profession);
+      setSalaire(demandeur.salaire);
+      setRemark(demandeur.remark);
+    }
+  }, [dispatch, demandeur]);
+
+  useEffect(() => {
     dispatch(listWilayasAction());
   }, [dispatch]);
 
@@ -80,48 +149,50 @@ function Demandeur() {
   }, [dispatch, wil_n]);
 
   useEffect(() => {
-    if (demandeur)
+    if (UpdatedDemandeur)
       dispatch(
-        addDossierAction(
+        updateDossierAction(
+          id,
           creator,
-          demandeur?._id,
-          "",
+          UpdatedDemandeur?._id,
+          null,
           date_depo,
           num_dos,
-          "",
-          "",
-          "",
-          "",
-          "",
+          null,
+          null,
+          null,
+          null,
+          null,
           type,
           gender_conj,
           remark,
-          "",
-          ""
+          saisi_conj,
+          null
         )
       );
   }, [
     dispatch,
-    success,
+    id,
     creator,
-    demandeur,
     date_depo,
     num_dos,
     type,
     gender_conj,
     remark,
+    saisi_conj,
+    UpdatedDemandeur,
   ]);
 
-  let navigate = useNavigate();
-
   useEffect(() => {
-    if (dossier) navigate(`/adddossiers/${dossier._id}`);
-  }, [navigate, successDossierAdd, dossier]);
+    if (UpdatedDossier) navigate("/dossiers");
+  }, [navigate, UpdatedDossier]);
 
   const submitDemandeurHandler = (event) => {
     event.preventDefault();
+
     dispatch(
-      addDemandeurAction(
+      updateDemandeurAction(
+        dossier?.id_demandeur,
         prenom,
         prenom_fr,
         nom,
@@ -153,13 +224,25 @@ function Demandeur() {
 
   return (
     <MainScreen title={"ادخال معلومات طالب السكن"}>
-      {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
-      {loading && <Loading />}
-
-      {errorDossierAdd && (
-        <ErrorMessage variant="danger">{errorDossierAdd}</ErrorMessage>
+      {errordossierGet && (
+        <ErrorMessage variant="danger">{errordossierGet}</ErrorMessage>
       )}
-      {loadingDossierAdd && <Loading />}
+      {loadingdossierGet && <Loading />}
+
+      {errordemandeurGet && (
+        <ErrorMessage variant="danger">{errordemandeurGet}</ErrorMessage>
+      )}
+      {loadingdemandeurGet && <Loading />}
+
+      {errorDossierUpdate && (
+        <ErrorMessage variant="danger">{errorDossierUpdate}</ErrorMessage>
+      )}
+      {loadingDossierUpdate && <Loading />}
+
+      {errordemandeurUpdate && (
+        <ErrorMessage variant="danger">{errordemandeurUpdate}</ErrorMessage>
+      )}
+      {loadingdemandeurUpdate && <Loading />}
 
       {errorWilayas && (
         <ErrorMessage variant="danger">{errorWilayas}</ErrorMessage>
@@ -181,9 +264,11 @@ function Demandeur() {
               className="form-control text-right"
               name="prenom"
               placeholder="الاسم"
+              value={prenom}
               onChange={(e) => setPrenom(e.target.value)}
             />
             <input
+              value={prenom_fr}
               onChange={(e) => setPrenom_fr(e.target.value)}
               type="text"
               id="prenom_fr"
@@ -196,6 +281,7 @@ function Demandeur() {
           <div className="col-sm order-sm-first">
             <label htmlFor="nom">اللقب</label>
             <input
+              value={nom}
               onChange={(e) => setNom(e.target.value)}
               type="text"
               id="nom"
@@ -204,6 +290,7 @@ function Demandeur() {
               placeholder="اللقب"
             />
             <input
+              value={nom_fr}
               onChange={(e) => setNom_fr(e.target.value)}
               type="text"
               id="nom_fr"
@@ -216,30 +303,49 @@ function Demandeur() {
         </Row>
         <div className="row text-right">
           <div className="col-sm order-sm-last">
-            <div
-              name="gender"
-              onChange={(e) => {
-                setGender(e.target.value);
-                if (e.target.value === "m") setGender_conj("f");
-                else setGender_conj("m");
-              }}
-            >
-              <label>الجنس</label>
-              <br />
-              <input type="radio" id="male" name="gender" value="m" />
-              <label htmlFor="male" className="form-control text-right">
+            <label>الجنس</label>
+            {!gender || gender === "" ? (
+              <div
+                name="gender"
+                onChange={(e) => {
+                  setGender(e.target.value);
+                  if (e.target.value === "m") setGender_conj("f");
+                  else setGender_conj("m");
+                }}
+              >
+                <br />
+                <input type="radio" id="male" name="gender" value="m" />
+                <label htmlFor="male" className="form-control text-right">
+                  ذكر
+                </label>
+                <br />
+                <input type="radio" id="female" name="gender" value="f" />
+                <label htmlFor="female" className="form-control text-right">
+                  أنثى
+                </label>
+                <br />
+              </div>
+            ) : gender === "m" ? (
+              <label
+                htmlFor="male"
+                className="form-control text-right"
+                onClick={() => setGender(null)}
+              >
                 ذكر
               </label>
-              <br />
-              <input type="radio" id="female" name="gender" value="f" />
-              <label htmlFor="female" className="form-control text-right">
+            ) : gender === "f" ? (
+              <div
+                htmlFor="male"
+                className="form-control text-right"
+                onClick={() => setGender(null)}
+              >
                 أنثى
-              </label>
-              <br />
-            </div>
+              </div>
+            ) : null}
 
             <label htmlFor="num_act">رقم عقد الميلاد</label>
             <input
+              value={num_act}
               onChange={(e) => setNum_act(e.target.value)}
               type="text"
               className="form-control text-right"
@@ -250,46 +356,65 @@ function Demandeur() {
 
             <label htmlFor="date_n">تاريخ الميلاد </label>
             <input
+              value={date_n}
               onChange={(e) => setDate_n(e.target.value)}
               type="date"
               id="date_n"
               className="form-control text-right"
               name="date_n"
-              defaultValue="01-01-1900"
               required
             />
             <br />
           </div>
           <div className="col-sm order-sm-first">
             <label htmlFor="wil_n">ولاية الميلاد</label>
-            <select
-              onChange={(e) => setWil_n(e.target.value)}
-              id="wil_n"
-              className="form-control text-right"
-              name="wil_n"
-              defaultValue="-1"
-              required
-            >
-              <option value="-1" disabled hidden>
-                اختر ولاية الميلاد
-              </option>
-              {wilayas?.map((wilaya) => (
-                <option key={wilaya._id} value={wilaya.code}>
-                  {wilaya.nomAr}
+            {!wil_n || wil_n === "" ? (
+              <select
+                defaultValue={"-1"}
+                onChange={(e) => setWil_n(e.target.value)}
+                id="wil_n"
+                className="form-control text-right"
+                name="wil_n"
+              >
+                <option value="-1" disabled hidden>
+                  اختر ولاية الميلاد
                 </option>
-              ))}
-            </select>
+                {wilayas?.map((wilaya) => (
+                  <option key={wilaya._id} value={wilaya.code}>
+                    {wilaya.nomAr}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              wilayas?.map((wilaya) => {
+                if (wilaya.code === wil_n)
+                  return (
+                    <div
+                      key={wilaya._id}
+                      className="form-control text-right"
+                      onClick={() => setWil_n(null)}
+                    >
+                      {wilaya.nomAr}
+                    </div>
+                  );
+                else return null;
+              })
+            )}
+
             <br />
 
             <label htmlFor="lieu_n">مكان الميلاد</label>
             <input
+              value={lieu_n}
               onChange={(e) => setLieu_n(e.target.value)}
               type="text"
               id="lieu_n"
               className="form-control text-right"
               name="lieu_n"
+              required
             />
             <input
+              value={lieu_n_fr}
               onChange={(e) => setLieu_n_fr(e.target.value)}
               type="text"
               id="lieu_n_fr"
@@ -301,12 +426,11 @@ function Demandeur() {
 
             <label htmlFor="com_n">بلدية الميلاد</label>
             <select
+              value={com_n}
               onChange={(e) => setCom_n(e.target.value)}
               id="com_n"
               className="form-control text-right"
               name="com_n"
-              defaultValue="-1"
-              required
             >
               <option value="-1" disabled hidden>
                 اختر بلدية الميلاد
@@ -321,6 +445,7 @@ function Demandeur() {
 
             <label htmlFor="prenom_p"> اسم الاب</label>
             <input
+              value={prenom_p}
               onChange={(e) => setPrenom_p(e.target.value)}
               type="text"
               id="prenom_p"
@@ -328,6 +453,7 @@ function Demandeur() {
               name="prenom_p"
             />
             <input
+              value={prenom_p_fr}
               onChange={(e) => setPrenom_p_fr(e.target.value)}
               type="text"
               id="prenom_p_fr"
@@ -338,11 +464,11 @@ function Demandeur() {
             <br />
           </div>
         </div>
-
         <div className="row text-right">
           <div className="col-sm order-sm-last">
             <label htmlFor="prenom_m"> اسم الأم</label>
             <input
+              value={prenom_m}
               onChange={(e) => setPrenom_m(e.target.value)}
               type="text"
               id="prenom_m"
@@ -350,6 +476,7 @@ function Demandeur() {
               name="prenom_m"
             />
             <input
+              value={prenom_m_fr}
               onChange={(e) => setPrenom_m_fr(e.target.value)}
               type="text"
               id="prenom_m_fr"
@@ -362,6 +489,7 @@ function Demandeur() {
           <div className="col-sm order-sm-first">
             <label htmlFor="nom_m">لقب الأم</label>
             <input
+              value={nom_m}
               onChange={(e) => setNom_m(e.target.value)}
               type="text"
               id="nom_m"
@@ -369,6 +497,7 @@ function Demandeur() {
               name="nom_m"
             />
             <input
+              value={nom_m_fr}
               onChange={(e) => setNom_m_fr(e.target.value)}
               type="text"
               id="nom_m_fr"
@@ -382,53 +511,75 @@ function Demandeur() {
         <div className="text-right">
           <label htmlFor="num_i_n"> رقم التعريف الوطني</label>
           <input
+            value={num_i_n}
             onChange={(e) => setNum_i_n(e.target.value)}
             type="text"
             id="num_i_n"
             className="form-control text-right"
             name="num_i_n"
+            required
           />
 
           <label>الوضعية المهنية</label>
-          <br />
-          <select
-            className="form-control text-right"
-            onChange={(e) => setSituation_p(e.target.value)}
-            id="hide_situation_p"
-            defaultValue="non"
-            name="hide_situation_p"
-          >
-            <option name="situation_p" value="chomeur">
+          {situation_p === "chomeur" ? (
+            <label
+              className="form-control text-right"
+              name="situation_p"
+              onClick={() => setSituation_p("")}
+            >
               بطال
-            </option>
-            <option name="situation_p" value="autre">
-              أخر
-            </option>
-          </select>
+            </label>
+          ) : situation_p === "autre" ? (
+            <div hidden={situation_p === "chomeur"}>
+              <label
+                className="form-control text-right"
+                name="situation_p"
+                onClick={() => setSituation_p("")}
+              >
+                اخرى
+              </label>
+              <label htmlFor="profession">المهنة</label>
+              <br />
+              <input
+                className="form-control text-right"
+                value={profession}
+                onChange={(e) => setProfession(e.target.value)}
+                type="text"
+                name="profession"
+              />
+              <br />
+              <label htmlFor="salaire">الدخل</label>
+              <br />
+              <input
+                className="form-control text-right"
+                value={salaire}
+                onChange={(e) => setSalaire(e.target.value)}
+                type="text"
+                name="salaire"
+              />
+              <br />
+            </div>
+          ) : situation_p === "autre" || !situation_p ? (
+            <select
+              className="form-control text-right"
+              onChange={(e) => setSituation_p(e.target.value)}
+              id="hide_situation_p"
+              name="hide_situation_p"
+            >
+              <option name="situation_p" value="chomeur">
+                بطال
+              </option>
+              <option name="situation_p" value="autre">
+                أخر
+              </option>
+            </select>
+          ) : null}
+
           <br />
-          <div hidden={situation_p === "chomeur"}>
-            <label htmlFor="profession">المهنة</label>
-            <br />
-            <input
-              className="form-control text-right"
-              onChange={(e) => setProfession(e.target.value)}
-              type="text"
-              name="profession"
-            />
-            <br />
-            <label htmlFor="salaire">الدخل</label>
-            <br />
-            <input
-              className="form-control text-right"
-              onChange={(e) => setSalaire(e.target.value)}
-              type="text"
-              name="salaire"
-            />
-            <br />
-          </div>
 
           <label htmlFor="remark"> ملاحظات</label>
           <input
+            value={remark}
             onChange={(e) => setRemark(e.target.value)}
             type="text"
             id="remark"
@@ -436,78 +587,112 @@ function Demandeur() {
             name="remark"
           />
         </div>
-
-        <div
-          name="stuation_f"
-          onChange={(e) => setStuation_f(e.target.value)}
-          className="text-right"
-        >
-          <div className="intro">
-            <label>الحالة العائلية</label>{" "}
-          </div>{" "}
-          <br />
-          <input type="radio" id="cilib" name="stuation_f" value="c" />
-          <label htmlFor="cilib" className="form-control text-right">
+        <label>الحالة العائلية</label>
+        {!stuation_f || stuation_f === "" ? (
+          <div
+            name="stuation_f"
+            onChange={(e) => {
+              setStuation_f(e.target.value);
+              if (e.target.value === "m" && saisi_conj !== "true") setSaisi_conj("false");
+            }}
+            className="text-right"
+          >
+            <div className="intro"></div> <br />
+            <input type="radio" id="cilib" name="stuation_f" value="c" />
+            <label htmlFor="cilib" className="form-control text-right">
+              أعزب\عزباء{" "}
+            </label>
+            <br />
+            <input type="radio" id="marie" name="stuation_f" value="m" />
+            <label htmlFor="marie" className="form-control text-right">
+              متزوج\ة
+            </label>
+            <br />
+            <input type="radio" id="divor" name="stuation_f" value="d" />
+            <label htmlFor="divor" className="form-control text-right">
+              مطلق\ة
+            </label>
+            <br />
+            <input type="radio" id="veuf" name="stuation_f" value="v" />
+            <label htmlFor="veuf" className="form-control text-right">
+              أرمل\ة
+            </label>
+            <br />
+          </div>
+        ) : stuation_f === "c" ? (
+          <label
+            htmlFor="cilib"
+            className="form-control text-right"
+            onClick={() => setStuation_f("")}
+          >
             أعزب\عزباء{" "}
           </label>
-          <br />
-          <input type="radio" id="marie" name="stuation_f" value="m" />
-          <label htmlFor="marie" className="form-control text-right">
+        ) : stuation_f === "m" ? (
+          <label
+            htmlFor="marie"
+            className="form-control text-right"
+            onClick={() => setStuation_f("")}
+          >
             متزوج\ة
           </label>
-          <br />
-          <input type="radio" id="divor" name="stuation_f" value="d" />
-          <label htmlFor="divor" className="form-control text-right">
+        ) : stuation_f === "d" ? (
+          <label
+            htmlFor="divor"
+            className="form-control text-right"
+            onClick={() => setStuation_f("")}
+          >
             مطلق\ة
           </label>
-          <br />
-          <input type="radio" id="veuf" name="stuation_f" value="v" />
-          <label htmlFor="veuf" className="form-control text-right">
+        ) : stuation_f === "v" ? (
+          <label
+            htmlFor="veuf"
+            className="form-control text-right"
+            onClick={() => setStuation_f("")}
+          >
             أرمل\ة
           </label>
-          <br />
-        </div>
-        <hr />
+        ) : null}
 
+        <hr />
         <div className="col-sm order-sm-last">
           <label htmlFor="date_depo"> تاريخ الإيداع </label>
-          <input
+          <label
             type="date"
             id="date_depo"
             name="date_depo"
             className="form-control text-right"
-            onChange={(e) => setDate_depo(e.target.value)}
             required
-          />
+          >
+            {date_depo}
+          </label>
           <br />
 
           <label htmlFor="num_dos"> رقم الملف</label>
-          <input
+          <label
             type="text"
             id="num_dos"
             name="num_dos"
             className="form-control text-right"
-            onChange={(e) => setNum_dos(e.target.value)}
             required
-          />
+          >
+            {num_dos}
+          </label>
           <br />
         </div>
-
         <hr />
         <div className="row text-right">
           <div className="col-sm order-sm-last my-2">
-            <input
-              type="submit"
-              className="btn btn-lg btn-primary btn-block"
-              value="حفظ"
-            />
+            <Button type="submit" className="btn btn-lg btn-primary btn-block">
+              حفظ
+            </Button>
           </div>
           <div className="col-sm order-sm-first my-2">
-            <input
-              type="reset"
+            <Button
+              onClick={() => navigate("/dossiers")}
               className="btn btn-lg btn-primary btn-block"
-              value="إلغاء"
-            />
+            >
+              إلغاء
+            </Button>
           </div>
         </div>
       </Form>
@@ -515,4 +700,4 @@ function Demandeur() {
   );
 }
 
-export default Demandeur;
+export default UpdateDemandeur;

@@ -63,7 +63,7 @@ export const demandeurUpdateReducer = (state = {}, actions) => {
     case DEMANDEUR_UPDATE_REQUEST:
       return { loading: true };
     case DEMANDEUR_UPDATE_SUCCESS:
-      return { loading: false, success: true };
+      return { loading: false, demandeur: actions.payload, success: true };
     case DEMANDEUR_UPDATE_FAIL:
       return { loading: false, error: actions.payload, success: false };
 

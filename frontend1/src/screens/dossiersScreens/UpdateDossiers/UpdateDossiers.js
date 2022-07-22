@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { getDemandeurAction } from "../../../actions/demandeurActions";
@@ -10,7 +10,7 @@ import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
 import MainScreen from "../../../components/MainScreen/MainScreen";
 
-function AddDossiers() {
+function UpdateDossiers() {
   const [stuation_d, setStuation_d] = useState("");
   const [num_enf, setNum_enf] = useState("0");
   const [stuation_s_avec_d, setStuation_s_avec_d] = useState(false);
@@ -328,4 +328,4 @@ function AddDossiers() {
   );
 }
 
-export default AddDossiers;
+export default UpdateDossiers;

@@ -80,7 +80,7 @@ const createDossier = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("يرجى ادخال معلومات صحيحة لطالب السكن");
   } else {
-    salairDemandeur = demandeurData.salaire;
+    salairDemandeur = demandeurData.salaire || 0;
     situationFamiliale = demandeurData.stuation_f;
   }
 
@@ -91,7 +91,7 @@ const createDossier = asyncHandler(async (req, res) => {
   if (!conjoinData) {
     salairConjoin = 0;
   } else {
-    salairConjoin = conjoinData.salaire;
+    salairConjoin = conjoinData.salaire || 0;
   }
 
   let newNotes =
@@ -161,11 +161,11 @@ const updateDossier = asyncHandler(async (req, res) => {
   const demandeurData = await Person.findById(id_demandeur);
   if (id_conjoin && id_conjoin !== "") {
     conjoinData = await Person.findById(id_conjoin);
-    salairConjoin = conjoinData.salaire;
+    salairConjoin = conjoinData.salaire || 0;
   } else salairConjoin = 0;
-  const salairDemandeur = demandeurData.salaire;
+  const salairDemandeur = demandeurData?.salaire || 0;
 
-  const situationFamiliale = demandeurData.stuation_f;
+  const situationFamiliale = demandeurData?.stuation_f;
 
   let notes = calculate(
     req.body,
@@ -196,7 +196,6 @@ const updateDossier = asyncHandler(async (req, res) => {
     dossierToUpdate.remark = remark || dossierToUpdate.remark;
     dossierToUpdate.saisi_conj = saisi_conj || dossierToUpdate.saisi_conj;
     dossierToUpdate.scan_dossier = scan_dossier || dossierToUpdate.scan_dossier;
-    console.log(notes);
     dossierToUpdate.notes = notes || dossierToUpdate.notes;
 
     const updatedDossier = await dossierToUpdate.save();

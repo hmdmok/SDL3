@@ -93,7 +93,7 @@ function calculate(
       endiNote = parseInt(noteElement.notes);
     }
   });
-  const enciAns = curentYear - parseInt(dossier.date_depo.split("-")[0]) || 0;
+  const enciAns = curentYear - parseInt(dossier.date_depo?.split("-")[0]) || 0;
 
   if (enciAns >= 5 && enciAns < 8) {
     encienteDossier = noteEnci1;
@@ -143,11 +143,11 @@ function calculate(
     situationFamiliale += (num_enf + numb_p) * kidNote;
   }
 
-  if (dossier.stuation_s_avec_d.toString() === "true") {
+  if (dossier.stuation_s_avec_d?.toString() === "true") {
     situationPersonele += 30;
   }
 
-  if (dossier.stuation_s_andicap.toString() === "true") {
+  if (dossier.stuation_s_andicap?.toString() === "true") {
     situationPersonele += 30;
   }
 

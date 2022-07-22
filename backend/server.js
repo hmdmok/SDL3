@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const dossiersRoutes = require("./routes/dossiersRoutes");
+const scanDossiersRoutes = require("./routes/scanDossiersRoutes");
 const notesRoutes = require("./routes/notesRoutes");
 const wilayasRoutes = require("./routes/wilayasRoutes");
 const communesRoutes = require("./routes/communesRoutes");
@@ -21,6 +22,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/dossiers", dossiersRoutes);
+app.use("/api/scandossiers", scanDossiersRoutes);
 app.use("/api/notes", notesRoutes);
 app.use("/api/wilayas", wilayasRoutes);
 app.use("/api/communes", communesRoutes);
