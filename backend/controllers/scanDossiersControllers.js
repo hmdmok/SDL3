@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const ScanDossier = require("../models/scanDossierModel");
+const Dossier = require("../models/dossierModel");
 
 const getScanDossierByNum = asyncHandler(async (req, res) => {
   const num = req.params.num;
@@ -12,16 +13,23 @@ const getScanDossierByNum = asyncHandler(async (req, res) => {
 });
 
 const createScanDossier = asyncHandler(async (req, res) => {
-  const { num_dossier, nom, creator } = req.body;
+  const { nom, creator } = req.body;
 
-  if (!num_dossier || !creator || !nom || !req.file) {
+  const num = req.params.num;
+  const dossierByNum = await Dossier.find({ num_dos: num });
+  if (!dossierByNum) {
     res.status(400);
-    throw new Error("يجب ادخال كل معلومات النقاط");
+    throw new Error("الملف غير موجود");
+  }
+
+  if (!creator || !nom || !req.file) {
+    res.status(400);
+    throw new Error("يجب ادخال كل معلومات الملف الممسوح");
   }
   const path = req.file?.path;
 
   const scanDossierToAdd = await ScanDossier.create({
-    num_dossier,
+    num_dossier: num,
     nom,
     creator,
     path,
@@ -40,7 +48,7 @@ const createScanDossier = asyncHandler(async (req, res) => {
 });
 
 const updateScanDossier = asyncHandler(async (req, res) => {
-  const { num_dossier, nom, creator } = req.body;
+  const { nom, creator } = req.body;
 
   const num = req.params.num;
   const scanDossierToUpdate = await ScanDossier.find({ num_dossier: num });

@@ -14,7 +14,7 @@ const dossierScanStorage = multer.diskStorage({
   filename: function (req, file, cb) {
     cb(
       null,
-      `dossier_${req.body.numdossier}_${req.body.nomdocument}_Picture.jpg`
+      `dossier_${req.params.num}_${req.body.nom}_Picture.jpg`
     );
   },
 });
@@ -28,10 +28,10 @@ const uploadDossierPhoto = multer({
 const router = express.Router();
 
 router
-  .route("/scan/:id")
+  .route("/:num")
   .get(getScanDossierByNum)
+  .post(uploadDossierPhoto.single("scanedFile"), createScanDossier)
   .put(uploadDossierPhoto.single("scanedFile"), updateScanDossier)
   .delete(protect, deleteScanDossier);
-router.route("/scan/create").post(createScanDossier);
 
 module.exports = router;
