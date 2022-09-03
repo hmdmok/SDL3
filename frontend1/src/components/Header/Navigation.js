@@ -55,7 +55,7 @@ const Navigation = () => {
                       title="تسيير الملف"
                       id="basic-nav-dropdown"
                     >
-                      <NavDropdown.Item href="/adddossiers">
+                      <NavDropdown.Item href="/demandeur">
                         حجز ملف طلب السكن
                       </NavDropdown.Item>
                       <NavDropdown.Item href="/dossiers">
