@@ -5,7 +5,6 @@ import MainScreen from "../../../components/MainScreen/MainScreen";
 import { Table } from "react-bootstrap";
 
 function EnquetCNL() {
-  
   const [dateMessage, setdateMessage] = useState("");
   const [form, setForm] = useState({
     fromDate: "1999-01-01",
@@ -39,8 +38,8 @@ function EnquetCNL() {
     ) {
       var dossierGlobal = dossierEnq.resultaDossDema;
       if (dossierEnq.resultaDossConjoin.length !== 0)
-        dossierEnq.resultaDossConjoin.map((dossConj) => {
-          dossierGlobal.map((dossierGlobMap, i) => {
+        dossierEnq.resultaDossConjoin.forEach((dossConj) => {
+          dossierGlobal.forEach((dossierGlobMap, i) => {
             if (dossConj.id_dossier === dossierGlobMap.id_dossier)
               dossierGlobal[i] = { ...dossierGlobal[i], conjoin: dossConj };
           });
@@ -120,7 +119,7 @@ function EnquetCNL() {
         />
       ) : null}
       <br />
-      <Table striped bordered responsive id="data-table">
+      <Table striped bordered hover responsive id="data-table">
         <thead className="thead-dark">
           <tr>
             <th scope="col">Ordre</th>
@@ -153,54 +152,52 @@ function EnquetCNL() {
             ? dossierEnq.dossierTotal.map((dossierMap, i) => (
                 <tr className={dossierMap.id_dossier} key={i}>
                   <th scope="row">{i + 1}</th>
-                  <td scope="col">{dossierMap.nom_fr}</td>
-                  <td scope="col">{dossierMap.prenom_fr}</td>
-                  <td scope="col">{dossierMap.gender}</td>
-                  <td scope="col">{dossierMap.date_n.split("T")[0]}</td>
-                  <td scope="col">{dossierMap.type_date_nais}</td>
-                  <td scope="col">{dossierMap.nom_commune_fr}</td>
-                  <td scope="col">{dossierMap.nom_wilaya_fr}</td>
-                  <td scope="col">{dossierMap.num_act}</td>
-                  <td scope="col">{dossierMap.stuation_f}</td>
-                  <td scope="col">{dossierMap.prenom_p_fr}</td>
-                  <td scope="col">{dossierMap.nom_m_fr}</td>
-                  <td scope="col">{dossierMap.prenom_m_fr}</td>
-                  <td scope="col">
-                    {dossierMap.conjoin ? dossierMap.conjoin.nom : null}
-                  </td>
-                  <td scope="col">
+                  <td>{dossierMap.nom_fr}</td>
+                  <td>{dossierMap.prenom_fr}</td>
+                  <td>{dossierMap.gender}</td>
+                  <td>{dossierMap.date_n.split("T")[0]}</td>
+                  <td>{dossierMap.type_date_nais}</td>
+                  <td>{dossierMap.nom_commune_fr}</td>
+                  <td>{dossierMap.nom_wilaya_fr}</td>
+                  <td>{dossierMap.num_act}</td>
+                  <td>{dossierMap.stuation_f}</td>
+                  <td>{dossierMap.prenom_p_fr}</td>
+                  <td>{dossierMap.nom_m_fr}</td>
+                  <td>{dossierMap.prenom_m_fr}</td>
+                  <td>{dossierMap.conjoin ? dossierMap.conjoin.nom : null}</td>
+                  <td>
                     {dossierMap.conjoin ? dossierMap.conjoin.prenom_fr : null}
                   </td>
-                  <td scope="col">
+                  <td>
                     {dossierMap.conjoin
                       ? dossierMap.conjoin.date_n.split("T")[0]
                       : null}
                   </td>
-                  <td scope="col">
+                  <td>
                     {dossierMap.conjoin
                       ? dossierMap.conjoin.type_date_nais
                       : null}
                   </td>
-                  <td scope="col">
+                  <td>
                     {dossierMap.conjoin
                       ? dossierMap.conjoin.nom_commune_fr
                       : null}
                   </td>
-                  <td scope="col">
+                  <td>
                     {dossierMap.conjoin
                       ? dossierMap.conjoin.nom_wilaya_fr
                       : null}
                   </td>
-                  <td scope="col">
+                  <td>
                     {dossierMap.conjoin ? dossierMap.conjoin.num_act : null}
                   </td>
-                  <td scope="col">
+                  <td>
                     {dossierMap.conjoin ? dossierMap.conjoin.prenom_p_fr : null}
                   </td>
-                  <td scope="col">
+                  <td>
                     {dossierMap.conjoin ? dossierMap.conjoin.nom_m_fr : null}
                   </td>
-                  <td scope="col">
+                  <td>
                     {dossierMap.conjoin ? dossierMap.conjoin.prenom_m_fr : null}
                   </td>
                 </tr>
