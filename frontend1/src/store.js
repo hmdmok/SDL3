@@ -44,6 +44,13 @@ import {
   dossierListReducer,
   dossierUpdateReducer,
 } from "./reducers/dossierReducers";
+import {
+  enquetCNLAddReducer,
+  enquetCNLDeleteReducer,
+  enquetCNLGetReducer,
+  enquetCNLListReducer,
+  enquetCNLUpdateReducer,
+} from "./reducers/enquetCNLReducers";
 
 const reducer = combineReducers({
   userLogin: userLoginReducer,
@@ -82,6 +89,12 @@ const reducer = combineReducers({
   dossierUpdate: dossierUpdateReducer,
   dossierDelete: dossierDeleteReducer,
   dossierGet: dossierGetReducer,
+
+  enquetCNLAdd: enquetCNLAddReducer,
+  enquetCNLList: enquetCNLListReducer,
+  enquetCNLUpdate: enquetCNLUpdateReducer,
+  enquetCNLDelete: enquetCNLDeleteReducer,
+  enquetCNLGet: enquetCNLGetReducer,
 });
 
 const userInfoFromStorage = localStorage.getItem("userInfo")

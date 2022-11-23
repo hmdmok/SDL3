@@ -24,6 +24,48 @@ const getDossierById = asyncHandler(async (req, res) => {
   }
 });
 
+const getDossierByDates = asyncHandler(async (req, res) => {
+  const { fromDate, toDate } = req.body;
+  const persons = await Person.aggregate([
+    {
+      $addFields: { personId: { $toString: "$_id" } },
+    },
+  ]);
+  const dossierByDates = await dossier.aggregate([
+    {
+      $match: {
+        date_depo: {
+          $gte: fromDate,
+          $lt: toDate,
+        },
+      },
+    },
+    {
+      $lookup: {
+        localField: "id_demandeur",
+        foreignField: "personId",
+        as: "demandeur",
+        pipeline: [{ $documents: persons }],
+      },
+    },
+    {
+      $lookup: {
+        localField: "id_conjoin",
+        foreignField: "personId",
+        as: "conjoin",
+        pipeline: [{ $documents: persons }],
+      },
+    },
+  ]);
+
+  if (dossierByDates) {
+    res.json(dossierByDates);
+  } else {
+    res.status(400);
+    throw new Error("لا توجد ملفات");
+  }
+});
+
 const createDossier = asyncHandler(async (req, res) => {
   const {
     creator,
@@ -228,4 +270,5 @@ module.exports = {
   getDossierById,
   updateDossier,
   deleteDossier,
+  getDossierByDates,
 };

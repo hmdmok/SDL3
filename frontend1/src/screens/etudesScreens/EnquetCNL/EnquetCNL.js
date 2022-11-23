@@ -1,52 +1,58 @@
 import React, { useEffect, useState } from "react";
 import ErrorMessage from "../../../components/ErrorMessage";
-import ReactHTMLTableToExcel from "react-html-table-to-excel";
+// import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import MainScreen from "../../../components/MainScreen/MainScreen";
-import { Table } from "react-bootstrap";
+// import { Table } from "react-bootstrap";
+
+import { Accordion, Button, Card, Form } from "react-bootstrap";
+// import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { listEnquetCNLsAction } from "../../../actions/enquetCNLActions";
+import Loading from "../../../components/Loading";
 
 function EnquetCNL() {
+  const dispatch = useDispatch();
+  // const userLogin = useSelector((state) => state.userLogin);
+  // const { userInfo } = userLogin;
   const [dateMessage, setdateMessage] = useState("");
+  const [listDossierEnquet, setListDossierEnquet] = useState([]);
+
   const [form, setForm] = useState({
     fromDate: "1999-01-01",
     toDate: new Date().toISOString().split("T")[0],
   });
-  const [dossierEnq, setDossierEnq] = useState({
-    resultaDossConjoin: [],
-    resultaDossDema: [],
-    dossierTotal: [],
-  });
+  const enquetCNLList = useSelector((state) => state.enquetCNLList);
+  const { loading, enquetCNLs: dossierEnq, error } = enquetCNLList;
 
   const onUpload = () => {
-    fetch("https://sdl-api.herokuapp.com/DossierEnq", {
-      method: "post",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(form),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data) {
-          setDossierEnq({ ...data, dossierTotal: [] });
-        }
-      })
-      .catch((err) => setdateMessage(toString(err)));
+    dispatch(listEnquetCNLsAction(form.fromDate, form.toDate));
   };
 
   useEffect(() => {
-    if (
-      dossierEnq.dossierTotal.length === 0 &&
-      dossierEnq.resultaDossDema.length !== 0
-    ) {
-      var dossierGlobal = dossierEnq.resultaDossDema;
-      if (dossierEnq.resultaDossConjoin.length !== 0)
-        dossierEnq.resultaDossConjoin.forEach((dossConj) => {
-          dossierGlobal.forEach((dossierGlobMap, i) => {
-            if (dossConj.id_dossier === dossierGlobMap.id_dossier)
-              dossierGlobal[i] = { ...dossierGlobal[i], conjoin: dossConj };
-          });
-        });
-      setDossierEnq({ ...dossierEnq, dossierTotal: dossierGlobal });
+    if (dossierEnq) {
+      setListDossierEnquet(
+        dossierEnq?.map((dossiermap) => {
+          return { dossier: dossiermap, checked: true };
+        })
+      );
     }
-  }, [dossierEnq]);
+  }, [dispatch, dossierEnq]);
+
+  const handleSelect = (event, dossier) => {
+    const value = dossier;
+    const isChecked = event.target.checked;
+
+    if (isChecked) {
+      //Add checked item into checkList
+      setListDossierEnquet([...listDossierEnquet, value]);
+      console.log(listDossierEnquet);
+    } else {
+      //Remove unchecked item from checkList
+      const filteredList = listDossierEnquet.filter((item) => item.dossier._id !== value._id);
+      setListDossierEnquet(filteredList);
+      console.log(listDossierEnquet);
+    }
+  };
 
   useEffect(() => {
     if (form.fromDate > form.toDate) setdateMessage("خطاء في ادخال التاريخ");
@@ -62,7 +68,10 @@ function EnquetCNL() {
 
   return (
     <MainScreen title={"تحقيق CNL"}>
-      <h1>الرجاء ادخال تاريخ ايداع الملفات</h1>
+      {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
+      {loading && <Loading />}
+
+      <h1 className="text-right">الرجاء ادخال تاريخ ايداع الملفات</h1>
       {dateMessage && (
         <ErrorMessage variant="danger">{dateMessage}</ErrorMessage>
       )}
@@ -104,9 +113,95 @@ function EnquetCNL() {
         </div>
       </div>
       <br />
-      <h1>الرجاء تحديد الملفات للتحقيق</h1>
+      <h1 className="text-right">الرجاء تحديد الملفات للتحقيق</h1>
       <br />
-      {dossierEnq.dossierTotal.length !== 0 ? (
+      {listDossierEnquet?.map((dossierMap) => (
+        <Accordion key={dossierMap.dossier?._id}>
+          <Accordion.Item
+            eventKey={dossierMap.dossier?._id}
+            className="align-middle m-2"
+          >
+            <Form.Check
+              onChange={(e) => handleSelect(e, dossierMap.dossier)}
+              aria-label="option 1"
+              id={`default-${dossierMap.dossier?._id}`}
+              checked={dossierMap.checked}
+            />
+            <Card.Header className="">
+              <Accordion.Header
+                style={{
+                  color: "black",
+                  textDecoration: "none",
+                  flex: 1,
+                  cursor: "pointer",
+                  alignSelf: "center",
+                  fontSize: 18,
+                }}
+                className="text-right"
+              >
+                {`الملف رقم : ${dossierMap.dossier?.num_dos} /  
+                 اسم طالب السكن : ${dossierMap.dossier?.demandeur[0]?.nom}
+                ;  ${dossierMap.dossier?.demandeur[0]?.prenom} /n `}
+                {dossierMap.dossier?.conjoin[0]
+                  ? `
+                 اسم الزوجة : ${dossierMap.dossier?.conjoin[0]?.nom}
+                 . ${dossierMap.dossier?.conjoin[0]?.prenom}`
+                  : null}
+              </Accordion.Header>
+            </Card.Header>
+
+            <Accordion.Body>
+              <blockquote>
+                <Button
+                  href={`/demandeur/${dossierMap.dossier?._id}`}
+                  variant="success"
+                  className="mx-2"
+                >
+                  {"تعديل معلومات طالب السكن"}
+                </Button>
+
+                <table className="table table-hover">
+                  <tbody>
+                    <tr>
+                      <th scope="col">تاريخ الايداع</th>
+                      <td>{dossierMap.dossier?.date_depo}</td>
+                    </tr>
+                    <tr>
+                      <th scope="col">عدد الاولاد</th>
+                      <td>{dossierMap.dossier?.num_enf}</td>
+                    </tr>
+                    <tr>
+                      <th scope="col">من ذوي الحقوق</th>
+                      <td>{dossierMap.dossier?.stuation_s_avec_d ? "نعم" : "لا"}</td>
+                    </tr>
+                    <tr>
+                      <th scope="col">من ذوي الهمم</th>
+                      <td>{dossierMap.dossier?.stuation_s_andicap ? "نعم" : "لا"}</td>
+                    </tr>
+                    <tr>
+                      <th scope="col">وضعية الاقامة الحالية</th>
+                      <td>{dossierMap.dossier?.stuation_d}</td>
+                    </tr>
+                    <tr>
+                      <th scope="col">عدد الاشخاص المتكفل بهم</th>
+                      <td>{dossierMap.dossier?.numb_p}</td>
+                    </tr>
+                    <tr>
+                      <th scope="col">الملاحظات</th>
+                      <td>{dossierMap.dossier?.remark}</td>
+                    </tr>
+                    <tr>
+                      <th scope="col">التنقيط</th>
+                      <td>{dossierMap.dossier?.notes}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </blockquote>
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
+      ))}
+      {/* {dossierEnq.dossierTotal.length !== 0 ? (
         <ReactHTMLTableToExcel
           id="test-table-xls-button"
           className="download-table-xls-button  btn btn-primary mb-3"
@@ -204,7 +299,7 @@ function EnquetCNL() {
               ))
             : null}
         </tbody>
-      </Table>
+      </Table> */}
     </MainScreen>
   );
 }

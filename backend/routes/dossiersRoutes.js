@@ -4,6 +4,7 @@ const { protect } = require("../middlewares/authMiddleware");
 const {
   getDossiers,
   getDossierById,
+  getDossierByDates,
   createDossier,
   updateDossier,
   deleteDossier,
@@ -35,5 +36,6 @@ router
   .put(updateDossier)
   .delete(protect, deleteDossier);
 router.route("/create").post(createDossier);
+router.route("/enquetCNLs").post(getDossierByDates);
 
 module.exports = router;
