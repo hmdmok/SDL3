@@ -18,8 +18,7 @@ import ListBenifisiaire from "./screens/etudesScreens/ListBenifisiaire/ListBenif
 import ImportationData from "./screens/setingsScreens/ImportationData/ImportationData";
 import Willaya from "./screens/setingsScreens/Willaya/Willaya";
 import Commune from "./screens/setingsScreens/Commune/Commune";
-import EnquetCNAS from "./screens/etudesScreens/EnquetCNAS/EnquetCNAS";
-import EnquetCASNOS from "./screens/etudesScreens/EnquetCASNOS/EnquetCASNOS";
+
 import TableNotes from "./screens/setingsScreens/TableNotes/TableNotes";
 import Help from "./screens/Help/Help";
 import Contact from "./screens/Contact/Contact";
@@ -47,8 +46,7 @@ const App = () => (
       <Route path="/updateUser/:id" element={<UpdateUser />} />
       <Route path="/userProfile/:id" element={<UserProfile />} />
       <Route path="/enquetCNL" element={<EnquetCNL />} />
-      <Route path="/enquetCNAS" element={<EnquetCNAS />} />
-      <Route path="/enquetCASNOS" element={<EnquetCASNOS />} />
+
       <Route path="/listBenifisiaire" element={<ListBenifisiaire />} />
       <Route path="/importationData" element={<ImportationData />} />
       <Route path="/willaya" element={<Willaya />} />

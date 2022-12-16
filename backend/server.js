@@ -10,11 +10,14 @@ const wilayasRoutes = require("./routes/wilayasRoutes");
 const communesRoutes = require("./routes/communesRoutes");
 const personsRoutes = require("./routes/personsRoutes");
 const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
+const cors = require("cors");
+
 
 const app = express();
 dotenv.config();
 connectDB();
 app.use(express.json());
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("Server is running ...");

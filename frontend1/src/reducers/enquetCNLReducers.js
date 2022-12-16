@@ -1,41 +1,24 @@
 import {
-  ENQUETCNL_ADD_FAIL,
-  ENQUETCNL_ADD_REQUEST,
-  ENQUETCNL_ADD_SUCCESS,
-  ENQUETCNL_DELETE_FAIL,
-  ENQUETCNL_DELETE_REQUEST,
-  ENQUETCNL_DELETE_SUCCESS,
   ENQUETCNL_GET_FAIL,
   ENQUETCNL_GET_REQUEST,
   ENQUETCNL_GET_SUCCESS,
+  ENQUETCNAS_GET_FAIL,
+  ENQUETCNAS_GET_REQUEST,
+  ENQUETCNAS_GET_SUCCESS,
+  ENQUETCASNOS_GET_FAIL,
+  ENQUETCASNOS_GET_REQUEST,
+  ENQUETCASNOS_GET_SUCCESS,
   ENQUETCNL_LIST_FAIL,
   ENQUETCNL_LIST_REQUEST,
   ENQUETCNL_LIST_SUCCESS,
-  ENQUETCNL_UPDATE_FAIL,
-  ENQUETCNL_UPDATE_REQUEST,
-  ENQUETCNL_UPDATE_SUCCESS,
 } from "../constants/enquetCNLConstants";
-
-export const enquetCNLAddReducer = (state = {}, actions) => {
-  switch (actions.type) {
-    case ENQUETCNL_ADD_REQUEST:
-      return { loading: true };
-    case ENQUETCNL_ADD_SUCCESS:
-      return { loading: false, enquetCNL: actions.payload, success: true };
-    case ENQUETCNL_ADD_FAIL:
-      return { loading: false, error: actions.payload, success: true };
-
-    default:
-      return state;
-  }
-};
 
 export const enquetCNLListReducer = (state = { enquetCNLs: [] }, actions) => {
   switch (actions.type) {
     case ENQUETCNL_LIST_REQUEST:
       return { loading: true };
     case ENQUETCNL_LIST_SUCCESS:
-      return { loading: false, enquetCNLs: actions.payload };
+      return { loading: false, enquetCNLs: actions.payload, success: true };
     case ENQUETCNL_LIST_FAIL:
       return { loading: false, error: actions.payload };
 
@@ -49,7 +32,7 @@ export const enquetCNLGetReducer = (state = {}, actions) => {
     case ENQUETCNL_GET_REQUEST:
       return { loading: true };
     case ENQUETCNL_GET_SUCCESS:
-      return { loading: false, enquetCNL: actions.payload };
+      return { loading: false, enquetCNLs: actions.payload, success: true };
     case ENQUETCNL_GET_FAIL:
       return { loading: false, error: actions.payload };
 
@@ -58,28 +41,28 @@ export const enquetCNLGetReducer = (state = {}, actions) => {
   }
 };
 
-export const enquetCNLUpdateReducer = (state = {}, actions) => {
+export const enquetCNASGetReducer = (state = {}, actions) => {
   switch (actions.type) {
-    case ENQUETCNL_UPDATE_REQUEST:
+    case ENQUETCNAS_GET_REQUEST:
       return { loading: true };
-    case ENQUETCNL_UPDATE_SUCCESS:
-      return { loading: false, enquetCNL: actions.payload, success: true };
-    case ENQUETCNL_UPDATE_FAIL:
-      return { loading: false, error: actions.payload, success: false };
+    case ENQUETCNAS_GET_SUCCESS:
+      return { loading: false, enquetCNASs: actions.payload, success: true };
+    case ENQUETCNAS_GET_FAIL:
+      return { loading: false, error: actions.payload };
 
     default:
       return state;
   }
 };
 
-export const enquetCNLDeleteReducer = (state = {}, actions) => {
+export const enquetCASNOSGetReducer = (state = {}, actions) => {
   switch (actions.type) {
-    case ENQUETCNL_DELETE_REQUEST:
+    case ENQUETCASNOS_GET_REQUEST:
       return { loading: true };
-    case ENQUETCNL_DELETE_SUCCESS:
-      return { loading: false, success: true };
-    case ENQUETCNL_DELETE_FAIL:
-      return { loading: false, error: actions.payload, success: false };
+    case ENQUETCASNOS_GET_SUCCESS:
+      return { loading: false, enquetCASNOSs: actions.payload, success: true };
+    case ENQUETCASNOS_GET_FAIL:
+      return { loading: false, error: actions.payload };
 
     default:
       return state;
