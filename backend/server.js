@@ -9,6 +9,7 @@ const notesRoutes = require("./routes/notesRoutes");
 const wilayasRoutes = require("./routes/wilayasRoutes");
 const communesRoutes = require("./routes/communesRoutes");
 const personsRoutes = require("./routes/personsRoutes");
+const importDossiersRoutes = require("./routes/importDossiersRoutes");
 const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
 const cors = require("cors");
 
@@ -38,6 +39,7 @@ app.use(notFound);
 app.use(errorHandler);
 
 app.use("/api/users", userRoutes);
+app.use("/api/dossiers", importDossiersRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

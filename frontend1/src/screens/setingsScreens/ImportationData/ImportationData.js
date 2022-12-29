@@ -8,12 +8,57 @@ import { read, utils } from "xlsx";
 
 function ImportationData() {
   const [fileName, setFileName] = useState(null);
+  const [file, setFile] = useState(null);
   const [tableOutput, setTableOutput] = useState([]);
   const [tableErrors, setTableErrors] = useState([]);
   const [messageTable, setMessageTable] = useState("");
   const [message, setMessage] = useState("");
 
-  const onChange = (event) => {};
+  const headerCheckFR = (files) => {
+    var validFile = false;
+    var headerRow = false;
+    for (var row = 0; row < files.length; row++) {
+      for (var cell = 0; cell < files[row].length; cell++) {
+        if (!headerRow) {
+          if (cell === 0) {
+            if (files[row][cell] === "N° ORDRE") {
+  }
+            if (files[row].length >= 27) {
+              headerRow = true;
+              console.log(files[row].length);
+              console.log(files[row]);
+            }
+          }
+        } else {
+          if (files[row][cell] === "N° ORDRE") {
+          }
+        }
+      }
+    }
+  };
+
+  const onChange = (event) => {
+    if (
+      event.target.files[0].type ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+      event.target.files[0].type === "application/vnd.ms-excel"
+    ) {
+      setFileName(event.target.files[0].name);
+      const excel_file = event.target.files[0];
+      var reader = new FileReader();
+      reader.readAsArrayBuffer(excel_file);
+      reader.onload = function (event) {
+        var data = new Uint8Array(reader.result);
+        var work_book = read(data, { type: "array" });
+        var sheet_name = work_book.SheetNames;
+        var sheet_data = utils.sheet_to_json(work_book.Sheets[sheet_name[0]], {
+          header: 1,
+        });
+        setFile(sheet_data);
+        headerCheckFR(sheet_data);
+      };
+    }
+  };
   return (
     <MainScreen title={"Importation des tables"}>
       <div className="card my-5">
