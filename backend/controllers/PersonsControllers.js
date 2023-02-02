@@ -49,13 +49,6 @@ const createPerson = asyncHandler(async (req, res) => {
     creator,
   } = req.body;
 
-  const personExists = await person.findOne({ num_i_n });
-
-  if (personExists) {
-    res.status(400);
-    throw new Error("هذا الملف موجود من قبل");
-  }
-
   const personToAdd = await person.create({
     type,
     prenom,
@@ -183,5 +176,5 @@ module.exports = {
   getPersons,
   getPersonById,
   updatePerson,
-  deletePerson
+  deletePerson,
 };

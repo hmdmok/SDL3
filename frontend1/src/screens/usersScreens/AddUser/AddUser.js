@@ -84,7 +84,7 @@ function AddUser() {
   return (
     <MainScreen title="اضافة مستخدم جديد">
       {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
-      {message && <ErrorMessage variant="danger">{message}</ErrorMessage>}
+      {message && <ErrorMessage variant="info">{message}</ErrorMessage>}
       {loading && <Loading />}
       <Form onSubmit={onSubmitUtilisateur}>
         <Form.Group className="row text-right">

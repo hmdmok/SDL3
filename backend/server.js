@@ -13,7 +13,6 @@ const importDossiersRoutes = require("./routes/importDossiersRoutes");
 const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
 const cors = require("cors");
 
-
 const app = express();
 dotenv.config();
 connectDB();
@@ -31,6 +30,8 @@ app.use("/api/notes", notesRoutes);
 app.use("/api/wilayas", wilayasRoutes);
 app.use("/api/communes", communesRoutes);
 app.use("/api/persons", personsRoutes);
+app.use("/api/importationData", importDossiersRoutes);
+
 
 app.use("/usersPicUpload", express.static("usersPicUpload"));
 app.use("/dossiersScanUpload", express.static("dossiersScanUpload"));
@@ -39,7 +40,6 @@ app.use(notFound);
 app.use(errorHandler);
 
 app.use("/api/users", userRoutes);
-app.use("/api/dossiers", importDossiersRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

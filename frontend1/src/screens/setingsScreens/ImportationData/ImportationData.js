@@ -1,41 +1,38 @@
 import React, { useEffect, useState } from "react";
-import { Table } from "react-bootstrap";
 import MainScreen from "../../../components/MainScreen/MainScreen";
 import ErrorMessage from "../../../components/ErrorMessage";
+import Message from "../../../components/Message";
 import Loading from "../../../components/Loading";
-import ReactHTMLTableToExcel from "react-html-table-to-excel";
-import { read, utils } from "xlsx";
+
+import { sendImportationDataAction } from "../../../actions/importationDataActions";
+import { useDispatch, useSelector } from "react-redux";
 
 function ImportationData() {
   const [fileName, setFileName] = useState(null);
   const [file, setFile] = useState(null);
-  const [tableOutput, setTableOutput] = useState([]);
-  const [tableErrors, setTableErrors] = useState([]);
-  const [messageTable, setMessageTable] = useState("");
-  const [message, setMessage] = useState("");
+  const [creator, setCreator] = useState("");
 
-  const headerCheckFR = (files) => {
-    var validFile = false;
-    var headerRow = false;
-    for (var row = 0; row < files.length; row++) {
-      for (var cell = 0; cell < files[row].length; cell++) {
-        if (!headerRow) {
-          if (cell === 0) {
-            if (files[row][cell] === "N° ORDRE") {
-  }
-            if (files[row].length >= 27) {
-              headerRow = true;
-              console.log(files[row].length);
-              console.log(files[row]);
-            }
-          }
-        } else {
-          if (files[row][cell] === "N° ORDRE") {
-          }
-        }
-      }
-    }
-  };
+  const dispatch = useDispatch();
+
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+
+  useEffect(() => {
+    setCreator(userInfo.username);
+  }, [userInfo]);
+
+  useEffect(() => {
+    if (file)
+      dispatch(sendImportationDataAction(file, creator, "Data Imported"));
+  }, [file]);
+
+  const importedData = useSelector((state) => state.importedData);
+  const { loading, imported, error } = importedData;
+
+  // const headerCheckFR = (files) => {
+  //   var validFile = false;
+  //   var headerRow = false;
+  // };
 
   const onChange = (event) => {
     if (
@@ -44,42 +41,19 @@ function ImportationData() {
       event.target.files[0].type === "application/vnd.ms-excel"
     ) {
       setFileName(event.target.files[0].name);
-      const excel_file = event.target.files[0];
-      var reader = new FileReader();
-      reader.readAsArrayBuffer(excel_file);
-      reader.onload = function (event) {
-        var data = new Uint8Array(reader.result);
-        var work_book = read(data, { type: "array" });
-        var sheet_name = work_book.SheetNames;
-        var sheet_data = utils.sheet_to_json(work_book.Sheets[sheet_name[0]], {
-          header: 1,
-        });
-        setFile(sheet_data);
-        headerCheckFR(sheet_data);
-      };
+      setFile(event.target.files[0]);
     }
   };
   return (
     <MainScreen title={"Importation des tables"}>
+      {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
+      {imported && <Message variant="info">{imported}</Message>}
+      {loading && <Loading />}
       <div className="card my-5">
         <div className="card-header">
           <b>اختار ملف</b>
         </div>
-        {message ? (
-          <div>
-            {message && (
-              <ErrorMessage variant="danger">{message} </ErrorMessage>
-            )}
-            <ReactHTMLTableToExcel
-              id="test-table-xls-button"
-              className="download-table-xls-button  btn btn-primary mb-3"
-              table="data-table"
-              filename="tamplate"
-              sheet="data"
-              buttonText="تحميل المثال"
-            />
-          </div>
-        ) : null}
+
         <div className="card-body">
           <label>French File</label>
           <div className="custom-file">
@@ -107,61 +81,8 @@ function ImportationData() {
           </div> */}
 
           <div>
-            {messageTable ? (
-              <div>
-                {messageTable && (
-                  <ErrorMessage variant="danger">{messageTable} </ErrorMessage>
-                )}
-                <h1 className="my-5">جدول الاخطاء</h1>
-                <Table striped bordered responsive id="error-table">
-                  <thead className="thead-dark">
-                    <tr>
-                      <th scope="col">السطر</th>
-                      <th scope="col">البلدية</th>
-                      <th scope="col">رقم السجل</th>
-                      <th scope="col">رقم الملف</th>
-                      <th scope="col">تاريخ ايداع الملف</th>
-                      <th scope="col">الاسم</th>
-                      <th scope="col">اللقب</th>
-                      <th scope="col">تاريخ الميلاد</th>
-                      <th scope="col">مكان الميلاد</th>
-                      <th scope="col">العنوان</th>
-                      <th scope="col">اسم الاب</th>
-                      <th scope="col">لقب الام</th>
-                      <th scope="col">اسم الام</th>
-                      <th scope="col">حالة الملف</th>
-                      <th scope="col">رقم الحصة</th>
-                      <th scope="col">تاريخ الاستفادة</th>
-                      <th scope="col">ملاحضات</th>
-                    </tr>
-                  </thead>
-                  {tableErrors.length !== 0 ? (
-                    <tbody>
-                      {tableErrors.map((rowMap1, x) => (
-                        <tr className={x} key={x + 1234}>
-                          {rowMap1.map(
-                            (cell, i) => (
-                              <td className={i} key={cell + i}>
-                                {cell}
-                              </td>
-                            )
-                            // <option key={wilaya.id} value={wilaya.code} >{wilaya.nom_wilaya}</option>
-                          )}
-                        </tr>
-                      ))}
-                    </tbody>
-                  ) : null}
-                </Table>
-              </div>
-            ) : null}
-
             <h1 className="my-5">ملفات السجل</h1>
-            {tableOutput.length !== 0 ? (
-              <div>
-                <button>اظافة الملفات الى قاعدة البيانات</button>
-              </div>
-            ) : null}
-            <Table striped bordered responsive id="data-table">
+            {/* <Table striped bordered responsive id="data-table">
               <thead className="thead-dark">
                 <tr>
                   <th scope="col">السطر</th>
@@ -183,23 +104,7 @@ function ImportationData() {
                   <th scope="col">ملاحضات</th>
                 </tr>
               </thead>
-              {tableOutput.length !== 0 ? (
-                <tbody>
-                  {tableOutput.map((rowMap, x) => (
-                    <tr className={x} key={x}>
-                      {rowMap.map(
-                        (cell, i) => (
-                          <td className={i} key={cell + i}>
-                            {cell}
-                          </td>
-                        )
-                        // <option key={wilaya.id} value={wilaya.code} >{wilaya.nom_wilaya}</option>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              ) : null}
-            </Table>
+            </Table> */}
           </div>
         </div>
       </div>

@@ -4,24 +4,18 @@ const dossierSchema = mongoose.Schema(
   {
     creator: {
       type: String,
-      required: true,
     },
     id_demandeur: {
       type: String,
-      required: true,
-      unique: true,
     },
     id_conjoin: {
       type: String,
     },
     date_depo: {
       type: String,
-      required: true,
     },
     num_dos: {
       type: String,
-      required: true,
-      unique: true,
     },
     num_enf: {
       type: String,
