@@ -6,7 +6,7 @@ import {
 } from "../constants/importationDataConstants";
 
 export const sendImportationDataAction =
-  (file, creator, remark) => async (dispatch, getState) => {
+  (file, creator, fileName, remark) => async (dispatch, getState) => {
     try {
       dispatch({ type: IMPORTATIONDATA_SEND_REQUEST });
       const {
@@ -21,14 +21,13 @@ export const sendImportationDataAction =
       const formData = new FormData();
       formData.append("creator", creator);
       formData.append("remark", remark);
-      formData.append("file", file);
-      console.log(formData);
+      formData.append("fileName", fileName);
+      formData.append("importation_File", file);
       const { data } = await axios.post(
         "/api/importationData",
         formData,
         config
       );
-
       dispatch({ type: IMPORTATIONDATA_SEND_SUCCESS, payload: data });
     } catch (error) {
       dispatch({

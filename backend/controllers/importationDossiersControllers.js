@@ -7,147 +7,149 @@ const reader = require("xlsx");
 
 const addDossiers = asyncHandler(async (req, res) => {
   const { creator, remark } = req.body;
-  // const file = req.file?.path || req.body.file;
-  const file = reader.readFile("../Book1.xlsx", {
-    dense: true,
-    dateNF: "dd/mm/yyyy",
-  });
+  const importation_File = req.file?.path;
+  console.log(importation_File);
+  res.send(`${creator} , ${remark} `);
+  // const file = reader.readFile("../Book1.xlsx", {
+  //   dense: true,
+  //   dateNF: "dd/mm/yyyy",
+  // });
 
-  var excel_file;
+  // var excel_file;
 
-  // var work_book = reader.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
-  var sheet_name = file.SheetNames;
+  // // var work_book = reader.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
+  // var sheet_name = file.SheetNames;
 
-  var stream = reader.stream.to_json(file.Sheets[sheet_name[0]], {
-    raw: false,
-  });
+  // var stream = reader.stream.to_json(file.Sheets[sheet_name[0]], {
+  //   raw: false,
+  // });
 
-  var excel_file = [];
-  stream.on("data", function (data) {
-    excel_file.push(data);
-  });
-  stream.on("end", function () {
-    const dossiersCount = excel_file.length;
-    let dossierAddedCount = 0;
+  // var excel_file = [];
+  // stream.on("data", function (data) {
+  //   excel_file.push(data);
+  // });
+  // stream.on("end", function () {
+  //   const dossiersCount = excel_file.length;
+  //   let dossierAddedCount = 0;
 
-    excel_file?.map(
-      asyncHandler(async (dossier) => {
-        // extract demandeur
+  //   excel_file?.map(
+  //     asyncHandler(async (dossier) => {
+  //       // extract demandeur
 
-        const {
-          Prenom: prenom_dem,
-          Nom: nom_dem,
-          sexe: gender_dem,
-          "N°\r\nDE ACT": num_act_dem,
-          "Date de naissance": date_n_dem,
-          "Lieu de naissance": lieu_n_dem,
-          "Prénom du pére": prenom_p_dem,
-          "Prenom de la mére": prenom_m_dem,
-          "Nom de la mére": nom_m_dem,
-          "S F ": stuation_f_dem,
+  //       const {
+  //         Prenom: prenom_dem,
+  //         Nom: nom_dem,
+  //         sexe: gender_dem,
+  //         "N°\r\nDE ACT": num_act_dem,
+  //         "Date de naissance": date_n_dem,
+  //         "Lieu de naissance": lieu_n_dem,
+  //         "Prénom du pére": prenom_p_dem,
+  //         "Prenom de la mére": prenom_m_dem,
+  //         "Nom de la mére": nom_m_dem,
+  //         "S F ": stuation_f_dem,
 
-          "Prenom DE CONJOINT": prenom_conj,
-          "Nom DE CONJOINT": nom_conj,
-          "N DE L ACT": num_act_conj,
-          "Date de naissance_1": date_n_conj,
-          "Lieu de naissance_1": lieu_n_conj,
-          "Prénom du pére_1": prenom_p_conj,
-          "Prénom de la mére": prenom_m_conj,
-          "Nom de la mére_1": nom_m_conj,
+  //         "Prenom DE CONJOINT": prenom_conj,
+  //         "Nom DE CONJOINT": nom_conj,
+  //         "N DE L ACT": num_act_conj,
+  //         "Date de naissance_1": date_n_conj,
+  //         "Lieu de naissance_1": lieu_n_conj,
+  //         "Prénom du pére_1": prenom_p_conj,
+  //         "Prénom de la mére": prenom_m_conj,
+  //         "Nom de la mére_1": nom_m_conj,
 
-          "Ref demande": num_dos,
-          "Date demande": date_depo,
-        } = dossier;
-        // check conjoin
-        var conjoinCheked = false;
-        var gender_conj = "";
-        if (stuation_f_dem === "M" || "V") conjoinCheked = true;
-        if (gender_dem === "M") gender_conj = "F";
-        else gender_conj = "M";
+  //         "Ref demande": num_dos,
+  //         "Date demande": date_depo,
+  //       } = dossier;
+  //       // check conjoin
+  //       var conjoinCheked = false;
+  //       var gender_conj = "";
+  //       if (stuation_f_dem === "M" || "V") conjoinCheked = true;
+  //       if (gender_dem === "M") gender_conj = "F";
+  //       else gender_conj = "M";
 
-        // add demandeur
-        var conjoinAdded;
-        const demandeurAdded = await person.create({
-          type: "dema",
-          prenom: "",
-          prenom_fr: prenom_dem,
-          nom: "",
-          nom_fr: nom_dem,
-          gender: gender_dem,
-          num_act: num_act_dem,
-          date_n: date_n_dem,
-          lieu_n: "",
-          lieu_n_fr: lieu_n_dem,
-          wil_n: "",
-          com_n: "",
-          prenom_p: "",
-          prenom_p_fr: prenom_p_dem,
-          prenom_m: "",
-          prenom_m_fr: prenom_m_dem,
-          nom_m: "",
-          nom_m_fr: nom_m_dem,
-          num_i_n: num_act_dem + " " + date_n_dem,
-          stuation_f: stuation_f_dem,
-          situation_p: "",
-          profession: "",
-          salaire: "",
-          creator,
-        });
-        // add conjoin if any
-        if (conjoinCheked) {
-          conjoinAdded = await person.create({
-            type: "conj",
-            prenom: "",
-            prenom_fr: prenom_conj,
-            nom: "",
-            nom_fr: nom_conj,
-            gender: gender_conj,
-            num_act: num_act_conj,
-            date_n: date_n_conj,
-            lieu_n: "",
-            lieu_n_fr: lieu_n_conj,
-            wil_n: "",
-            com_n: "",
-            prenom_p: "",
-            prenom_p_fr: prenom_p_conj,
-            prenom_m: "",
-            prenom_m_fr: prenom_m_conj,
-            nom_m: "",
-            nom_m_fr: nom_m_conj,
-            num_i_n: num_act_conj + " " + date_n_conj,
-            stuation_f: "",
-            situation_p: "",
-            profession: "",
-            salaire: "",
-            creator,
-          });
-        }
-        // add dossier
-        const dossierAdded = await Dossier.create({
-          creator,
-          id_demandeur: demandeurAdded?._id,
-          id_conjoin: conjoinAdded?._id || "",
-          date_depo,
-          num_dos,
-          num_enf: 0,
-          stuation_s_avec_d: "",
-          stuation_s_andicap: "",
-          stuation_d: "",
-          numb_p: 0,
-          type: "imported",
-          gender_conj,
-          remark,
-          saisi_conj: "imported",
-          scan_dossier: "",
-          notes: 0,
-        });
-        // add count dossier added
-        dossierAddedCount++;
-      })
-    );
+  //       // add demandeur
+  //       var conjoinAdded;
+  //       const demandeurAdded = await person.create({
+  //         type: "dema",
+  //         prenom: "",
+  //         prenom_fr: prenom_dem,
+  //         nom: "",
+  //         nom_fr: nom_dem,
+  //         gender: gender_dem,
+  //         num_act: num_act_dem,
+  //         date_n: date_n_dem,
+  //         lieu_n: "",
+  //         lieu_n_fr: lieu_n_dem,
+  //         wil_n: "",
+  //         com_n: "",
+  //         prenom_p: "",
+  //         prenom_p_fr: prenom_p_dem,
+  //         prenom_m: "",
+  //         prenom_m_fr: prenom_m_dem,
+  //         nom_m: "",
+  //         nom_m_fr: nom_m_dem,
+  //         num_i_n: num_act_dem + " " + date_n_dem,
+  //         stuation_f: stuation_f_dem,
+  //         situation_p: "",
+  //         profession: "",
+  //         salaire: "",
+  //         creator,
+  //       });
+  //       // add conjoin if any
+  //       if (conjoinCheked) {
+  //         conjoinAdded = await person.create({
+  //           type: "conj",
+  //           prenom: "",
+  //           prenom_fr: prenom_conj,
+  //           nom: "",
+  //           nom_fr: nom_conj,
+  //           gender: gender_conj,
+  //           num_act: num_act_conj,
+  //           date_n: date_n_conj,
+  //           lieu_n: "",
+  //           lieu_n_fr: lieu_n_conj,
+  //           wil_n: "",
+  //           com_n: "",
+  //           prenom_p: "",
+  //           prenom_p_fr: prenom_p_conj,
+  //           prenom_m: "",
+  //           prenom_m_fr: prenom_m_conj,
+  //           nom_m: "",
+  //           nom_m_fr: nom_m_conj,
+  //           num_i_n: num_act_conj + " " + date_n_conj,
+  //           stuation_f: "",
+  //           situation_p: "",
+  //           profession: "",
+  //           salaire: "",
+  //           creator,
+  //         });
+  //       }
+  //       // add dossier
+  //       const dossierAdded = await Dossier.create({
+  //         creator,
+  //         id_demandeur: demandeurAdded?._id,
+  //         id_conjoin: conjoinAdded?._id || "",
+  //         date_depo,
+  //         num_dos,
+  //         num_enf: 0,
+  //         stuation_s_avec_d: "",
+  //         stuation_s_andicap: "",
+  //         stuation_d: "",
+  //         numb_p: 0,
+  //         type: "imported",
+  //         gender_conj,
+  //         remark,
+  //         saisi_conj: "imported",
+  //         scan_dossier: "",
+  //         notes: 0,
+  //       });
+  //       // add count dossier added
+  //       dossierAddedCount++;
+  //     })
+  //   );
 
-    res.send(dossierAddedCount + " added of " + dossiersCount);
-  });
+  //   res.send(dossierAddedCount + " added of " + dossiersCount);
+  // });
 });
 
 const updateDossiersFran = asyncHandler(async (req, res) => {

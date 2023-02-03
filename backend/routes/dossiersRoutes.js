@@ -13,6 +13,9 @@ const {
   getEnquetCNLFile,
   getEnquetCNASFile,
   getEnquetCASNOSFile,
+  getEnquetCNLFileTest,
+  getEnquetCNASFileTest,
+  getEnquetCASNOSFileTest,
 } = require("../controllers/enquetsControllers");
 const dossierScanStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -43,7 +46,10 @@ router
 router.route("/create").post(createDossier);
 router.route("/enquetCNLs").post(getDossierByDates);
 router.route("/enqCNL").post(getEnquetCNLFile);
+router.route("/enqCNLtest").post(getEnquetCNLFileTest);
 router.route("/enqCNAS").post(getEnquetCNASFile);
+router.route("/enqCNAStest").post(getEnquetCNASFileTest);
 router.route("/enqCASNOS").post(getEnquetCASNOSFile);
+router.route("/enqCASNOStest").post(getEnquetCASNOSFileTest);
 
 module.exports = router;

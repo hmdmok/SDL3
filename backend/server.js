@@ -35,6 +35,7 @@ app.use("/api/importationData", importDossiersRoutes);
 
 app.use("/usersPicUpload", express.static("usersPicUpload"));
 app.use("/dossiersScanUpload", express.static("dossiersScanUpload"));
+app.use("/importationFileUpload", express.static("importationFileUpload"));
 
 app.use(notFound);
 app.use(errorHandler);

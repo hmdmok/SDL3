@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const dossier = require("../models/dossierModel");
+const Dossier = require("../models/dossierModel");
 const Person = require("../models/personModel");
 const Notes = require("../models/notesModel");
 const generateToken = require("../utils/generateToken");
@@ -19,7 +19,7 @@ const getDossierByDates = asyncHandler(async (req, res) => {
       $addFields: { personId: { $toString: "$_id" } },
     },
   ]);
-  const dossierByDates = await dossier.aggregate([
+  const dossierByDates = await Dossier.aggregate([
     {
       $match: {
         date_depo: {
@@ -93,6 +93,102 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
   res.download(file);
 });
 
+const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
+  var {} = req.body;
+
+  const file = XLSX.readFile("../Book1.xlsx", {
+    dense: true,
+    dateNF: "dd/mm/yyyy",
+  });
+
+  var excel_file;
+
+  // var work_book = XLSX.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
+  var sheet_name = file.SheetNames;
+  console.log(sheet_name);
+  var stream = XLSX.stream.to_json(file.Sheets[sheet_name[2]], {
+    raw: false,
+  });
+
+  var excel_file = [];
+  stream.on("data", function (data) {
+    excel_file.push(data);
+  });
+
+  stream.on("end", function () {
+    var newData = [];
+    const dossiersMaped = excel_file?.map(
+      asyncHandler(async (dossier) => {
+        // // extract demandeur
+
+        const { "Ref demande": num_dos, "Nom DE CONJOINT": nom_fr_conj } =
+          dossier;
+
+        // find dossier to update
+        const dossierToEnquet = await Dossier.find({ num_dos: num_dos });
+        if (dossierToEnquet.length > 0) {
+          const listEnq = dossierToEnquet.map(async function (dossier, i) {
+            var demandeur = {};
+            var conjoin = {};
+            if (dossier.id_demandeur) {
+              // get demandeur
+              demandeur = await Person.findById(dossier.id_demandeur);
+            }
+            if (
+              dossier.id_conjoin &&
+              !(nom_fr_conj === "") &&
+              !(nom_fr_conj === "/")
+            ) {
+              // get conjoin
+              conjoin = await Person.findById(dossier.id_conjoin);
+            }
+            var newRecord = {
+              Ordre: i + 1,
+              Nom: demandeur?.nom_fr || "" || "",
+              Prénom: demandeur?.prenom_fr || "",
+              Sexe: demandeur?.gender || "",
+              "Date de Naissance": demandeur?.date_n || "",
+              "Type Date de Naissance": "" || "",
+              "Commune de Naissance": demandeur?.lieu_n_fr || "",
+              "WILAYA DE NAISSANCE": demandeur?.wil_n || "",
+              "N°EXTR DE NAISSANCE": demandeur?.num_act || "",
+              "Sit. Fam": demandeur?.stuation_f || "",
+              "Prénom du Pére": demandeur?.prenom_p_fr || "",
+              "Nom de la Mére": demandeur?.nom_m_fr || "",
+              "Prénom de la Mére": demandeur?.prenom_m_fr || "",
+              "Nom Conj": conjoin?.nom_fr || "",
+              "Prénom conj": conjoin?.prenom_fr || "",
+              "Date de Naissance conj": conjoin?.date_n || "",
+              "Type Date de Naissance conj": "" || "",
+              "Commune de Naissance conj": conjoin?.lieu_n_fr || "",
+              "WILAYA DE NAISSANCE conj": conjoin?.wil_n || "",
+              "N°EXTR DE NAISSANCE conj": conjoin?.num_act || "",
+              "Prénom du Pére conj": conjoin?.prenom_p_fr || "",
+              "Nom de la Mére conj": conjoin?.nom_m_fr || "",
+              "Prénom de la Mére conj": conjoin?.prenom_m_fr || "",
+            };
+            newData.push(newRecord);
+
+            return newRecord;
+          });
+          return Promise.all(listEnq).then(() => {
+            console.log(newData);
+          });
+        }
+      })
+    );
+    console.log(newData);
+    return Promise.all(dossiersMaped).then(() => {
+      var newWB = XLSX.utils.book_new();
+      var newWS = XLSX.utils.json_to_sheet(newData);
+      XLSX.utils.book_append_sheet(newWB, newWS, "List");
+      XLSX.writeFile(newWB, "EnquetCNLnew.xlsx");
+      const fileCNL = `EnquetCNLnew.xlsx`;
+      res.download(fileCNL);
+    });
+  });
+});
+
 const getEnquetCNASFile = asyncHandler(async (req, res) => {
   var { dossierEnq } = req.body;
   fs.copyFile("enqueteCNAS.mdb", "enqCNAS.mdb", (err) => {
@@ -140,6 +236,277 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
   let selection = await connection.query(select);
   let selection2 = await connection.query(select);
   res.download("enqCNAS.mdb");
+});
+
+const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
+  var {} = req.body;
+  fs.copyFile("enqueteCNAS.mdb", "enqCNAS.mdb", (err) => {
+    if (err) {
+      console.log("Error Found:", err);
+    } else {
+      console.log("File copied succesfuly");
+    }
+  });
+
+  const file = XLSX.readFile("../Book1.xlsx", {
+    dense: true,
+    dateNF: "dd/mm/yyyy",
+  });
+
+  var excel_file;
+
+  // var work_book = XLSX.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
+  var sheet_name = file.SheetNames;
+  console.log(sheet_name);
+  var stream = XLSX.stream.to_json(file.Sheets[sheet_name[2]], {
+    raw: false,
+  });
+
+  var excel_file = [];
+  stream.on("data", function (data) {
+    excel_file.push(data);
+  });
+  try {
+    stream.on(
+      "end",
+      asyncHandler(async function () {
+        var newData = [];
+        const dossiersMaped = excel_file?.map(
+          asyncHandler(async (dossier) => {
+            // // extract demandeur
+
+            const { "Ref demande": num_dos, "Nom DE CONJOINT": nom_fr_conj } =
+              dossier;
+
+            // find dossier to update
+            const dossierToEnquet = await Dossier.find({ num_dos: num_dos });
+            if (dossierToEnquet.length > 0) {
+              const listEnq = dossierToEnquet.map(
+                asyncHandler(async function (dossier, i) {
+                  var demandeur = {};
+                  var conjoin = {};
+                  if (dossier.id_demandeur) {
+                    // get demandeur
+                    demandeur = await Person.findById(dossier.id_demandeur);
+                    try {
+                      const insert = `INSERT INTO  Table1 (NOM_P, PRENOM_P, DDN_P, NUM_ACT_P, PP, NPM, LIB_SEXE, NC, WILAYA)
+VALUES ("${demandeur.nom_fr || ""}", 
+"${demandeur.prenom_fr || ""}",
+"${demandeur.date_n || "1900-01-01"}",
+"${demandeur.num_act || ""}",
+"${demandeur.prenom_p_fr || ""}",
+"${demandeur.nom_m_fr || ""}",
+"${demandeur.gender || ""}",
+"${demandeur.lieu_n_fr || ""}", 
+"${demandeur.wil_n || ""}");`;
+
+                      await connection.execute(insert);
+                    } catch (error) {
+                      throw error;
+                    }
+                  }
+                  if (
+                    dossier.id_conjoin &&
+                    !(nom_fr_conj === "") &&
+                    !(nom_fr_conj === "/")
+                  ) {
+                    // get conjoin
+                    conjoin = await Person.findById(dossier.id_conjoin);
+                    try {
+                      const sql = `INSERT INTO Table1 (NOM_P, PRENOM_P, DDN_P, NUM_ACT_P, PP, NPM, LIB_SEXE, NC, WILAYA) VALUES ("${
+                        conjoin.nom_fr || ""
+                      }", "${conjoin.prenom_fr || ""}",
+"${conjoin.date_n || "1900-01-01"}", 
+"${conjoin.num_act || ""}",
+"${conjoin.prenom_p_fr || ""}",
+"${conjoin.nom_m_fr || ""}",
+"${conjoin.gender || ""}",
+"${conjoin.lieu_n_fr || ""}", 
+"${conjoin.wil_n || ""}");`;
+                      await connection.execute(sql);
+                    } catch (error) {
+                      throw error;
+                    }
+                  }
+                })
+              );
+              return Promise.all(listEnq)
+                .then(() => {
+                  console.log(listEnq);
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+            }
+          })
+        );
+
+        return Promise.all(dossiersMaped)
+          .then(() => {
+            // file download
+            res.download("enqCNAS.mdb");
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      })
+    );
+  } catch (error) {
+    throw error;
+  }
+});
+
+const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
+  var {} = req.body;
+  fs.unlink("CASNOSENQ.dbf", (err) => {
+    if (err) {
+      console.log("Error Found:", err);
+    } else {
+      console.log("File deleted succesfuly");
+    }
+  });
+
+  let fieldDescriptors = [
+    { name: "CODE_P", type: "C", size: 15 },
+    { name: "NOM_P", type: "C", size: 30 },
+    { name: "PRENOM_P", type: "C", size: 30 },
+    { name: "DNN_P", type: "C", size: 10 },
+    { name: "ADR_P", type: "C", size: 80 },
+    { name: "NUM_ACT_P", type: "C", size: 6 },
+    { name: "PRENP", type: "C", size: 20 },
+    { name: "NPM", type: "C", size: 30 },
+    { name: "LIB_SEXE", type: "C", size: 12 },
+    { name: "CC", type: "C", size: 4 },
+    { name: "NC", type: "C", size: 30 },
+    { name: "WILAYA", type: "C", size: 20 },
+  ];
+
+  let records = [];
+
+  const file = XLSX.readFile("../Book1.xlsx", {
+    dense: true,
+    dateNF: "dd/mm/yyyy",
+  });
+
+  var excel_file;
+
+  // var work_book = XLSX.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
+  var sheet_name = file.SheetNames;
+  console.log(sheet_name);
+  var stream = XLSX.stream.to_json(file.Sheets[sheet_name[2]], {
+    raw: false,
+  });
+
+  var excel_file = [];
+  stream.on("data", function (data) {
+    excel_file.push(data);
+  });
+
+  stream.on(
+    "end",
+    asyncHandler(async function () {
+      var newData = [];
+      const dossiersMaped = excel_file?.map(
+        asyncHandler(async (dossier) => {
+          // // extract demandeur
+
+          const { "Ref demande": num_dos, "Nom DE CONJOINT": nom_fr_conj } =
+            dossier;
+
+          // find dossier to update
+          const dossierToEnquet = await Dossier.find({ num_dos: num_dos });
+          if (dossierToEnquet.length > 0) {
+            const listEnq = dossierToEnquet.map(
+              asyncHandler(async function (dossier, i) {
+                var demandeur = {};
+                var conjoin = {};
+                if (dossier.id_demandeur) {
+                  // get demandeur
+                  demandeur = await Person.findById(dossier.id_demandeur);
+
+                  var demandeurF = {
+                    CODE_P: "",
+                    NOM_P: demandeur.nom_fr || "",
+                    PRENOM_P: demandeur.prenom_fr || "",
+                    DNN_P: demandeur.date_n || "1800-01-01",
+                    ADR_P: "",
+                    NUM_ACT_P: demandeur.num_act || "",
+                    PRENP: demandeur.prenom_p_fr || "",
+                    NPM: `${demandeur.nom_m_fr || ""} ${
+                      demandeur.prenom_m_fr || ""
+                    }`,
+                    LIB_SEXE: demandeur.gender || "",
+                    CC: "",
+                    NC: demandeur.lieu_n_fr || "",
+                    WILAYA: demandeur.wil_n || "",
+                  };
+                  records.push(demandeurF);
+                }
+                if (
+                  dossier.id_conjoin &&
+                  !(nom_fr_conj === "") &&
+                  !(nom_fr_conj === "/")
+                ) {
+                  // get conjoin
+                  conjoin = await Person.findById(dossier.id_conjoin);
+                  var conjoinF = {
+                    CODE_P: "",
+                    NOM_P: conjoin.nom_fr || "",
+                    PRENOM_P: conjoin.prenom_fr || "",
+                    DNN_P: conjoin.date_n || "1800-01-01",
+                    ADR_P: "",
+                    NUM_ACT_P: conjoin.num_act || "",
+                    PRENP: conjoin.prenom_p_fr || "",
+                    NPM: `${conjoin.nom_m_fr || ""} ${
+                      conjoin.prenom_m_fr || ""
+                    }`,
+                    LIB_SEXE: conjoin.gender || "",
+                    CC: "",
+                    NC: conjoin.lieu_n_fr || "",
+                    WILAYA: conjoin.wil_n || "",
+                  };
+                  records.push(conjoinF);
+                }
+              })
+            );
+            return Promise.all(listEnq)
+              .then(() => {
+                console.log("dossier added");
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          }
+        })
+      );
+
+      return Promise.all(dossiersMaped)
+        .then(
+          asyncHandler(async () => {
+            // file download
+            let dbf;
+            try {
+              dbf = await DBFFile.create("CASNOSENQ.dbf", fieldDescriptors);
+              console.log("DBF file created.");
+            } catch (error) {
+              dbf = await DBFFile.open("CASNOSENQ.dbf", fieldDescriptors);
+              console.log("DBF file opend.");
+            }
+            try {
+              await dbf.appendRecords(records);
+              console.log(`${records.length} records added.`);
+            } catch (error) {
+              console.log(`Error adding records: ${error}`);
+            }
+
+            res.download("CASNOSENQ.dbf");
+          })
+        )
+        .catch((err) => {
+          console.log(err);
+        });
+    })
+  );
 });
 
 const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
@@ -235,4 +602,7 @@ module.exports = {
   getEnquetCNLFile,
   getEnquetCNASFile,
   getEnquetCASNOSFile,
+  getEnquetCNLFileTest,
+  getEnquetCNASFileTest,
+  getEnquetCASNOSFileTest,
 };
