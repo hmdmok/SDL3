@@ -37,4 +37,6 @@ router
   .route("/updateFr")
   .post(importationDossiersControllers.updateDossiersFran);
 
+router.route("/correctionDB").post(importationDossiersControllers.correctionDB);
+
 module.exports = router;

@@ -562,4 +562,43 @@ const updateDossiers = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { addDossiers, updateDossiers, updateDossiersFran };
+const correctionDB = asyncHandler(async (req, res) => {
+  // find list of persons with no name
+  const personsWithNoNameList = await person.find({
+    $or: [{ prenom_fr: "" }, { prenom_fr: "/" }],
+  });
+
+  // find the list of dossiers for this persons as demandeurs
+  const dossiersWithNoNameDemList = [];
+  const data = personsWithNoNameList.map(
+    asyncHandler(async (personNoName) => {
+      const dossierNoNameDem = await Dossier.find({
+        id_demandeur: personNoName._id,
+      });
+      console.log(dossierNoNameDem);
+      if (dossierNoNameDem.length > 0)
+        dossiersWithNoNameDemList.push(dossierNoNameDem[0]);
+    })
+  );
+  const data2 = Promise.all(data)
+    .then(() => {
+      console.log(dossiersWithNoNameDemList);
+
+      // delete the list of dossiers for this persons as demandeurs
+      // find the list of dossiers for these persons as conjoin
+      // delete the id_conjoin for this dossiers
+      // delete the list of persons found with no name
+
+      res.json(dossiersWithNoNameDemList);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
+
+module.exports = {
+  addDossiers,
+  updateDossiers,
+  updateDossiersFran,
+  correctionDB,
+};

@@ -24,7 +24,9 @@ function ImportationData() {
 
   useEffect(() => {
     if (file)
-      dispatch(sendImportationDataAction(file, creator, fileName,"Data Imported"));
+      dispatch(
+        sendImportationDataAction(file, creator, fileName, "Data Imported")
+      );
   }, [file, creator, dispatch]);
 
   const importedData = useSelector((state) => state.importedData);
@@ -34,7 +36,10 @@ function ImportationData() {
   //   var validFile = false;
   //   var headerRow = false;
   // };
-
+  const correctionDB = (event) => {
+    //send request to correct DB
+    
+  };
   const onChange = (event) => {
     if (
       event.target.files[0].type ===
@@ -71,7 +76,7 @@ function ImportationData() {
           <div>
             <Button>Ajout dossiers francais</Button>
             <Button>Mise a Jour dossiers arab</Button>
-            <Button>correction</Button>
+            <Button>Correction DB</Button>
           </div>
         </div>
       </div>
