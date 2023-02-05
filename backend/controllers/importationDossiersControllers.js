@@ -153,7 +153,7 @@ const addDossiers = asyncHandler(async (req, res) => {
 });
 
 const updateDossiersFran = asyncHandler(async (req, res) => {
-  const file = reader.readFile("../Book1.xlsx", {
+  const file = reader.readFile("../Book2.xlsx", {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -222,6 +222,9 @@ const updateDossiersFran = asyncHandler(async (req, res) => {
               demandeurToUpdate.prenom_fr =
                 prenom_dem || demandeurToUpdate.prenom_fr;
               demandeurToUpdate.nom_fr = nom_dem || demandeurToUpdate.nom_fr;
+              demandeurToUpdate.date_n = date_n_dem || demandeurToUpdate.date_n;
+              demandeurToUpdate.num_act =
+                num_act_dem || demandeurToUpdate.num_act;
               demandeurToUpdate.lieu_n_fr =
                 lieu_n_dem || demandeurToUpdate.lieu_n_fr;
               demandeurToUpdate.prenom_p_fr =
@@ -244,6 +247,8 @@ const updateDossiersFran = asyncHandler(async (req, res) => {
               conjoinToUpdate.prenom_fr =
                 prenom_conj || conjoinToUpdate.prenom_fr;
               conjoinToUpdate.nom_fr = nom_conj || conjoinToUpdate.nom_fr;
+              conjoinToUpdate.date_n = date_n_conj || conjoinToUpdate.date_n;
+              conjoinToUpdate.num_act = num_act_conj || conjoinToUpdate.num_act;
               conjoinToUpdate.lieu_n_fr =
                 lieu_n_conj || conjoinToUpdate.lieu_n_fr;
               conjoinToUpdate.prenom_p_fr =
@@ -340,7 +345,7 @@ const updateDossiersFran = asyncHandler(async (req, res) => {
 });
 
 const updateDossiers = asyncHandler(async (req, res) => {
-  const file = reader.readFile("../Book1.xlsx", {
+  const file = reader.readFile("../Book2.xlsx", {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });

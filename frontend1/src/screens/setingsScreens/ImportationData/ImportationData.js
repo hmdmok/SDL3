@@ -7,6 +7,7 @@ import Loading from "../../../components/Loading";
 import { sendImportationDataAction } from "../../../actions/importationDataActions";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "react-bootstrap";
+import axios from "axios";
 
 function ImportationData() {
   const [fileName, setFileName] = useState(null);
@@ -38,8 +39,88 @@ function ImportationData() {
   // };
   const correctionDB = (event) => {
     //send request to correct DB
-    
   };
+  const updateDB = async (event) => {
+    //send request to correct DB
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      await axios.post("/api/importationData/update", "formData", config);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updateDBfr = async (event) => {
+    //send request to correct DB
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      await axios.post("/api/importationData/updateFr", "formData", config);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const enquetCASNOS = async (event) => {
+    //send request to correct DB
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      await axios.post("/api/importationData/updateFr", "formData", config);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const enquetCNAS = async (event) => {
+    //send request to correct DB
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      await axios.post("/api/importationData/updateFr", "formData", config);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const enquetCNL = async (event) => {
+    //send request to correct DB
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      await axios.post("/api/importationData/updateFr", "formData", config);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
   const onChange = (event) => {
     if (
       event.target.files[0].type ===
@@ -74,9 +155,14 @@ function ImportationData() {
             </label>
           </div>
           <div>
-            <Button>Ajout dossiers francais</Button>
-            <Button>Mise a Jour dossiers arab</Button>
-            <Button>Correction DB</Button>
+            <Button onClick={updateDBfr}>Ajout dossiers francais</Button>
+            <Button onClick={updateDB}>Mise a Jour dossiers arab</Button>
+            <Button onClick={correctionDB}>Correction DB</Button>
+          </div>
+          <div>
+            <Button onClick={enquetCNL}>Enquet CNL</Button>
+            <Button onClick={enquetCNAS}>Enquet CNnas</Button>
+            <Button onClick={enquetCASNOS}>Enquet CASNOS</Button>
           </div>
         </div>
       </div>
