@@ -8,152 +8,235 @@ const reader = require("xlsx");
 const addDossiers = asyncHandler(async (req, res) => {
   const { creator, remark } = req.body;
   const importation_File = req.file?.path;
-  console.log(importation_File);
-  res.send(`${creator} , ${remark} `);
-  // const file = reader.readFile("../Book1.xlsx", {
-  //   dense: true,
-  //   dateNF: "dd/mm/yyyy",
-  // });
 
-  // var excel_file;
+  const file = reader.readFile(importation_File, {
+    dense: true,
+    dateNF: "dd/mm/yyyy",
+  });
 
-  // // var work_book = reader.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
-  // var sheet_name = file.SheetNames;
+  var sheet_name = file.SheetNames;
 
-  // var stream = reader.stream.to_json(file.Sheets[sheet_name[0]], {
-  //   raw: false,
-  // });
+  var stream = reader.stream.to_json(file.Sheets[sheet_name[0]], {
+    raw: false,
+  });
 
-  // var excel_file = [];
-  // stream.on("data", function (data) {
-  //   excel_file.push(data);
-  // });
-  // stream.on("end", function () {
-  //   const dossiersCount = excel_file.length;
-  //   let dossierAddedCount = 0;
+  var excel_file = [];
+  stream.on("data", function (data) {
+    excel_file.push(data);
+  });
 
-  //   excel_file?.map(
-  //     asyncHandler(async (dossier) => {
-  //       // extract demandeur
+  stream.on("end", function () {
+    console.log(excel_file);
+    const dossiersCount = excel_file.length;
+    let dossierAddedCount = 0;
+    let dossierUpdatedCount = 0;
 
-  //       const {
-  //         Prenom: prenom_dem,
-  //         Nom: nom_dem,
-  //         sexe: gender_dem,
-  //         "N°\r\nDE ACT": num_act_dem,
-  //         "Date de naissance": date_n_dem,
-  //         "Lieu de naissance": lieu_n_dem,
-  //         "Prénom du pére": prenom_p_dem,
-  //         "Prenom de la mére": prenom_m_dem,
-  //         "Nom de la mére": nom_m_dem,
-  //         "S F ": stuation_f_dem,
+    const finalData = excel_file?.map(
+      asyncHandler(async (dossier) => {
+        // extract data from dossier
+        const {
+          Prenom: prenom_dem,
+          Nom: nom_dem,
+          sexe: gender_dem,
+          "N°\r\nDE ACT": num_act_dem,
+          "Date de naissance": date_n_dem,
+          "Lieu de naissance": lieu_n_dem,
+          "Prénom du pére": prenom_p_dem,
+          "Prenom de la mére": prenom_m_dem,
+          "Nom de la mére": nom_m_dem,
+          "S F ": stuation_f_dem,
+          "Prenom DE CONJOINT": prenom_conj,
+          "Nom DE CONJOINT": nom_conj,
+          "N DE L ACT": num_act_conj,
+          "Date de naissance_1": date_n_conj,
+          "Lieu de naissance_1": lieu_n_conj,
+          "Prénom du pére_1": prenom_p_conj,
+          "Prénom de la mére": prenom_m_conj,
+          "Nom de la mére_1": nom_m_conj,
+          "Ref demande": num_dos,
+          "Date demande": date_depo,
+        } = dossier;
 
-  //         "Prenom DE CONJOINT": prenom_conj,
-  //         "Nom DE CONJOINT": nom_conj,
-  //         "N DE L ACT": num_act_conj,
-  //         "Date de naissance_1": date_n_conj,
-  //         "Lieu de naissance_1": lieu_n_conj,
-  //         "Prénom du pére_1": prenom_p_conj,
-  //         "Prénom de la mére": prenom_m_conj,
-  //         "Nom de la mére_1": nom_m_conj,
+        // check if dossier exists in DB
+        const dossierToUpdate = await Dossier.find({ num_dos: num_dos });
 
-  //         "Ref demande": num_dos,
-  //         "Date demande": date_depo,
-  //       } = dossier;
-  //       // check conjoin
-  //       var conjoinCheked = false;
-  //       var gender_conj = "";
-  //       if (stuation_f_dem === "M" || "V") conjoinCheked = true;
-  //       if (gender_dem === "M") gender_conj = "F";
-  //       else gender_conj = "M";
+        // if dossier exists then update the dossier data
+        if (dossierToUpdate.length > 0) {
+          // update demandeur data if exsits
+          if (
+            dossierToUpdate[0].id_demandeur &&
+            !(nom_dem === "") &&
+            !(nom_dem === "/") &&
+            !(nom_dem == null)
+          ) {
+            // get demandeur
+            const demandeurToUpdate = await person.findById(
+              dossierToUpdate[0].id_demandeur
+            );
 
-  //       // add demandeur
-  //       var conjoinAdded;
-  //       const demandeurAdded = await person.create({
-  //         type: "dema",
-  //         prenom: "",
-  //         prenom_fr: prenom_dem,
-  //         nom: "",
-  //         nom_fr: nom_dem,
-  //         gender: gender_dem,
-  //         num_act: num_act_dem,
-  //         date_n: date_n_dem,
-  //         lieu_n: "",
-  //         lieu_n_fr: lieu_n_dem,
-  //         wil_n: "",
-  //         com_n: "",
-  //         prenom_p: "",
-  //         prenom_p_fr: prenom_p_dem,
-  //         prenom_m: "",
-  //         prenom_m_fr: prenom_m_dem,
-  //         nom_m: "",
-  //         nom_m_fr: nom_m_dem,
-  //         num_i_n: num_act_dem + " " + date_n_dem,
-  //         stuation_f: stuation_f_dem,
-  //         situation_p: "",
-  //         profession: "",
-  //         salaire: "",
-  //         creator,
-  //       });
-  //       // add conjoin if any
-  //       if (conjoinCheked) {
-  //         conjoinAdded = await person.create({
-  //           type: "conj",
-  //           prenom: "",
-  //           prenom_fr: prenom_conj,
-  //           nom: "",
-  //           nom_fr: nom_conj,
-  //           gender: gender_conj,
-  //           num_act: num_act_conj,
-  //           date_n: date_n_conj,
-  //           lieu_n: "",
-  //           lieu_n_fr: lieu_n_conj,
-  //           wil_n: "",
-  //           com_n: "",
-  //           prenom_p: "",
-  //           prenom_p_fr: prenom_p_conj,
-  //           prenom_m: "",
-  //           prenom_m_fr: prenom_m_conj,
-  //           nom_m: "",
-  //           nom_m_fr: nom_m_conj,
-  //           num_i_n: num_act_conj + " " + date_n_conj,
-  //           stuation_f: "",
-  //           situation_p: "",
-  //           profession: "",
-  //           salaire: "",
-  //           creator,
-  //         });
-  //       }
-  //       // add dossier
-  //       const dossierAdded = await Dossier.create({
-  //         creator,
-  //         id_demandeur: demandeurAdded?._id,
-  //         id_conjoin: conjoinAdded?._id || "",
-  //         date_depo,
-  //         num_dos,
-  //         num_enf: 0,
-  //         stuation_s_avec_d: "",
-  //         stuation_s_andicap: "",
-  //         stuation_d: "",
-  //         numb_p: 0,
-  //         type: "imported",
-  //         gender_conj,
-  //         remark,
-  //         saisi_conj: "imported",
-  //         scan_dossier: "",
-  //         notes: 0,
-  //       });
-  //       // add count dossier added
-  //       dossierAddedCount++;
-  //     })
-  //   );
+            // update demandeur
+            if (demandeurToUpdate?._id) {
+              demandeurToUpdate.prenom_fr =
+                prenom_dem || demandeurToUpdate.prenom_fr;
+              demandeurToUpdate.nom_fr = nom_dem || demandeurToUpdate.nom_fr;
+              demandeurToUpdate.lieu_n_fr =
+                lieu_n_dem || demandeurToUpdate.lieu_n_fr;
+              demandeurToUpdate.prenom_p_fr =
+                prenom_p_dem || demandeurToUpdate.prenom_p_fr;
+              demandeurToUpdate.prenom_m_fr =
+                prenom_m_dem || demandeurToUpdate.prenom_m_fr;
+              demandeurToUpdate.nom_m_fr =
+                nom_m_dem || demandeurToUpdate.nom_m_fr;
+              const updatedDemandeur = await demandeurToUpdate.save();
+            }
+          }
 
-  //   res.send(dossierAddedCount + " added of " + dossiersCount);
-  // });
+          // update conjoin data if exsits
+          if (
+            dossierToUpdate[0].id_conjoin &&
+            !(nom_conj === "") &&
+            !(nom_conj === "/") &&
+            !(nom_conj == null)
+          ) {
+            // get conjoin
+            const conjoinToUpdate = await person.findById(
+              dossierToUpdate[0].id_conjoin
+            );
+
+            // update conjoin
+            if (conjoinToUpdate?._id) {
+              conjoinToUpdate.prenom_fr =
+                prenom_conj || conjoinToUpdate.prenom_fr;
+              conjoinToUpdate.nom_fr = nom_conj || conjoinToUpdate.nom_fr;
+              conjoinToUpdate.lieu_n_fr =
+                lieu_n_conj || conjoinToUpdate.lieu_n_fr;
+              conjoinToUpdate.prenom_p_fr =
+                prenom_p_conj || conjoinToUpdate.prenom_p_fr;
+              conjoinToUpdate.prenom_m_fr =
+                prenom_m_conj || conjoinToUpdate.prenom_m_fr;
+              conjoinToUpdate.nom_m_fr = nom_m_conj || conjoinToUpdate.nom_m_fr;
+              const updatedConjoin = await conjoinToUpdate.save();
+            }
+          }
+
+          // update dossier
+          dossierToUpdate[0].notes = dossierToUpdate[0].notes || "";
+          dossierToUpdate[0].remark = dossierToUpdate[0].remark || "";
+          const updatedDossier = await dossierToUpdate[0].save();
+          dossierUpdatedCount++;
+        } else {
+          // check Data Validity for new dossier
+          var conjoinCheked = false;
+          var gender_conj = "";
+          if (stuation_f_dem === "M" || "V") conjoinCheked = true;
+          if (gender_dem === "M") gender_conj = "F";
+          else gender_conj = "M";
+          var conjoinAdded, demandeurAdded;
+
+          // add demandeur if data is valid
+          if (!(nom_dem === "") && !(nom_dem === "/") && !(nom_dem == null)) {
+            demandeurAdded = await person.create({
+              type: "dema",
+              prenom: "",
+              prenom_fr: prenom_dem,
+              nom: "",
+              nom_fr: nom_dem,
+              gender: gender_dem,
+              num_act: num_act_dem,
+              date_n: date_n_dem,
+              lieu_n: "",
+              lieu_n_fr: lieu_n_dem,
+              wil_n: "",
+              com_n: "",
+              prenom_p: "",
+              prenom_p_fr: prenom_p_dem,
+              prenom_m: "",
+              prenom_m_fr: prenom_m_dem,
+              nom_m: "",
+              nom_m_fr: nom_m_dem,
+              num_i_n: num_act_dem + " " + date_n_dem,
+              stuation_f: stuation_f_dem,
+              situation_p: "",
+              profession: "",
+              salaire: "",
+              creator,
+            });
+          }
+
+          // add conjoin if data is valid
+          if (
+            conjoinCheked &&
+            !(nom_conj === "") &&
+            !(nom_conj === "/") &&
+            !(nom_conj == null)
+          ) {
+            conjoinAdded = await person.create({
+              type: "conj",
+              prenom: "",
+              prenom_fr: prenom_conj,
+              nom: "",
+              nom_fr: nom_conj,
+              gender: gender_conj,
+              num_act: num_act_conj,
+              date_n: date_n_conj,
+              lieu_n: "",
+              lieu_n_fr: lieu_n_conj,
+              wil_n: "",
+              com_n: "",
+              prenom_p: "",
+              prenom_p_fr: prenom_p_conj,
+              prenom_m: "",
+              prenom_m_fr: prenom_m_conj,
+              nom_m: "",
+              nom_m_fr: nom_m_conj,
+              num_i_n: num_act_conj + " " + date_n_conj,
+              stuation_f: "",
+              situation_p: "",
+              profession: "",
+              salaire: "",
+              creator,
+            });
+          }
+
+          //       // add dossier if demandeur added exsits
+          if (demandeurAdded?._id) {
+            const dossierAdded = await Dossier.create({
+              creator,
+              id_demandeur: demandeurAdded?._id,
+              id_conjoin: conjoinAdded?._id || "",
+              date_depo,
+              num_dos,
+              num_enf: 0,
+              stuation_s_avec_d: "",
+              stuation_s_andicap: "",
+              stuation_d: "",
+              numb_p: 0,
+              type: "imported",
+              gender_conj,
+              remark,
+              saisi_conj: "imported",
+              scan_dossier: "",
+              notes: 0,
+            });
+
+            // add count dossier if added
+            if (dossierAdded?._id) {
+              dossierAddedCount++;
+            }
+          }
+        }
+      })
+    );
+    return Promise.all(finalData).then(() => {
+      res.send(
+        `${dossierAddedCount} added, and ${dossierUpdatedCount} updated of ${dossiersCount} dossiers.`
+      );
+    });
+  });
 });
 
 const updateDossiersFran = asyncHandler(async (req, res) => {
-  const file = reader.readFile("../Book2.xlsx", {
+  const file = reader.readFile("../Book1.xlsx", {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -211,14 +294,19 @@ const updateDossiersFran = asyncHandler(async (req, res) => {
         // find dossier to update
         const dossierToUpdate = await Dossier.find({ num_dos: num_dos });
         if (dossierToUpdate.length > 0) {
-          if (dossierToUpdate[0].id_demandeur) {
+          if (
+            dossierToUpdate[0].id_demandeur &&
+            !(nom_dem === "") &&
+            !(nom_dem === "/") &&
+            !(nom_dem == null)
+          ) {
             // get demandeur
             const demandeurToUpdate = await person.findById(
               dossierToUpdate[0].id_demandeur
             );
 
             // update demandeur
-            if (demandeurToUpdate._id) {
+            if (demandeurToUpdate?._id) {
               demandeurToUpdate.prenom_fr =
                 prenom_dem || demandeurToUpdate.prenom_fr;
               demandeurToUpdate.nom_fr = nom_dem || demandeurToUpdate.nom_fr;
@@ -236,14 +324,19 @@ const updateDossiersFran = asyncHandler(async (req, res) => {
               const updatedDemandeur = await demandeurToUpdate.save();
             }
           }
-          if (dossierToUpdate[0].id_conjoin) {
+          if (
+            dossierToUpdate[0].id_conjoin &&
+            !(nom_conj === "") &&
+            !(nom_conj === "/") &&
+            !(nom_conj == null)
+          ) {
             // get conjoin
             const conjoinToUpdate = await person.findById(
               dossierToUpdate[0].id_conjoin
             );
 
             // update conjoin
-            if (conjoinToUpdate._id) {
+            if (conjoinToUpdate?._id) {
               conjoinToUpdate.prenom_fr =
                 prenom_conj || conjoinToUpdate.prenom_fr;
               conjoinToUpdate.nom_fr = nom_conj || conjoinToUpdate.nom_fr;
@@ -276,25 +369,32 @@ const updateDossiersFran = asyncHandler(async (req, res) => {
           }
 
           // add demandeur
-          var conjoinAdded;
-          const demandeurAdded = await person.create({
-            type: "dema",
-            prenom_fr: prenom_dem,
-            nom_fr: nom_dem,
-            gender: gender_dem,
-            num_act: num_act_dem,
-            date_n: date_n_dem,
-            lieu_n_fr: lieu_n_dem,
-            prenom_p_fr: prenom_p_dem,
-            prenom_m_fr: prenom_m_dem,
-            nom_m_fr: nom_m_dem,
-            num_i_n: num_act_dem + " " + date_n_dem,
-            stuation_f: stuation_f_dem,
-            creator: "test3",
-          });
+          var conjoinAdded, demandeurAdded;
+          if (!(nom_dem === "") && !(nom_dem === "/") && !(nom_dem == null)) {
+            demandeurAdded = await person.create({
+              type: "dema",
+              prenom_fr: prenom_dem,
+              nom_fr: nom_dem,
+              gender: gender_dem,
+              num_act: num_act_dem,
+              date_n: date_n_dem,
+              lieu_n_fr: lieu_n_dem,
+              prenom_p_fr: prenom_p_dem,
+              prenom_m_fr: prenom_m_dem,
+              nom_m_fr: nom_m_dem,
+              num_i_n: num_act_dem + " " + date_n_dem,
+              stuation_f: stuation_f_dem,
+              creator: "test3",
+            });
+          }
 
           // add conjoin if any
-          if (conjoinCheked) {
+          if (
+            conjoinCheked &&
+            !(nom_conj === "") &&
+            !(nom_conj === "/") &&
+            !(nom_conj == null)
+          ) {
             conjoinAdded = await person.create({
               type: "conj",
               prenom_fr: prenom_conj,
@@ -408,7 +508,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
             );
 
             // update demandeur
-            if (demandeurToUpdate._id) {
+            if (demandeurToUpdate?._id) {
               demandeurToUpdate.prenom = prenom_dem || demandeurToUpdate.prenom;
               demandeurToUpdate.nom = nom_dem || demandeurToUpdate.nom;
               demandeurToUpdate.lieu_n = lieu_n_dem || demandeurToUpdate.lieu_n;
@@ -428,7 +528,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
             );
 
             // update conjoin
-            if (conjoinToUpdate._id) {
+            if (conjoinToUpdate?._id) {
               conjoinToUpdate.prenom = prenom_conj || conjoinToUpdate.prenom;
               conjoinToUpdate.nom = nom_conj || conjoinToUpdate.nom;
               conjoinToUpdate.lieu_n = lieu_n_conj || conjoinToUpdate.lieu_n;
@@ -578,7 +678,7 @@ const correctionDB = asyncHandler(async (req, res) => {
   const data = personsWithNoNameList.map(
     asyncHandler(async (personNoName) => {
       const dossierNoNameDem = await Dossier.find({
-        id_demandeur: personNoName._id,
+        id_demandeur: personNoName?._id,
       });
       console.log(dossierNoNameDem);
       if (dossierNoNameDem.length > 0)

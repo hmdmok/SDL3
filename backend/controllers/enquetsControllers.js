@@ -121,8 +121,11 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
       asyncHandler(async (dossier) => {
         // // extract demandeur
 
-        const { "Ref demande": num_dos, "Nom DE CONJOINT": nom_fr_conj } =
-          dossier;
+        const {
+          "Ref demande": num_dos,
+          "Nom DE CONJOINT": nom_fr_conj,
+          Nom: nom_fr_dema,
+        } = dossier;
 
         // find dossier to update
         const dossierToEnquet = await Dossier.find({ num_dos: num_dos });
@@ -132,8 +135,9 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
             var conjoin = {};
             if (
               dossier.id_demandeur &&
-              !(nom_fr_conj === "") &&
-              !(nom_fr_conj === "/")
+              !(nom_fr_dema === "") &&
+              !(nom_fr_dema === "/") &&
+              !(nom_fr_dema == null)
             ) {
               // get demandeur
               demandeur = await Person.findById(dossier.id_demandeur);
@@ -141,7 +145,8 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
             if (
               dossier.id_conjoin &&
               !(nom_fr_conj === "") &&
-              !(nom_fr_conj === "/")
+              !(nom_fr_conj === "/") &&
+              !(nom_fr_conj == null)
             ) {
               // get conjoin
               conjoin = await Person.findById(dossier.id_conjoin);
@@ -252,7 +257,7 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
     }
   });
 
-  const file = XLSX.readFile("../Book1.xlsx", {
+  const file = XLSX.readFile("../Book2.xlsx", {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -261,7 +266,6 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
 
   // var work_book = XLSX.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
   var sheet_name = file.SheetNames;
-  console.log(sheet_name);
   var stream = XLSX.stream.to_json(file.Sheets[sheet_name[2]], {
     raw: false,
   });
@@ -284,7 +288,7 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
             "Nom DE CONJOINT": nom_fr_conj,
             Nom: nom_fr_dema,
           } = dossier;
-
+          console.log(num_dos);
           // find dossier to update
           const dossierToEnquet = await Dossier.find({ num_dos: num_dos });
           if (dossierToEnquet.length > 0) {
@@ -294,7 +298,8 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
               if (
                 dossier.id_demandeur &&
                 !(nom_fr_dema === "") &&
-                !(nom_fr_dema === "/")
+                !(nom_fr_dema === "/") &&
+                !(nom_fr_dema == null)
               ) {
                 // get demandeur
                 demandeur = await Person.findById(dossier.id_demandeur);
@@ -302,50 +307,54 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
               if (
                 dossier.id_conjoin &&
                 !(nom_fr_conj === "") &&
-                !(nom_fr_conj === "/")
+                !(nom_fr_conj === "/") &&
+                !(nom_fr_conj == null)
               ) {
                 // get conjoin
                 conjoin = await Person.findById(dossier.id_conjoin);
               }
-              var newRecord = {
-                "N°": "",
-                NUM_DOSS: "",
-                CODE_P: "",
-                NOM_P: demandeur?.nom_fr || "" || "",
-                PRENOM_P: demandeur?.prenom_fr || "",
-                DDN_P: demandeur?.date_n || "",
-                ADR_P: "",
-                NUM_ACT_P: demandeur?.num_act || "",
-                PP: demandeur?.prenom_p_fr || "",
-                NPM: `${demandeur?.nom_m_fr} ${demandeur?.prenom_m_fr}` || "",
-                LIB_SEXE: demandeur?.gender || "",
-                CC: "",
-                NC: demandeur?.lieu_n_fr || "",
-                WILAYA: demandeur?.wil_n || "",
-              };
-              newData.push(newRecord);
-              var newRecord2 = {
-                "N°": "",
-                NUM_DOSS: "",
-                CODE_P: "",
-                NOM_P: conjoin?.nom_fr || "",
-                PRENOM_P: conjoin?.prenom_fr || "",
-                DDN_P: conjoin?.date_n || "",
-                ADR_P: "",
-                NUM_ACT_P: conjoin?.num_act || "",
-                PP: conjoin?.prenom_p_fr || "",
-                NPM: `${conjoin?.nom_m_fr} ${conjoin?.prenom_m_fr}` || "",
-                LIB_SEXE: conjoin?.gender || "",
-                CC: "",
-                NC: conjoin?.lieu_n_fr || "",
-                WILAYA: conjoin?.wil_n || "",
-              };
-              newData.push(newRecord2);
+              if (demandeur._id) {
+                var newRecord = {
+                  "N°": "",
+                  NUM_DOSS: num_dos,
+                  CODE_P: "",
+                  NOM_P: demandeur?.nom_fr || "",
+                  PRENOM_P: demandeur?.prenom_fr || "",
+                  DDN_P: demandeur?.date_n || "",
+                  ADR_P: "",
+                  NUM_ACT_P: demandeur?.num_act || "",
+                  PP: demandeur?.prenom_p_fr || "",
+                  NPM: `${demandeur?.nom_m_fr} ${demandeur?.prenom_m_fr}` || "",
+                  LIB_SEXE: demandeur?.gender || "",
+                  CC: "",
+                  NC: demandeur?.lieu_n_fr || "",
+                  WILAYA: demandeur?.wil_n || "",
+                };
+                newData.push(newRecord);
+              }
+              if (conjoin._id) {
+                var newRecord2 = {
+                  "N°": "",
+                  NUM_DOSS: num_dos,
+                  CODE_P: "",
+                  NOM_P: conjoin?.nom_fr || "",
+                  PRENOM_P: conjoin?.prenom_fr || "",
+                  DDN_P: conjoin?.date_n || "",
+                  ADR_P: "",
+                  NUM_ACT_P: conjoin?.num_act || "",
+                  PP: conjoin?.prenom_p_fr || "",
+                  NPM: `${conjoin?.nom_m_fr} ${conjoin?.prenom_m_fr}` || "",
+                  LIB_SEXE: conjoin?.gender || "",
+                  CC: "",
+                  NC: conjoin?.lieu_n_fr || "",
+                  WILAYA: conjoin?.wil_n || "",
+                };
+                newData.push(newRecord2);
+              }
 
-              return newRecord;
+              return i;
             });
             return Promise.all(listEnq).then(() => {
-              console.log(newData);
               var newWB = XLSX.utils.book_new();
               var newWS = XLSX.utils.json_to_sheet(newData);
               XLSX.utils.book_append_sheet(newWB, newWS, "Table1");
@@ -422,8 +431,11 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
         asyncHandler(async (dossier) => {
           // // extract demandeur
 
-          const { "Ref demande": num_dos, "Nom DE CONJOINT": nom_fr_conj } =
-            dossier;
+          const {
+            "Ref demande": num_dos,
+            "Nom DE CONJOINT": nom_fr_conj,
+            Nom: nom_fr_dema,
+          } = dossier;
 
           // find dossier to update
           const dossierToEnquet = await Dossier.find({ num_dos: num_dos });
@@ -432,7 +444,12 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
               asyncHandler(async function (dossier, i) {
                 var demandeur = {};
                 var conjoin = {};
-                if (dossier.id_demandeur) {
+                if (
+                  dossier.id_demandeur &&
+                  !(nom_fr_dema === "") &&
+                  !(nom_fr_dema === "/") &&
+                  !(nom_fr_dema == null)
+                ) {
                   // get demandeur
                   demandeur = await Person.findById(dossier.id_demandeur);
 
@@ -457,7 +474,8 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
                 if (
                   dossier.id_conjoin &&
                   !(nom_fr_conj === "") &&
-                  !(nom_fr_conj === "/")
+                  !(nom_fr_conj === "/") &&
+                  !(nom_fr_conj == null)
                 ) {
                   // get conjoin
                   conjoin = await Person.findById(dossier.id_conjoin);
