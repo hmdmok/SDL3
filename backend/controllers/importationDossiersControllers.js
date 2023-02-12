@@ -236,7 +236,7 @@ const addDossiers = asyncHandler(async (req, res) => {
 });
 
 const updateDossiersFran = asyncHandler(async (req, res) => {
-  const file = reader.readFile("../Book1.xlsx", {
+  const file = reader.readFile("../Taibet Moins 35 (11-02-2023).xlsx", {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -321,6 +321,8 @@ const updateDossiersFran = asyncHandler(async (req, res) => {
                 prenom_m_dem || demandeurToUpdate.prenom_m_fr;
               demandeurToUpdate.nom_m_fr =
                 nom_m_dem || demandeurToUpdate.nom_m_fr;
+              demandeurToUpdate.stuation_f =
+                stuation_f_dem || demandeurToUpdate.stuation_f;
               const updatedDemandeur = await demandeurToUpdate.save();
             }
           }
@@ -351,8 +353,36 @@ const updateDossiersFran = asyncHandler(async (req, res) => {
               conjoinToUpdate.nom_m_fr = nom_m_conj || conjoinToUpdate.nom_m_fr;
               const updatedConjoin = await conjoinToUpdate.save();
             }
-          }
+          } else if (
+            (stuation_f_dem === "M" || stuation_f_dem === "V") &&
+            !(nom_conj === "") &&
+            !(nom_conj === "/") &&
+            !(nom_conj == null)
+          ) {
+            var gender_conj = "";
 
+            if (gender_dem === "M") {
+              gender_conj = "F";
+            } else {
+              gender_conj = "M";
+            }
+            conjoinAdded = await person.create({
+              type: "conj",
+              prenom_fr: prenom_conj,
+              nom_fr: nom_conj,
+              gender: gender_conj,
+              num_act: num_act_conj,
+              date_n: date_n_conj,
+              lieu_n_fr: lieu_n_conj,
+              prenom_p_fr: prenom_p_conj,
+              prenom_m_fr: prenom_m_conj,
+              nom_m_fr: nom_m_conj,
+              num_i_n: num_act_conj + " " + date_n_conj,
+              creator: "test3",
+            });
+            dossierToUpdate[0].id_conjoin = conjoinAdded._id || "";
+            await dossierToUpdate[0].save();
+          }
           dossierUpdatededCount++;
         } else {
           // check donnee valide

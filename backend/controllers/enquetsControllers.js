@@ -96,7 +96,7 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
 const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
   var {} = req.body;
 
-  const file = XLSX.readFile("../Book1.xlsx", {
+  const file = XLSX.readFile("../Taibet Moins 35 (11-02-2023).xlsx", {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -122,6 +122,9 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
         // // extract demandeur
 
         const {
+          "N°": numOrdre,
+          Type: typeDateNDem,
+          Typeproduit: typeDateNCon,
           "Ref demande": num_dos,
           "Nom DE CONJOINT": nom_fr_conj,
           Nom: nom_fr_dema,
@@ -130,59 +133,52 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
         // find dossier to update
         const dossierToEnquet = await Dossier.find({ num_dos: num_dos });
         if (dossierToEnquet.length > 0) {
-          const listEnq = dossierToEnquet.map(async function (dossier, i) {
-            var demandeur = {};
-            var conjoin = {};
-            if (
-              dossier.id_demandeur &&
-              !(nom_fr_dema === "") &&
-              !(nom_fr_dema === "/") &&
-              !(nom_fr_dema == null)
-            ) {
-              // get demandeur
-              demandeur = await Person.findById(dossier.id_demandeur);
-            }
-            if (
-              dossier.id_conjoin &&
-              !(nom_fr_conj === "") &&
-              !(nom_fr_conj === "/") &&
-              !(nom_fr_conj == null)
-            ) {
-              // get conjoin
-              conjoin = await Person.findById(dossier.id_conjoin);
-            }
-            var newRecord = {
-              Ordre: i + 1,
-              Nom: demandeur?.nom_fr || "" || "",
-              Prénom: demandeur?.prenom_fr || "",
-              Sexe: demandeur?.gender || "",
-              "Date de Naissance": demandeur?.date_n || "",
-              "Type Date de Naissance": "" || "",
-              "Commune de Naissance": demandeur?.lieu_n_fr || "",
-              "WILAYA DE NAISSANCE": demandeur?.wil_n || "",
-              "N°EXTR DE NAISSANCE": demandeur?.num_act || "",
-              "Sit. Fam": demandeur?.stuation_f || "",
-              "Prénom du Pére": demandeur?.prenom_p_fr || "",
-              "Nom de la Mére": demandeur?.nom_m_fr || "",
-              "Prénom de la Mére": demandeur?.prenom_m_fr || "",
-              "Nom Conj": conjoin?.nom_fr || "",
-              "Prénom conj": conjoin?.prenom_fr || "",
-              "Date de Naissance conj": conjoin?.date_n || "",
-              "Type Date de Naissance conj": "" || "",
-              "Commune de Naissance conj": conjoin?.lieu_n_fr || "",
-              "WILAYA DE NAISSANCE conj": conjoin?.wil_n || "",
-              "N°EXTR DE NAISSANCE conj": conjoin?.num_act || "",
-              "Prénom du Pére conj": conjoin?.prenom_p_fr || "",
-              "Nom de la Mére conj": conjoin?.nom_m_fr || "",
-              "Prénom de la Mére conj": conjoin?.prenom_m_fr || "",
-            };
-            newData.push(newRecord);
-
-            return newRecord;
-          });
-          return Promise.all(listEnq).then(() => {
-            console.log(newData);
-          });
+          var demandeur = {};
+          var conjoin = {};
+          if (
+            dossierToEnquet[0].id_demandeur &&
+            !(nom_fr_dema === "") &&
+            !(nom_fr_dema === "/") &&
+            !(nom_fr_dema == null)
+          ) {
+            // get demandeur
+            demandeur = await Person.findById(dossierToEnquet[0].id_demandeur);
+          }
+          if (
+            dossierToEnquet[0].id_conjoin &&
+            !(nom_fr_conj === "") &&
+            !(nom_fr_conj === "/") &&
+            !(nom_fr_conj == null)
+          ) {
+            // get conjoin
+            conjoin = await Person.findById(dossierToEnquet[0].id_conjoin);
+          }
+          var newRecord = {
+            Ordre: numOrdre,
+            Nom: demandeur?.nom_fr || "",
+            Prénom: demandeur?.prenom_fr || "",
+            Sexe: demandeur?.gender || "",
+            "Date de Naissance": demandeur?.date_n || "",
+            "Type Date de Naissance": typeDateNDem || "",
+            "Commune de Naissance": demandeur?.lieu_n_fr || "",
+            "WILAYA DE NAISSANCE": demandeur?.wil_n || "",
+            "N°EXTR DE NAISSANCE": demandeur?.num_act || "",
+            "Sit. Fam": demandeur?.stuation_f || "",
+            "Prénom du Pére": demandeur?.prenom_p_fr || "",
+            "Nom de la Mére": demandeur?.nom_m_fr || "",
+            "Prénom de la Mére": demandeur?.prenom_m_fr || "",
+            "Nom Conj": conjoin?.nom_fr || "",
+            "Prénom conj": conjoin?.prenom_fr || "",
+            "Date de Naissance conj": conjoin?.date_n || "",
+            "Type Date de Naissance conj": typeDateNCon || "",
+            "Commune de Naissance conj": conjoin?.lieu_n_fr || "",
+            "WILAYA DE NAISSANCE conj": conjoin?.wil_n || "",
+            "N°EXTR DE NAISSANCE conj": conjoin?.num_act || "",
+            "Prénom du Pére conj": conjoin?.prenom_p_fr || "",
+            "Nom de la Mére conj": conjoin?.nom_m_fr || "",
+            "Prénom de la Mére conj": conjoin?.prenom_m_fr || "",
+          };
+          newData.push(newRecord);
         }
       })
     );
@@ -257,7 +253,7 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
     }
   });
 
-  const file = XLSX.readFile("../Book2.xlsx", {
+  const file = XLSX.readFile("../Taibet Moins 35 (11-02-2023).xlsx", {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -284,6 +280,7 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
           // // extract demandeur
 
           const {
+            "N°": numOrdre,
             "Ref demande": num_dos,
             "Nom DE CONJOINT": nom_fr_conj,
             Nom: nom_fr_dema,
@@ -292,74 +289,71 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
           // find dossier to update
           const dossierToEnquet = await Dossier.find({ num_dos: num_dos });
           if (dossierToEnquet.length > 0) {
-            const listEnq = dossierToEnquet.map(async function (dossier, i) {
-              var demandeur = {};
-              var conjoin = {};
-              if (
-                dossier.id_demandeur &&
-                !(nom_fr_dema === "") &&
-                !(nom_fr_dema === "/") &&
-                !(nom_fr_dema == null)
-              ) {
-                // get demandeur
-                demandeur = await Person.findById(dossier.id_demandeur);
-              }
-              if (
-                dossier.id_conjoin &&
-                !(nom_fr_conj === "") &&
-                !(nom_fr_conj === "/") &&
-                !(nom_fr_conj == null)
-              ) {
-                // get conjoin
-                conjoin = await Person.findById(dossier.id_conjoin);
-              }
-              if (demandeur._id) {
-                var newRecord = {
-                  "N°": "",
-                  NUM_DOSS: num_dos,
-                  CODE_P: "",
-                  NOM_P: demandeur?.nom_fr || "",
-                  PRENOM_P: demandeur?.prenom_fr || "",
-                  DDN_P: demandeur?.date_n || "",
-                  ADR_P: "",
-                  NUM_ACT_P: demandeur?.num_act || "",
-                  PP: demandeur?.prenom_p_fr || "",
-                  NPM: `${demandeur?.nom_m_fr} ${demandeur?.prenom_m_fr}` || "",
-                  LIB_SEXE: demandeur?.gender || "",
-                  CC: "",
-                  NC: demandeur?.lieu_n_fr || "",
-                  WILAYA: demandeur?.wil_n || "",
-                };
-                newData.push(newRecord);
-              }
-              if (conjoin._id) {
-                var newRecord2 = {
-                  "N°": "",
-                  NUM_DOSS: num_dos,
-                  CODE_P: "",
-                  NOM_P: conjoin?.nom_fr || "",
-                  PRENOM_P: conjoin?.prenom_fr || "",
-                  DDN_P: conjoin?.date_n || "",
-                  ADR_P: "",
-                  NUM_ACT_P: conjoin?.num_act || "",
-                  PP: conjoin?.prenom_p_fr || "",
-                  NPM: `${conjoin?.nom_m_fr} ${conjoin?.prenom_m_fr}` || "",
-                  LIB_SEXE: conjoin?.gender || "",
-                  CC: "",
-                  NC: conjoin?.lieu_n_fr || "",
-                  WILAYA: conjoin?.wil_n || "",
-                };
-                newData.push(newRecord2);
-              }
+            var demandeur = {};
+            var conjoin = {};
+            if (
+              dossierToEnquet[0].id_demandeur &&
+              !(nom_fr_dema === "") &&
+              !(nom_fr_dema === "/") &&
+              !(nom_fr_dema == null)
+            ) {
+              // get demandeur
+              demandeur = await Person.findById(
+                dossierToEnquet[0].id_demandeur
+              );
+            }
+            if (
+              dossierToEnquet[0].id_conjoin &&
+              !(nom_fr_conj === "") &&
+              !(nom_fr_conj === "/") &&
+              !(nom_fr_conj == null)
+            ) {
+              // get conjoin
+              conjoin = await Person.findById(dossierToEnquet[0].id_conjoin);
+            }
+            if (demandeur._id) {
+              var newRecord = {
+                "N°": numOrdre,
+                NUM_DOSS: num_dos,
+                CODE_P: "",
+                NOM_P: demandeur?.nom_fr || "",
+                PRENOM_P: demandeur?.prenom_fr || "",
+                DDN_P: demandeur?.date_n || "",
+                ADR_P: "",
+                NUM_ACT_P: demandeur?.num_act || "",
+                PP: demandeur?.prenom_p_fr || "",
+                NPM: `${demandeur?.nom_m_fr} ${demandeur?.prenom_m_fr}` || "",
+                LIB_SEXE: demandeur?.gender || "",
+                CC: "",
+                NC: demandeur?.lieu_n_fr || "",
+                WILAYA: demandeur?.wil_n || "",
+              };
+              newData.push(newRecord);
+            }
+            if (conjoin._id) {
+              var newRecord2 = {
+                "N°": "",
+                NUM_DOSS: num_dos,
+                CODE_P: "",
+                NOM_P: conjoin?.nom_fr || "",
+                PRENOM_P: conjoin?.prenom_fr || "",
+                DDN_P: conjoin?.date_n || "",
+                ADR_P: "",
+                NUM_ACT_P: conjoin?.num_act || "",
+                PP: conjoin?.prenom_p_fr || "",
+                NPM: `${conjoin?.nom_m_fr} ${conjoin?.prenom_m_fr}` || "",
+                LIB_SEXE: conjoin?.gender || "",
+                CC: "",
+                NC: conjoin?.lieu_n_fr || "",
+                WILAYA: conjoin?.wil_n || "",
+              };
+              newData.push(newRecord2);
+            }
 
-              return i;
-            });
-            return Promise.all(listEnq).then(() => {
-              var newWB = XLSX.utils.book_new();
-              var newWS = XLSX.utils.json_to_sheet(newData);
-              XLSX.utils.book_append_sheet(newWB, newWS, "Table1");
-              XLSX.writeFile(newWB, "EnquetCNAS.xlsx");
-            });
+            var newWB = XLSX.utils.book_new();
+            var newWS = XLSX.utils.json_to_sheet(newData);
+            XLSX.utils.book_append_sheet(newWB, newWS, "Table1");
+            XLSX.writeFile(newWB, "EnquetCNAS.xlsx");
           }
         })
       );
@@ -404,7 +398,7 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
 
   let records = [];
 
-  const file = XLSX.readFile("../Book1.xlsx", {
+  const file = XLSX.readFile("../Taibet Moins 35 (11-02-2023).xlsx", {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -432,6 +426,7 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
           // // extract demandeur
 
           const {
+            "N°": numOrdre,
             "Ref demande": num_dos,
             "Nom DE CONJOINT": nom_fr_conj,
             Nom: nom_fr_dema,
@@ -440,72 +435,63 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
           // find dossier to update
           const dossierToEnquet = await Dossier.find({ num_dos: num_dos });
           if (dossierToEnquet.length > 0) {
-            const listEnq = dossierToEnquet.map(
-              asyncHandler(async function (dossier, i) {
-                var demandeur = {};
-                var conjoin = {};
-                if (
-                  dossier.id_demandeur &&
-                  !(nom_fr_dema === "") &&
-                  !(nom_fr_dema === "/") &&
-                  !(nom_fr_dema == null)
-                ) {
-                  // get demandeur
-                  demandeur = await Person.findById(dossier.id_demandeur);
+            var demandeur = {};
+            var conjoin = {};
+            if (
+              dossierToEnquet[0].id_demandeur &&
+              !(nom_fr_dema === "") &&
+              !(nom_fr_dema === "/") &&
+              !(nom_fr_dema == null)
+            ) {
+              // get demandeur
+              demandeur = await Person.findById(
+                dossierToEnquet[0].id_demandeur
+              );
 
-                  var demandeurF = {
-                    CODE_P: "",
-                    NOM_P: demandeur.nom_fr || "",
-                    PRENOM_P: demandeur.prenom_fr || "",
-                    DNN_P: demandeur.date_n || "1800-01-01",
-                    ADR_P: "",
-                    NUM_ACT_P: demandeur.num_act || "",
-                    PRENP: demandeur.prenom_p_fr || "",
-                    NPM: `${demandeur.nom_m_fr || ""} ${
-                      demandeur.prenom_m_fr || ""
-                    }`,
-                    LIB_SEXE: demandeur.gender || "",
-                    CC: "",
-                    NC: demandeur.lieu_n_fr || "",
-                    WILAYA: demandeur.wil_n || "",
-                  };
-                  records.push(demandeurF);
-                }
-                if (
-                  dossier.id_conjoin &&
-                  !(nom_fr_conj === "") &&
-                  !(nom_fr_conj === "/") &&
-                  !(nom_fr_conj == null)
-                ) {
-                  // get conjoin
-                  conjoin = await Person.findById(dossier.id_conjoin);
-                  var conjoinF = {
-                    CODE_P: "",
-                    NOM_P: conjoin.nom_fr || "",
-                    PRENOM_P: conjoin.prenom_fr || "",
-                    DNN_P: conjoin.date_n || "1800-01-01",
-                    ADR_P: "",
-                    NUM_ACT_P: conjoin.num_act || "",
-                    PRENP: conjoin.prenom_p_fr || "",
-                    NPM: `${conjoin.nom_m_fr || ""} ${
-                      conjoin.prenom_m_fr || ""
-                    }`,
-                    LIB_SEXE: conjoin.gender || "",
-                    CC: "",
-                    NC: conjoin.lieu_n_fr || "",
-                    WILAYA: conjoin.wil_n || "",
-                  };
-                  records.push(conjoinF);
-                }
-              })
-            );
-            return Promise.all(listEnq)
-              .then(() => {
-                console.log("dossier added");
-              })
-              .catch((err) => {
-                console.log(err);
-              });
+              var demandeurF = {
+                CODE_P: numOrdre,
+                NOM_P: demandeur.nom_fr || "",
+                PRENOM_P: demandeur.prenom_fr || "",
+                DNN_P: demandeur.date_n || "1800-01-01",
+                ADR_P: "",
+                NUM_ACT_P: demandeur.num_act || "",
+                PRENP: demandeur.prenom_p_fr || "",
+                NPM: `${demandeur.nom_m_fr || ""} ${
+                  demandeur.prenom_m_fr || ""
+                }`,
+                LIB_SEXE: demandeur.gender || "",
+                CC: "",
+                NC: demandeur.lieu_n_fr || "",
+                WILAYA: demandeur.wil_n || "",
+              };
+              records.push(demandeurF);
+            }
+            if (
+              dossierToEnquet[0].id_conjoin &&
+              !(nom_fr_conj === "") &&
+              !(nom_fr_conj === "/") &&
+              !(nom_fr_conj == null)
+            ) {
+              // get conjoin
+              conjoin = await Person.findById(dossierToEnquet[0].id_conjoin);
+              var conjoinF = {
+                CODE_P: `${parseInt(numOrdre) + excel_file.length}`,
+                NOM_P: conjoin.nom_fr || "",
+                PRENOM_P: conjoin.prenom_fr || "",
+                DNN_P: conjoin.date_n || "1800-01-01",
+                ADR_P: "",
+                NUM_ACT_P: conjoin.num_act || "",
+                PRENP: conjoin.prenom_p_fr || "",
+                NPM: `${conjoin.nom_m_fr || ""} ${conjoin.prenom_m_fr || ""}`,
+                LIB_SEXE: conjoin.gender || "",
+                CC: "",
+                NC: conjoin.lieu_n_fr || "",
+                WILAYA: conjoin.wil_n || "",
+              };
+              records.push(conjoinF);
+            }
+
+            console.log("dossier added");
           }
         })
       );
