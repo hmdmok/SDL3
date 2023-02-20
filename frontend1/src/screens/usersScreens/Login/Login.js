@@ -24,7 +24,10 @@ function Login() {
     if (userInfo) {
       history("/home");
     }
-  }, [history, userInfo]);
+    if (error === "Initiate system file!!!") {
+      history("/system");
+    }
+  }, [history, userInfo, error]);
 
   const submitHandler = async (event) => {
     event.preventDefault();

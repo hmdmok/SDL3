@@ -111,11 +111,15 @@ function Willaya() {
       <tr>
         {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
         {loading && <Loading />}
-        
-        {errorDelete && <ErrorMessage variant="danger">{errorDelete}</ErrorMessage>}
+
+        {errorDelete && (
+          <ErrorMessage variant="danger">{errorDelete}</ErrorMessage>
+        )}
         {loadingDelete && <Loading />}
 
-        {errorUpdate && <ErrorMessage variant="danger">{errorUpdate}</ErrorMessage>}
+        {errorUpdate && (
+          <ErrorMessage variant="danger">{errorUpdate}</ErrorMessage>
+        )}
         {loadingUpdate && <Loading />}
 
         {errorAdd && <ErrorMessage variant="danger">{errorAdd}</ErrorMessage>}

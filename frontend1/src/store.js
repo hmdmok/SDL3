@@ -9,6 +9,11 @@ import {
   userUpdateReducer,
 } from "./reducers/userReducers";
 import {
+  systemAddReducer,
+  systemCheckReducer,
+  systemUpdateReducer,
+} from "./reducers/systemReducers";
+import {
   noteAddReducer,
   noteDeleteReducer,
   noteGetReducer,
@@ -59,6 +64,10 @@ const reducer = combineReducers({
   userUpdate: userUpdateReducer,
   userDelete: userDeleteReducer,
 
+  systemCheck: systemCheckReducer,
+  systemAdd: systemAddReducer,
+  systemUpdate: systemUpdateReducer,
+
   noteAdd: noteAddReducer,
   noteList: noteListReducer,
   noteUpdate: noteUpdateReducer,
@@ -102,8 +111,13 @@ const userInfoFromStorage = localStorage.getItem("userInfo")
   ? JSON.parse(localStorage.getItem("userInfo"))
   : null;
 
+const systemInfoFromStorage = localStorage.getItem("systemInfo")
+  ? JSON.parse(localStorage.getItem("systemInfo"))
+  : null;
+
 const initialState = {
   userLogin: { userInfo: userInfoFromStorage },
+  systemCheck: { systemInfo: systemInfoFromStorage },
 };
 
 const middleware = [thunk];

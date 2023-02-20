@@ -26,6 +26,7 @@ import UpdateUser from "./screens/usersScreens/UpdateUser/UpdateUser";
 import UserProfile from "./screens/usersScreens/UserProfile/UserProfile";
 import UpdateDemandeur from "./screens/dossiersScreens/UpdateDemandeur/UpdateDemandeur";
 import AddConjoin from "./screens/dossiersScreens/AddConjoin/AddConjoin";
+import System from "./screens/setingsScreens/System/System";
 
 const App = () => (
   <BrowserRouter>
@@ -34,6 +35,7 @@ const App = () => (
       <Route path="/" element={<LandingPage />} />
       <Route path="/dossiers" element={<Dossiers />} />
       <Route path="/home" element={<HomeScreen />} />
+      <Route path="/system" element={<System />} />
       <Route path="/adddossiers/:id" element={<UpdateDossiers />} />
       <Route path="/scandossier" element={<ScanDossier />} />
       <Route path="/demandeur" element={<AddDemandeur />} />

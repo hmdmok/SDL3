@@ -1,6 +1,8 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
+const System = require("../models/systemModel");
 const generateToken = require("../utils/generateToken");
+const { initiateDB } = require("../config/db");
 
 const addNewUser = asyncHandler(async (req, res) => {
   if (req.user.usertype !== "super") {
@@ -62,20 +64,35 @@ const addNewUser = asyncHandler(async (req, res) => {
 
 const authUser = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
-  const user = await User.findOne({ username });
-  if (user && (await user.matchPassword(password))) {
-    res.json({
-      _id: user._id,
-      username: user.username,
-      firstname: user.firstname,
-      lastname: user.lastname,
-      usertype: user.usertype,
-      photo_link: user.photo_link,
-      token: generateToken(user._id),
-    });
+  var noUsers = false;
+  const usersList = await User.find();
+  const systemsList = await System.find();
+  if (systemsList.length > 0) {
+    if (usersList.length > 0) {
+      const user = await User.findOne({ username });
+      if (user && (await user.matchPassword(password))) {
+        res.json({
+          _id: user._id,
+          username: user.username,
+          firstname: user.firstname,
+          lastname: user.lastname,
+          usertype: user.usertype,
+          photo_link: user.photo_link,
+          token: generateToken(user._id),
+        });
+      } else {
+        res.status(400);
+        throw new Error("Error authontificating User !");
+      }
+    } else {
+      initiateDB();
+      res.status(400);
+      throw new Error("No user found please try test connection!");
+    }
   } else {
+    initiateDB();
     res.status(400);
-    throw new Error("Error authontificating User !");
+    throw new Error("Initiate system file!!!");
   }
 });
 

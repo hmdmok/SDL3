@@ -8,6 +8,7 @@ const scanDossiersRoutes = require("./routes/scanDossiersRoutes");
 const notesRoutes = require("./routes/notesRoutes");
 const wilayasRoutes = require("./routes/wilayasRoutes");
 const communesRoutes = require("./routes/communesRoutes");
+const dairasRoutes = require("./routes/dairasRoutes");
 const personsRoutes = require("./routes/personsRoutes");
 const importDossiersRoutes = require("./routes/importDossiersRoutes");
 const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
@@ -29,6 +30,7 @@ app.use("/api/scandossiers", scanDossiersRoutes);
 app.use("/api/notes", notesRoutes);
 app.use("/api/wilayas", wilayasRoutes);
 app.use("/api/communes", communesRoutes);
+app.use("/api/dairas", dairasRoutes);
 app.use("/api/persons", personsRoutes);
 app.use("/api/importationData", importDossiersRoutes);
 
