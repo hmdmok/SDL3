@@ -6,12 +6,15 @@ import Loading from "../../../components/Loading";
 import MainScreen from "../../../components/MainScreen/MainScreen";
 import { listWilayasAction } from "../../../actions/wilayaActions";
 import { listCommunesByWilayaAction } from "../../../actions/communeActions";
+import { listDairasByWilayaAction } from "../../../actions/dairaActions";
 
 function System() {
   const [selectedWilaya, setSelectedWilaya] = useState("");
   const [selectedCommune, setSelectedCommune] = useState("");
+  const [selectedDaira, setSelectedDaira] = useState("");
   const [wilayasList, setWilayasList] = useState([]);
   const [communesList, setCommunesList] = useState([]);
+  const [dairasList, setDairasList] = useState([]);
   const [typeAdmin, setTypeAdmin] = useState("");
   const dispatch = useDispatch();
 
@@ -24,6 +27,13 @@ function System() {
     communes,
     error: errorCommunes,
   } = communeGetByWilaya;
+
+  const dairaGetByWilaya = useSelector((state) => state.dairaGetByWilaya);
+  const {
+    loading: loadingDairas,
+    dairas,
+    error: errorDairas,
+  } = dairaGetByWilaya;
 
   useEffect(() => {
     dispatch(listWilayasAction());
@@ -42,17 +52,15 @@ function System() {
   }, [communes]);
 
   useEffect(() => {
-    dispatch(listCommunesByWilayaAction(selectedWilaya));
-  }, [dispatch, selectedWilaya]);
+    if (dairas?.length > 0) {
+      setDairasList(dairas);
+    }
+  }, [dairas]);
 
   useEffect(() => {
-    console.log(selectedCommune);
-  }, [selectedCommune]);
-
-  const selectTypeAdmin = (wil_n) => {
-    setTypeAdmin(wil_n);
-    console.log(wil_n);
-  };
+    dispatch(listCommunesByWilayaAction(selectedWilaya));
+    dispatch(listDairasByWilayaAction(selectedWilaya));
+  }, [dispatch, selectedWilaya]);
 
   const readWilaya = (wilayaMap) => {
     return (
@@ -76,7 +84,7 @@ function System() {
     );
   };
 
-  const readCommune = (communes) => {
+  const readCommune = (communs) => {
     return (
       <select
         onChange={(e) => setSelectedCommune(e.target.value)}
@@ -89,7 +97,29 @@ function System() {
         <option value="-1" disabled hidden>
           اختر البلدية
         </option>
-        {communes?.map((commune) => (
+        {communs?.map((commune) => (
+          <option key={commune._id} value={commune.code}>
+            {commune.nomAr}
+          </option>
+        ))}
+      </select>
+    );
+  };
+
+  const readDaira = (dairs) => {
+    return (
+      <select
+        onChange={(e) => setSelectedDaira(e.target.value)}
+        id="comm_n"
+        className="form-control text-right"
+        name="comm_n"
+        defaultValue="-1"
+        required
+      >
+        <option value="-1" disabled hidden>
+          اختر البلدية
+        </option>
+        {dairs?.map((commune) => (
           <option key={commune._id} value={commune.code}>
             {commune.nomAr}
           </option>
@@ -106,11 +136,15 @@ function System() {
         <ErrorMessage variant="danger">{errorCommunes}</ErrorMessage>
       )}
       {loadingCommunes && <Loading />}
+      {errorDairas && (
+        <ErrorMessage variant="danger">{errorDairas}</ErrorMessage>
+      )}
+      {loadingDairas && <Loading />}
       <div>
         <Card.Header className="form-control text-right">الادارة</Card.Header>
         <Card.Body>
           <select
-            onChange={(e) => selectTypeAdmin(e.target.value)}
+            onChange={(e) => setTypeAdmin(e.target.value)}
             id="typeAdmin"
             className="form-control text-right"
             name="typeAdmin"
@@ -150,7 +184,7 @@ function System() {
             <Card.Header className="form-control text-right">
               اختار الدائرة
             </Card.Header>
-            <Card.Body>{readWilaya(wilayaList)}</Card.Body>
+            <Card.Body>{readDaira(dairasList)}</Card.Body>
           </div>
         )}
       </div>

@@ -7,6 +7,7 @@ function pad(n, length) {
 }
 
 const dairasList = () => {
+  
   // make a dairas list with duplicates
   const dairasDup = Communes.map((commune, indx) => {
     return {
