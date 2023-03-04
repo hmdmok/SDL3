@@ -19,6 +19,23 @@ const connectDB = asyncHandler(async () => {
   }
 });
 
+const connectSystemDB = asyncHandler(async () => {
+  try {
+    const conn = await mongoose.connect(
+      "mongodb+srv://hmdmoknine:<1pg1Om0Yr71SREf8>@cluster0.9zctbg5.mongodb.net/?retryWrites=true&w=majority"
+    );
+
+    // const conn = await mongoose.connect(process.env.MONGO_URI, {
+    //   useNewUrlParser: true,
+    //   useUnifiedTopology: true,
+    // });
+    console.log(`SystemDB is Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.log(`Error connecting SytemDB: ${error}`);
+    process.exit();
+  }
+});
+
 const initiateDB = asyncHandler(async () => {
   try {
     //check the wilayas count
@@ -80,4 +97,4 @@ const initiateDB = asyncHandler(async () => {
   }
 });
 
-module.exports = { connectDB, initiateDB };
+module.exports = { connectDB, initiateDB, connectSystemDB };

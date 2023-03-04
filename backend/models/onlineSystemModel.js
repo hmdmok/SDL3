@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-const systemSchema = mongoose.Schema(
+const onlineSystemSchema = mongoose.Schema(
   {
     // date of installation
     installDate: {
@@ -32,11 +32,6 @@ const systemSchema = mongoose.Schema(
       required: true,
     },
 
-    //  online  ID
-    onlineID: {
-      type: String,
-    },
-
     // last online check date
     onlineCheckDate: {
       type: String,
@@ -47,7 +42,7 @@ const systemSchema = mongoose.Schema(
   }
 );
 
-systemSchema.pre("save", async function (next) {
+onlineSystemSchema.pre("save", async function (next) {
   if (!this.isModified("machineCode")) {
     next();
   }
@@ -55,10 +50,10 @@ systemSchema.pre("save", async function (next) {
   this.machineCode = bcrypt.hash(this.machineCode, salt);
 });
 
-systemSchema.methods.matchPassword = async function (enteredpassword) {
+onlineSystemSchema.methods.matchPassword = async function (enteredpassword) {
   return await bcrypt.compare(enteredpassword, this.machineCode);
 };
 
-const System = mongoose.model("System", systemSchema);
+const OnlineSystem = mongoose.model("OnlineSystem", onlineSystemSchema);
 
-module.exports = System;
+module.exports = OnlineSystem;

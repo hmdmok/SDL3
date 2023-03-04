@@ -3,6 +3,7 @@ const dossiers = require("./DataBase/dossiers");
 const dotenv = require("dotenv");
 const { connectDB } = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
+const systemRoutes = require("./routes/systemRoutes");
 const dossiersRoutes = require("./routes/dossiersRoutes");
 const scanDossiersRoutes = require("./routes/scanDossiersRoutes");
 const notesRoutes = require("./routes/notesRoutes");
@@ -25,6 +26,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/users", userRoutes);
+app.use("/api/system", systemRoutes);
 app.use("/api/dossiers", dossiersRoutes);
 app.use("/api/scandossiers", scanDossiersRoutes);
 app.use("/api/notes", notesRoutes);

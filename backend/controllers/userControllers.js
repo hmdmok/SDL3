@@ -67,7 +67,8 @@ const authUser = asyncHandler(async (req, res) => {
   var noUsers = false;
   const usersList = await User.find();
   const systemsList = await System.find();
-  if (systemsList.length > 0) {
+  console.log(systemsList.length);
+  if ((systemsList.length >= 0)) {
     if (usersList.length > 0) {
       const user = await User.findOne({ username });
       if (user && (await user.matchPassword(password))) {
