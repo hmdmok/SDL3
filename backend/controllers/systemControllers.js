@@ -17,36 +17,47 @@ const getSystem = asyncHandler(async (req, res) => {
 const createSystem = asyncHandler(async (req, res) => {
   const { administrationType, administrationName } = req.body;
 
-  if (req.user.usertype !== "super") {
-    res.status(400);
-    throw new Error("المستخدم غير مرخص");
-  }
-
   if (!administrationType || !administrationName) {
     res.status(400);
     throw new Error("يجب ادخال كل المعلومات");
   }
-  const installDate = new Date();
-  const onlineCheckDate = new Date();
-  const installType = "trailer";
+  let installDate = new Date();
+  let onlineCheckDate = new Date();
+  let installType = "trailer";
   let machineCode = "";
   hddserial.first(function (err, serial) {
     machineCode = serial;
   });
-  const checkSystemOnline = async (serial) => {
-    mongoose.connection.close();
-    connectSystemDB();
-    const allOnlineSystem = await OnlineSystem.find();
-    let foundSystemCheck = false;
-    allOnlineSystem?.map(async (onlineSystem) => {
-      if (await onlineSystem.matchPassword(serial)) {
-        foundSystemCheck = true;
-        mongoose.connection.close();
-        connectDB();
-        res.json("alredy have an account !!!");
-      }
-    });
-    if (!foundSystemCheck) {
+
+  mongoose.connection.close();
+  connectSystemDB().then(async () => {
+    const allOnlineSystem = await OnlineSystem.findOne({ machineCode });
+
+    if (allOnlineSystem) {
+      mongoose.connection.close();
+      connectDB().then(async () => {
+        console.log("alredy have an account !!!");
+        const systemToAdd = await System.create({
+          installDate: allOnlineSystem.installDate,
+          installType: allOnlineSystem.installType,
+          administrationType: allOnlineSystem.administrationType,
+          administrationName: allOnlineSystem.administrationName,
+          machineCode: allOnlineSystem.machineCode,
+          onlineID: allOnlineSystem._id,
+          onlineCheckDate: allOnlineSystem.onlineCheckDate,
+        });
+        if (systemToAdd) {
+          res.status(201).json({
+            _id: systemToAdd._id,
+            installType: systemToAdd.installType,
+            onlineID: systemToAdd.onlineID,
+          });
+        } else {
+          res.status(400);
+          throw new Error("Error add System File");
+        }
+      });
+    } else {
       const onlineSystemToAdd = await OnlineSystem.create({
         installDate,
         installType,
@@ -56,28 +67,29 @@ const createSystem = asyncHandler(async (req, res) => {
         onlineCheckDate,
       });
       mongoose.connection.close();
-      connectDB();
-      const systemToAdd = await System.create({
-        installDate,
-        installType,
-        administrationType,
-        administrationName,
-        machineCode,
-        onlineID: onlineSystemToAdd._id,
-        onlineCheckDate,
-      });
-      if (systemToAdd) {
-        res.status(201).json({
-          _id: systemToAdd._id,
-          installType: systemToAdd.installType,
-          onlineID: systemToAdd.onlineID,
+      connectDB().then(async () => {
+        const systemToAdd = await System.create({
+          installDate,
+          installType,
+          administrationType,
+          administrationName,
+          machineCode,
+          onlineID: onlineSystemToAdd._id,
+          onlineCheckDate,
         });
-      } else {
-        res.status(400);
-        throw new Error("Error add System File");
-      }
+        if (systemToAdd) {
+          res.status(201).json({
+            _id: systemToAdd._id,
+            installType: systemToAdd.installType,
+            onlineID: systemToAdd.onlineID,
+          });
+        } else {
+          res.status(400);
+          throw new Error("Error add System File");
+        }
+      });
     }
-  };
+  });
 });
 
 const updateSystem = asyncHandler(async (req, res) => {

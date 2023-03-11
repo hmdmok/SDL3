@@ -60,6 +60,7 @@ import {
   enquetCNLListReducer,
 } from "./reducers/enquetCNLReducers";
 import { importationDataReducer } from "./reducers/importationDataReducers";
+import { importationFichierReducer } from "./reducers/importationFichierReducers";
 
 const reducer = combineReducers({
   userLogin: userLoginReducer,
@@ -112,6 +113,8 @@ const reducer = combineReducers({
   enquetCASNOSGet: enquetCASNOSGetReducer,
 
   importedData: importationDataReducer,
+  
+  importedFichier: importationFichierReducer,
 });
 
 const userInfoFromStorage = localStorage.getItem("userInfo")

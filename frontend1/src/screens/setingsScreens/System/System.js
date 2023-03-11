@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Container, Form, Table } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
@@ -7,6 +7,8 @@ import MainScreen from "../../../components/MainScreen/MainScreen";
 import { listWilayasAction } from "../../../actions/wilayaActions";
 import { listCommunesByWilayaAction } from "../../../actions/communeActions";
 import { listDairasByWilayaAction } from "../../../actions/dairaActions";
+import { addSystem } from "../../../actions/systemActions";
+import { useNavigate } from "react-router-dom";
 
 function System() {
   const [selectedWilaya, setSelectedWilaya] = useState("");
@@ -35,9 +37,20 @@ function System() {
     error: errorDairas,
   } = dairaGetByWilaya;
 
+  const systemAdd = useSelector((state) => state.systemAdd);
+  const { loading: loadingSystem, systemInfo, error: errorSystem } = systemAdd;
+
   useEffect(() => {
     dispatch(listWilayasAction());
   }, [dispatch]);
+
+  let history = useNavigate();
+
+  useEffect(() => {
+    if (systemInfo) {
+      history("/login");
+    }
+  }, [systemInfo, history]);
 
   useEffect(() => {
     if (wilayas?.length > 0) {
@@ -61,6 +74,20 @@ function System() {
     dispatch(listCommunesByWilayaAction(selectedWilaya));
     dispatch(listDairasByWilayaAction(selectedWilaya));
   }, [dispatch, selectedWilaya]);
+
+  const addSystemButton = async (event) => {
+    event.preventDefault();
+    if (typeAdmin === "daira") {
+      if (selectedDaira !== "") {
+        dispatch(addSystem(typeAdmin, selectedDaira));
+      }
+    }
+    if (typeAdmin === "commune") {
+      if (selectedCommune !== "") {
+        dispatch(addSystem(typeAdmin, selectedCommune));
+      }
+    }
+  };
 
   const readWilaya = (wilayaMap) => {
     return (
@@ -140,6 +167,15 @@ function System() {
         <ErrorMessage variant="danger">{errorDairas}</ErrorMessage>
       )}
       {loadingDairas && <Loading />}
+      {errorSystem && (
+        <ErrorMessage variant="danger">{errorSystem}</ErrorMessage>
+      )}
+      {loadingSystem && <Loading />}
+
+      {errorSystem && (
+        <ErrorMessage variant="danger">{errorSystem}</ErrorMessage>
+      )}
+      {loadingSystem && <Loading />}
       <div>
         <Card.Header className="form-control text-right">الادارة</Card.Header>
         <Card.Body>
@@ -185,6 +221,7 @@ function System() {
               اختار الدائرة
             </Card.Header>
             <Card.Body>{readDaira(dairasList)}</Card.Body>
+            <Button onClick={(e) => addSystemButton(e)}>تثبيت</Button>
           </div>
         )}
       </div>

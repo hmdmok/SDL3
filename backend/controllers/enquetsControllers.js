@@ -2,6 +2,8 @@ const asyncHandler = require("express-async-handler");
 const Dossier = require("../models/dossierModel");
 const Person = require("../models/personModel");
 const Notes = require("../models/notesModel");
+const DossierEnq = require("../models/dossierEnqModel");
+const Enquete = require("../models/enqueteModel");
 const generateToken = require("../utils/generateToken");
 const { calculate } = require("./CalculeNotesDossier");
 const XLSX = require("xlsx");
@@ -54,6 +56,31 @@ const getDossierByDates = asyncHandler(async (req, res) => {
   }
 });
 
+const uploadDossierEnq = asyncHandler(async (req, res) => {
+  const { creator, remark } = req.body;
+
+  const dossierEnq = req.file?.path;
+
+  const dateRecu = new Date();
+  const newDossierEnq = await DossierEnq.create({
+    nomFichier: dossierEnq,
+    dateRecu,
+    creator,
+    remark,
+  });
+
+  if (newDossierEnq) {
+    res.status(201).json({
+      _id: newDossierEnq._id,
+      nomFichier: newDossierEnq.nomFichier,
+      dateRecu: newDossierEnq.dateRecu,
+    });
+  } else {
+    res.status(400);
+    throw new Error("Error Recieving File!");
+  }
+});
+
 const getEnquetCNLFile = asyncHandler(async (req, res) => {
   var { dossierEnq } = req.body;
   var newData = dossierEnq.map(function (record, i) {
@@ -94,9 +121,11 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
 });
 
 const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
-  var {} = req.body;
+  const { idDossierEnq, creator, remark } = req.body;
 
-  const file = XLSX.readFile("../Taibet Moins 35 (11-02-2023).xlsx", {
+  const dossierEnqRecu = await DossierEnq.findById(idDossierEnq);
+
+  const file = XLSX.readFile(dossierEnqRecu, {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -106,7 +135,7 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
   // var work_book = XLSX.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
   var sheet_name = file.SheetNames;
   console.log(sheet_name);
-  var stream = XLSX.stream.to_json(file.Sheets[sheet_name[2]], {
+  var stream = XLSX.stream.to_json(file.Sheets[sheet_name[0]], {
     raw: false,
   });
 
@@ -183,13 +212,24 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
       })
     );
     console.log(newData);
-    return Promise.all(dossiersMaped).then(() => {
+    return Promise.all(dossiersMaped).then(async () => {
       var newWB = XLSX.utils.book_new();
       var newWS = XLSX.utils.json_to_sheet(newData);
       XLSX.utils.book_append_sheet(newWB, newWS, "List");
       XLSX.writeFile(newWB, "EnquetCNLnew.xlsx");
       const fileCNL = `EnquetCNLnew.xlsx`;
-      res.download(fileCNL);
+      const newEnquete = await Enquete.create({
+        fichierEnq: fileCNL,
+        typeEnq: "CNL",
+        dateEnq: new Date(),
+        creator,
+        remark,
+      });
+      if (newEnquete) {
+        res.download(fileCNL);
+      } else {
+        res.json("error creating EnqCNL!");
+      }
     });
   });
 });
@@ -244,7 +284,6 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
 });
 
 const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
-  var {} = req.body;
   fs.copyFile("enqueteCNAS.mdb", "enqCNAS.mdb", (err) => {
     if (err) {
       console.log("Error Found:", err);
@@ -252,8 +291,11 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
       console.log("File copied succesfuly");
     }
   });
+  const { idDossierEnq, creator, remark } = req.body;
 
-  const file = XLSX.readFile("../Taibet Moins 35 (11-02-2023).xlsx", {
+  const dossierEnqRecu = await DossierEnq.findById(idDossierEnq);
+
+  const file = XLSX.readFile(dossierEnqRecu, {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -262,7 +304,7 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
 
   // var work_book = XLSX.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
   var sheet_name = file.SheetNames;
-  var stream = XLSX.stream.to_json(file.Sheets[sheet_name[2]], {
+  var stream = XLSX.stream.to_json(file.Sheets[sheet_name[0]], {
     raw: false,
   });
 
@@ -359,10 +401,21 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
       );
 
       return Promise.all(dossiersMaped)
-        .then(() => {
-          const fileCNL = `EnquetCNAS.xlsx`;
-          // file download
-          res.download(fileCNL);
+        .then(async () => {
+          const fileCNAS = `EnquetCNAS.xlsx`;
+          const newEnquete = await Enquete.create({
+            fichierEnq: fileCNAS,
+            typeEnq: "CNAS",
+            dateEnq: new Date(),
+            creator,
+            remark,
+          });
+          if (newEnquete) {
+            // file download
+            res.download(fileCNAS);
+          } else {
+            res.json("error creating enqCNAS");
+          }
         })
         .catch((err) => {
           console.log(err);
@@ -372,7 +425,6 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
 });
 
 const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
-  var {} = req.body;
   fs.unlink("CASNOSENQ.dbf", (err) => {
     if (err) {
       console.log("Error Found:", err);
@@ -398,7 +450,11 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
 
   let records = [];
 
-  const file = XLSX.readFile("../Taibet Moins 35 (11-02-2023).xlsx", {
+  const { idDossierEnq, creator, remark } = req.body;
+
+  const dossierEnqRecu = await DossierEnq.findById(idDossierEnq);
+
+  const file = XLSX.readFile(dossierEnqRecu, {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -408,7 +464,7 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
   // var work_book = XLSX.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
   var sheet_name = file.SheetNames;
   console.log(sheet_name);
-  var stream = XLSX.stream.to_json(file.Sheets[sheet_name[2]], {
+  var stream = XLSX.stream.to_json(file.Sheets[sheet_name[0]], {
     raw: false,
   });
 
@@ -500,22 +556,38 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
         .then(
           asyncHandler(async () => {
             // file download
-            let dbf;
+            let fileCASNOS;
             try {
-              dbf = await DBFFile.create("CASNOSENQ.dbf", fieldDescriptors);
+              fileCASNOS = await DBFFile.create(
+                "CASNOSENQ.dbf",
+                fieldDescriptors
+              );
               console.log("DBF file created.");
             } catch (error) {
-              dbf = await DBFFile.open("CASNOSENQ.dbf", fieldDescriptors);
+              fileCASNOS = await DBFFile.open(
+                "CASNOSENQ.dbf",
+                fieldDescriptors
+              );
               console.log("DBF file opend.");
             }
             try {
-              await dbf.appendRecords(records);
+              await fileCASNOS.appendRecords(records);
               console.log(`${records.length} records added.`);
             } catch (error) {
               console.log(`Error adding records: ${error}`);
             }
-
-            res.download("CASNOSENQ.dbf");
+            const newEnquete = await Enquete.create({
+              fichierEnq: fileCASNOS,
+              typeEnq: "CASNOS",
+              dateEnq: new Date(),
+              creator,
+              remark,
+            });
+            if (newEnquete) {
+              res.download("CASNOSENQ.dbf");
+            } else {
+              res.json("error creating enqCASNOS");
+            }
           })
         )
         .catch((err) => {
@@ -621,4 +693,5 @@ module.exports = {
   getEnquetCNLFileTest,
   getEnquetCNASFileTest,
   getEnquetCASNOSFileTest,
+  uploadDossierEnq,
 };

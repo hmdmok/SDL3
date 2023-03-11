@@ -3,6 +3,7 @@ const dossiers = require("./DataBase/dossiers");
 const dotenv = require("dotenv");
 const { connectDB } = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
+const enquetsRoutes = require("./routes/enquetsRoutes");
 const systemRoutes = require("./routes/systemRoutes");
 const dossiersRoutes = require("./routes/dossiersRoutes");
 const scanDossiersRoutes = require("./routes/scanDossiersRoutes");
@@ -35,15 +36,12 @@ app.use("/api/communes", communesRoutes);
 app.use("/api/dairas", dairasRoutes);
 app.use("/api/persons", personsRoutes);
 app.use("/api/importationData", importDossiersRoutes);
+app.use("/api/enquets", enquetsRoutes);
 
 app.use("/usersPicUpload", express.static("usersPicUpload"));
 app.use("/dossiersScanUpload", express.static("dossiersScanUpload"));
+app.use("/dossiersEnqUpload", express.static("dossiersEnqUpload"));
 app.use("/importationFileUpload", express.static("importationFileUpload"));
-
-app.use(notFound);
-app.use(errorHandler);
-
-app.use("/api/users", userRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

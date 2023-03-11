@@ -22,7 +22,7 @@ const connectDB = asyncHandler(async () => {
 const connectSystemDB = asyncHandler(async () => {
   try {
     const conn = await mongoose.connect(
-      "mongodb+srv://hmdmoknine:<1pg1Om0Yr71SREf8>@cluster0.9zctbg5.mongodb.net/?retryWrites=true&w=majority"
+      "mongodb+srv://hmdmoknine:1pg1Om0Yr71SREf8@cluster0.9zctbg5.mongodb.net/?retryWrites=true&w=majority"
     );
 
     // const conn = await mongoose.connect(process.env.MONGO_URI, {
@@ -30,8 +30,10 @@ const connectSystemDB = asyncHandler(async () => {
     //   useUnifiedTopology: true,
     // });
     console.log(`SystemDB is Connected: ${conn.connection.host}`);
+    return true;
   } catch (error) {
     console.log(`Error connecting SytemDB: ${error}`);
+    return false;
     process.exit();
   }
 });

@@ -1,8 +1,5 @@
 import axios from "axios";
 import {
-  DAIRA_GET_FAIL,
-  DAIRA_GET_REQUEST,
-  DAIRA_GET_SUCCESS,
   DAIRA_GETW_FAIL,
   DAIRA_GETW_REQUEST,
   DAIRA_GETW_SUCCESS,

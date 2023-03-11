@@ -30,25 +30,13 @@ export const checkSystem = () => async (dispatch) => {
 };
 
 export const addSystem =
-  (
-    installDate,
-    installType,
-    administrationType,
-    administrationName,
-    machineCode,
-    onlineCheckDate
-  ) =>
-  async (dispatch) => {
+  (administrationType, administrationName) => async (dispatch) => {
     try {
       dispatch({ type: SYSTEM_ADD_REQUEST });
 
-      const { data } = await axios.post("/api/systems", {
-        installDate: installDate,
-        installType: installType,
+      const { data } = await axios.post("/api/system", {
         administrationType: administrationType,
         administrationName: administrationName,
-        machineCode: machineCode,
-        onlineCheckDate: onlineCheckDate,
       });
 
       dispatch({ type: SYSTEM_ADD_SUCCESS, payload: data });

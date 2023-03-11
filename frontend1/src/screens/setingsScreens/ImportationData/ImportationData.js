@@ -4,10 +4,9 @@ import ErrorMessage from "../../../components/ErrorMessage";
 import Message from "../../../components/Message";
 import Loading from "../../../components/Loading";
 
-import { sendImportationDataAction } from "../../../actions/importationDataActions";
+import { sendImportationFichierAction } from "../../../actions/importationFichierActions";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "react-bootstrap";
-import axios from "axios";
 
 function ImportationData() {
   const [fileName, setFileName] = useState(null);
@@ -19,19 +18,21 @@ function ImportationData() {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
 
+  const fichierImported = useSelector((state) => state.importedFichier);
+  const { fichierInfo: imporFichierInfo } = fichierImported;
+
   useEffect(() => {
     setCreator(userInfo.username);
   }, [userInfo]);
 
-  useEffect(() => {
+  const sendFile = (event) => {
     if (file)
-      dispatch(
-        sendImportationDataAction(file, creator, fileName, "Data Imported")
-      );
-  }, [file, creator, dispatch]);
+      dispatch(sendImportationFichierAction(file, creator, "Fichier Imported"));
+    console.log(imporFichierInfo);
+  };
 
-  const importedData = useSelector((state) => state.importedData);
-  const { loading, imported, error } = importedData;
+  const importedFichier = useSelector((state) => state.importedFichier);
+  const { loading, fichierInfo, error } = importedFichier;
 
   // const headerCheckFR = (files) => {
   //   var validFile = false;
@@ -40,86 +41,26 @@ function ImportationData() {
   const correctionDB = (event) => {
     //send request to correct DB
   };
+
   const updateDB = async (event) => {
     //send request to correct DB
-
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-
-      await axios.post("/api/importationData/update", "formData", config);
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   const updateDBfr = async (event) => {
     //send request to correct DB
-
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-
-      await axios.post("/api/importationData/updateFr", "formData", config);
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   const enquetCASNOS = async (event) => {
     //send request to correct DB
-
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-
-      await axios.post("/api/importationData/updateFr", "formData", config);
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   const enquetCNAS = async (event) => {
     //send request to correct DB
-
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-
-      await axios.post("/api/importationData/updateFr", "formData", config);
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   const enquetCNL = async (event) => {
     //send request to correct DB
-
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-
-      await axios.post("/api/importationData/updateFr", "formData", config);
-    } catch (error) {
-      console.log(error);
-    }
   };
-
 
   const onChange = (event) => {
     if (
@@ -131,18 +72,20 @@ function ImportationData() {
       setFile(event.target.files[0]);
     }
   };
+
   return (
-    <MainScreen title={"Importation des tables"}>
+    <MainScreen title={"رفع الملف من اجل اظافة او التحقيق"}>
       {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
-      {imported && <Message variant="info">{imported}</Message>}
+      {fichierInfo && (
+        <Message variant="info">{`تم تحميل الملف "${fichierInfo.nomFichier}" بنجاح.`}</Message>
+      )}
       {loading && <Loading />}
-      <div className="card my-5">
-        <div className="card-header">
+      <div className="card mt-5">
+        <div className="card-header d-flex flex-row-reverse">
           <b>اختار ملف</b>
         </div>
 
-        <div className="card-body">
-          <label>Importation File to Upload</label>
+        <div className="card-body ">
           <div className="custom-file">
             <input
               type="file"
@@ -153,16 +96,36 @@ function ImportationData() {
             <label className="custom-file-label" htmlFor="customFileLang">
               {fileName}
             </label>
+            <Button className="custom-file my-2" onClick={sendFile}>
+              رفع الملف
+            </Button>
           </div>
-          <div>
-            <Button onClick={updateDBfr}>Ajout dossiers francais</Button>
-            <Button onClick={updateDB}>Mise a Jour dossiers arab</Button>
-            <Button onClick={correctionDB}>Correction DB</Button>
+        </div>
+        <div className="card mt-3">
+          <div className="card-header d-flex flex-row-reverse">
+            <b>اختار العملية</b>
           </div>
-          <div>
-            <Button onClick={enquetCNL}>Enquet CNL</Button>
-            <Button onClick={enquetCNAS}>Enquet CNnas</Button>
-            <Button onClick={enquetCASNOS}>Enquet CASNOS</Button>
+          <div className="card-body d-flex flex-row-reverse">
+            <Button className="m-2" onClick={updateDBfr}>
+              Ajout dossiers francais
+            </Button>
+            <Button className="m-2" onClick={updateDB}>
+              Mise a Jour dossiers arab
+            </Button>
+            <Button className="m-2" onClick={correctionDB}>
+              Correction DB
+            </Button>
+          </div>
+          <div className="card-body d-flex flex-row-reverse">
+            <Button className="m-2" onClick={enquetCNL}>
+              Enquet CNL
+            </Button>
+            <Button className="m-2" onClick={enquetCNAS}>
+              Enquet CNnas
+            </Button>
+            <Button className="m-2" onClick={enquetCASNOS}>
+              Enquet CASNOS
+            </Button>
           </div>
         </div>
       </div>
