@@ -5,8 +5,10 @@ import Message from "../../../components/Message";
 import Loading from "../../../components/Loading";
 
 import { sendImportationFichierAction } from "../../../actions/importationFichierActions";
+import { downloadImportationFichierTemplateAction } from "../../../actions/templatesActions";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "react-bootstrap";
+import fileDownload from "js-file-download";
 
 function ImportationData() {
   const [fileName, setFileName] = useState(null);
@@ -24,6 +26,26 @@ function ImportationData() {
   useEffect(() => {
     setCreator(userInfo.username);
   }, [userInfo]);
+
+  const downloadingTemplate = useSelector(
+    (state) => state.importationFichierTemp
+  );
+  const {
+    loading: downloadTemplateLoading,
+    importationFichierTemp,
+    success: downloadTemplateSuccess,
+    error: downloadTemplateError,
+  } = downloadingTemplate;
+
+  useEffect(() => {
+    if (importationFichierTemp?.data) {
+      fileDownload(importationFichierTemp.data, importationFichierTemp.headers['content-disposition'].slice(22, 53));
+    }
+  }, [dispatch, importationFichierTemp, downloadTemplateSuccess]);
+
+  const downloadTemplate = (event) => {
+    if (creator) dispatch(downloadImportationFichierTemplateAction(creator));
+  };
 
   const sendFile = (event) => {
     if (file)
@@ -75,11 +97,17 @@ function ImportationData() {
 
   return (
     <MainScreen title={"رفع الملف من اجل اظافة او التحقيق"}>
+      {downloadTemplateError && (
+        <ErrorMessage variant="danger">{downloadTemplateError}</ErrorMessage>
+      )}
+
+      {downloadTemplateLoading && <Loading />}
       {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
+      {loading && <Loading />}
+
       {fichierInfo && (
         <Message variant="info">{`تم تحميل الملف "${fichierInfo.nomFichier}" بنجاح.`}</Message>
       )}
-      {loading && <Loading />}
       <div className="card mt-5">
         <div className="card-header d-flex flex-row-reverse">
           <b>اختار ملف</b>
@@ -96,9 +124,14 @@ function ImportationData() {
             <label className="custom-file-label" htmlFor="customFileLang">
               {fileName}
             </label>
-            <Button className="custom-file my-2" onClick={sendFile}>
-              رفع الملف
-            </Button>
+            <div className="card-body d-flex flex-row-reverse">
+              <Button className="m-2" onClick={sendFile}>
+                رفع الملف
+              </Button>
+              <Button className="m-2" onClick={downloadTemplate}>
+                تحميل المثال للملئ
+              </Button>
+            </div>
           </div>
         </div>
         <div className="card mt-3">

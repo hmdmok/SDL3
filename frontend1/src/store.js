@@ -61,6 +61,7 @@ import {
 } from "./reducers/enquetCNLReducers";
 import { importationDataReducer } from "./reducers/importationDataReducers";
 import { importationFichierReducer } from "./reducers/importationFichierReducers";
+import { importationFichierTempReducer } from "./reducers/templatesReducers";
 
 const reducer = combineReducers({
   userLogin: userLoginReducer,
@@ -112,8 +113,10 @@ const reducer = combineReducers({
   enquetCNASGet: enquetCNASGetReducer,
   enquetCASNOSGet: enquetCASNOSGetReducer,
 
+  importationFichierTemp: importationFichierTempReducer,
+
   importedData: importationDataReducer,
-  
+
   importedFichier: importationFichierReducer,
 });
 

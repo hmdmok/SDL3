@@ -8,9 +8,7 @@ const generateToken = require("../utils/generateToken");
 const { calculate } = require("./CalculeNotesDossier");
 const XLSX = require("xlsx");
 const ADODB = require("node-adodb");
-const connection = ADODB.open(
-  "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=enqCNAS.mdb;"
-);
+
 const fs = require("fs");
 const { DBFFile } = require("dbffile");
 
@@ -236,7 +234,7 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
 
 const getEnquetCNASFile = asyncHandler(async (req, res) => {
   var { dossierEnq } = req.body;
-  fs.copyFile("enqueteCNAS.mdb", "enqCNAS.mdb", (err) => {
+  fs.copyFile("./sourceEnq/enqueteCNAS.mdb", "enqCNAS.mdb", (err) => {
     if (err) {
       console.log("Error Found:", err);
     } else {
@@ -284,16 +282,25 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
 });
 
 const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
-  fs.copyFile("enqueteCNAS.mdb", "enqCNAS.mdb", (err) => {
-    if (err) {
-      console.log("Error Found:", err);
-    } else {
-      console.log("File copied succesfuly");
-    }
-  });
   const { idDossierEnq, creator, remark } = req.body;
 
   const dossierEnqRecu = await DossierEnq.findById(idDossierEnq);
+
+  fs.copyFile(
+    "./sourceEnq/enqueteCNAS.mdb",
+    `./generatedEnq/${idDossierEnq}_enqCNAS.mdb`,
+    (err) => {
+      if (err) {
+        console.log("Error Found:", err);
+      } else {
+        console.log("File copied succesfuly");
+      }
+    }
+  );
+
+  const connection = ADODB.open(
+    `Provider=Microsoft.Jet.OLEDB.4.0;Data Source=./generatedEnq/${idDossierEnq}_enqCNAS.mdb;`
+  );
 
   const file = XLSX.readFile(dossierEnqRecu, {
     dense: true,
@@ -371,6 +378,18 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
                 WILAYA: demandeur?.wil_n || "",
               };
               newData.push(newRecord);
+              const insert = `INSERT INTO  Table1 (NOM_P, PRENOM_P, DDN_P, NUM_ACT_P, PP, NPM, LIB_SEXE, NC, WILAYA)
+        VALUES ("${demandeur?.nom_fr}", 
+        "${demandeur?.prenom_fr}",
+        "${demandeur?.date_n}",
+        "${demandeur?.num_act}",
+        "${demandeur?.prenom_p_fr}",
+        "${demandeur?.nom_m_fr}",
+        "${demandeur?.gender}",
+        "${demandeur?.com_n}", 
+        "${demandeur?.wil_n}");`;
+
+              await connection.execute(insert);
             }
             if (conjoin._id) {
               var newRecord2 = {
@@ -390,6 +409,16 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
                 WILAYA: conjoin?.wil_n || "",
               };
               newData.push(newRecord2);
+
+              const sql = `INSERT INTO Table1 (NOM_P, PRENOM_P, DDN_P, NUM_ACT_P, PP, NPM, LIB_SEXE, NC, WILAYA) VALUES ("${conjoin?.nom_fr}", "${conjoin?.prenom_fr}",
+              "${conjoin?.date_n}", 
+              "${conjoin?.num_act}",
+              "${conjoin?.prenom_p_fr}",
+              "${conjoin?.nom_m_fr}",
+              "${conjoin?.gender}",
+              "${conjoin?.com_n}", 
+              "${conjoin?.wil_n}");`;
+              await connection.execute(sql);
             }
 
             var newWB = XLSX.utils.book_new();
@@ -402,7 +431,7 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
 
       return Promise.all(dossiersMaped)
         .then(async () => {
-          const fileCNAS = `EnquetCNAS.xlsx`;
+          const fileCNAS = `${idDossierEnq}_EnquetCNAS.xlsx`;
           const newEnquete = await Enquete.create({
             fichierEnq: fileCNAS,
             typeEnq: "CNAS",
@@ -425,14 +454,6 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
 });
 
 const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
-  fs.unlink("CASNOSENQ.dbf", (err) => {
-    if (err) {
-      console.log("Error Found:", err);
-    } else {
-      console.log("File deleted succesfuly");
-    }
-  });
-
   let fieldDescriptors = [
     { name: "CODE_P", type: "C", size: 15 },
     { name: "NOM_P", type: "C", size: 30 },
@@ -559,7 +580,7 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
             let fileCASNOS;
             try {
               fileCASNOS = await DBFFile.create(
-                "CASNOSENQ.dbf",
+                `./generatedEnq/${idDossierEnq}_CASNOSENQ.dbf`,
                 fieldDescriptors
               );
               console.log("DBF file created.");

@@ -23,6 +23,9 @@ const personSchema = mongoose.Schema(
     num_act: {
       type: String,
     },
+    type_date_n: {
+      type: String,
+    },
     date_n: {
       type: String,
     },

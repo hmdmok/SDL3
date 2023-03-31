@@ -13,6 +13,7 @@ const communesRoutes = require("./routes/communesRoutes");
 const dairasRoutes = require("./routes/dairasRoutes");
 const personsRoutes = require("./routes/personsRoutes");
 const importDossiersRoutes = require("./routes/importDossiersRoutes");
+const templatesRoutes = require("./routes/templatesRoutes");
 const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
 const cors = require("cors");
 
@@ -37,6 +38,7 @@ app.use("/api/dairas", dairasRoutes);
 app.use("/api/persons", personsRoutes);
 app.use("/api/importationData", importDossiersRoutes);
 app.use("/api/enquets", enquetsRoutes);
+app.use("/api/templates", templatesRoutes);
 
 app.use("/usersPicUpload", express.static("usersPicUpload"));
 app.use("/dossiersScanUpload", express.static("dossiersScanUpload"));
