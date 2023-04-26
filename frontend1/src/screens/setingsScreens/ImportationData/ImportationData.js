@@ -5,16 +5,43 @@ import Message from "../../../components/Message";
 import Loading from "../../../components/Loading";
 
 import { sendImportationFichierAction } from "../../../actions/importationFichierActions";
+import { validateHeaderAction } from "../../../actions/validateHeaderActions";
 import { downloadImportationFichierTemplateAction } from "../../../actions/templatesActions";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "react-bootstrap";
 import fileDownload from "js-file-download";
 
 function ImportationData() {
+  const validHeader = [
+    "N°",
+    "Type D N",
+    "Nom",
+    "Prenom",
+    "N°\r\nDE ACT",
+    "Date de naissance",
+    "Lieu de naissance",
+    "sexe",
+    "Prénom du pére",
+    "Nom de la mére",
+    "Prenom de la mére",
+    "S F ",
+    "Ref demande",
+    "Date demande",
+    "Type D N C",
+    "Nom DE CONJOINT",
+    "Prenom DE CONJOINT",
+    "Date de naissance",
+    "N DE L ACT",
+    "Lieu de naissance",
+    "Prénom du pére",
+    "Nom de la mére",
+    "Prénom de la mére",
+    "Remarque",
+  ];
   const [fileName, setFileName] = useState(null);
   const [file, setFile] = useState(null);
   const [creator, setCreator] = useState("");
-
+  const [headerMessage, setHeaderMessage] = useState("");
   const dispatch = useDispatch();
 
   const userLogin = useSelector((state) => state.userLogin);
@@ -37,9 +64,20 @@ function ImportationData() {
     error: downloadTemplateError,
   } = downloadingTemplate;
 
+  const headerValidation = useSelector((state) => state.validateHeader);
+  const {
+    loading: headerValidationLoading,
+    status: headerValidationStatus,
+    success: headerValidationSuccess,
+    error: headerValidationError,
+  } = headerValidation;
+
   useEffect(() => {
     if (importationFichierTemp?.data) {
-      fileDownload(importationFichierTemp.data, importationFichierTemp.headers['content-disposition'].slice(22, 53));
+      fileDownload(
+        importationFichierTemp.data,
+        importationFichierTemp.headers["content-disposition"].slice(22, 53)
+      );
     }
   }, [dispatch, importationFichierTemp, downloadTemplateSuccess]);
 
@@ -47,11 +85,25 @@ function ImportationData() {
     if (creator) dispatch(downloadImportationFichierTemplateAction(creator));
   };
 
-  const sendFile = (event) => {
-    if (file)
-      dispatch(sendImportationFichierAction(file, creator, "Fichier Imported"));
-    console.log(imporFichierInfo);
+  const sendFile = async (event) => {
+    if (file) {
+      dispatch(validateHeaderAction(file, validHeader));
+    }
   };
+  useEffect(() => {
+    if (headerValidationSuccess)
+      if (headerValidationStatus)
+        dispatch(
+          sendImportationFichierAction(file, creator, "Fichier Imported")
+        );
+      else setHeaderMessage("الملف غير مناسب يرجى تحميل المثال");
+  }, [
+    headerValidationSuccess,
+    headerValidationStatus,
+    creator,
+    dispatch,
+    file,
+  ]);
 
   const importedFichier = useSelector((state) => state.importedFichier);
   const { loading, fichierInfo, error } = importedFichier;
@@ -103,6 +155,15 @@ function ImportationData() {
 
       {downloadTemplateLoading && <Loading />}
       {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
+
+      {headerValidationLoading && <Loading />}
+      {headerValidationError && (
+        <ErrorMessage variant="danger">{headerValidationError}</ErrorMessage>
+      )}
+      {headerMessage && (
+        <ErrorMessage variant="danger">{headerMessage}</ErrorMessage>
+      )}
+
       {loading && <Loading />}
 
       {fichierInfo && (

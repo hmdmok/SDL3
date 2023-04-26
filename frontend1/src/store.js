@@ -62,6 +62,7 @@ import {
 import { importationDataReducer } from "./reducers/importationDataReducers";
 import { importationFichierReducer } from "./reducers/importationFichierReducers";
 import { importationFichierTempReducer } from "./reducers/templatesReducers";
+import { validateHeaderReducer } from "./reducers/validateHeaderReducers";
 
 const reducer = combineReducers({
   userLogin: userLoginReducer,
@@ -118,6 +119,8 @@ const reducer = combineReducers({
   importedData: importationDataReducer,
 
   importedFichier: importationFichierReducer,
+
+  validateHeader: validateHeaderReducer,
 });
 
 const userInfoFromStorage = localStorage.getItem("userInfo")
