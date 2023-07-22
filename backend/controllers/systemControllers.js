@@ -34,9 +34,12 @@ const createSystem = asyncHandler(async (req, res) => {
     const allOnlineSystem = await OnlineSystem.findOne({ machineCode });
 
     if (allOnlineSystem) {
-      mongoose.connection.close();
+      mongoose.connection.close().then(
+
+      );
       connectDB().then(async () => {
         console.log("alredy have an account !!!");
+        //fixing update instead of create
         const systemToAdd = await System.create({
           installDate: allOnlineSystem.installDate,
           installType: allOnlineSystem.installType,
