@@ -16,6 +16,7 @@ function Dossiers() {
   const [nameSearch, setNameSearch] = useState("");
   const [lastNameSearch, setLastNameSearch] = useState("");
   const [birthDateSearch, setBirthDateSearch] = useState("");
+  const [dossiersCount, setDossiersCount] = useState(0);
   const dispatch = useDispatch();
 
   const userLogin = useSelector((state) => state.userLogin);
@@ -47,11 +48,23 @@ function Dossiers() {
   }, [dispatch, successDossierDelete]);
 
   useEffect(() => {
+    setDossiersCount(dossiers?.length);
+  }, [dossiers]);
+
+  useEffect(() => {
     dispatch(listDemandeursAction());
   }, [dispatch]);
 
+  var dossierContin = 0;
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (dossierContin > 0) setDossiersCount(dossierContin);
+    else setDossiersCount(dossiers?.length);
+  });
+
   return (
-    <MainScreen title="عرض كل الملفات الموجودة">
+    <MainScreen title={" عرض كل الملفات الموجودة"}>
       {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
       {loading && <Loading />}
 
@@ -65,9 +78,12 @@ function Dossiers() {
       {loadingPerson && <Loading />}
 
       <div>
-        <Link to="/demandeur">
-          <Button>اضافة ملف جديد</Button>
-        </Link>
+        <div className="row">
+          <Link className="col" to="/demandeur">
+            <Button>اضافة ملف جديد</Button>
+          </Link>
+          <h3 className="col">ملف {dossiersCount} .</h3>
+        </div>
         <div className="row">
           {!nameSearch && !lastNameSearch && !birthDateSearch && (
             <Form.Control
@@ -75,7 +91,9 @@ function Dossiers() {
               placeholder="ادخل رقم الملف للبحث"
               className="m-2 col"
               aria-label="Search"
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
             />
           )}
           {!search && (
@@ -119,7 +137,11 @@ function Dossiers() {
               .toLowerCase()
               .includes(search?.toLowerCase());
           })
-          .map((dossierMap) => {
+          .map((dossierMap, i, passed) => {
+            if (search && i + 1 === passed.length) {
+              dossierContin = passed.length;
+            }
+
             return (
               demandeurs
                 // eslint-disable-next-line array-callback-return
@@ -135,130 +157,144 @@ function Dossiers() {
                       filtredDemand.date_n.includes(birthDateSearch)
                     );
                 })
-                .map((demanMap) => (
-                  <Accordion key={dossierMap?._id}>
-                    <Accordion.Item eventKey={dossierMap?._id} className="m-2">
-                      <Card.Header className="d-flex">
-                        <Accordion.Header
-                          style={{
-                            color: "black",
-                            textDecoration: "none",
-                            flex: 1,
-                            cursor: "pointer",
-                            alignSelf: "center",
-                            fontSize: 18,
-                          }}
-                        >
-                          Nom: {demanMap.nom_fr} || Prenom: {demanMap.prenom_fr} || Date de naissance: {demanMap.date_n} || Dossier num: {dossierMap.num_dos}
-                        </Accordion.Header>
-
-                        <div>
-                          <Button
-                            href={`/adddossiers/${dossierMap._id}`}
-                            variant="success"
-                            className="mx-2"
+                .map((demanMap, i2, passed2) => {
+                  if (
+                    (nameSearch || lastNameSearch || birthDateSearch) &&
+                    i2 + 1 === passed2.length
+                  ) {
+                    dossierContin++;
+                  }
+                  return (
+                    <Accordion key={dossierMap?._id}>
+                      <Accordion.Item
+                        eventKey={dossierMap?._id}
+                        className="m-2"
+                      >
+                        <Card.Header className="d-flex">
+                          <Accordion.Header
+                            style={{
+                              color: "black",
+                              textDecoration: "none",
+                              flex: 1,
+                              cursor: "pointer",
+                              alignSelf: "center",
+                              fontSize: 18,
+                            }}
                           >
-                            تعديل الملف
-                          </Button>
-                          {userInfo.usertype === "super" ? (
-                            <Button
-                              onClick={() => {
-                                deleteHandler(dossierMap._id);
-                              }}
-                              variant="danger"
-                              className="mx-2"
-                            >
-                              حذف
-                            </Button>
-                          ) : null}
-                        </div>
-                      </Card.Header>
+                            Nom: {demanMap.nom_fr} || Prenom:{" "}
+                            {demanMap.prenom_fr} || Date de naissance:{" "}
+                            {demanMap.date_n} || Dossier num:{" "}
+                            {dossierMap.num_dos}
+                          </Accordion.Header>
 
-                      <Accordion.Body>
-                        <blockquote>
-                          {dossierMap.scan_dossier === "true" ? (
+                          <div>
                             <Button
-                              href={"#"}
+                              href={`/adddossiers/${dossierMap._id}`}
                               variant="success"
                               className="mx-2"
                             >
-                              {"تعديل الملف الممسوح"}
+                              تعديل الملف
                             </Button>
-                          ) : (
-                            <Button
-                              href={"#"}
-                              variant="success"
-                              className="mx-2"
-                            >
-                              {"مسح الملف "}
-                            </Button>
-                          )}
-                          {dossierMap.saisi_conj === "true" ? (
-                            <Button
-                              href={`/updateConjoin/${dossierMap?._id}`}
-                              variant="success"
-                              className="mx-2"
-                            >
-                              {"(ة)تعديل معلومات الزوج"}
-                            </Button>
-                          ) : dossierMap.saisi_conj === "false" ? (
-                            <Button
-                              href={`/conjoin/${dossierMap?._id}`}
-                              variant="success"
-                              className="mx-2"
-                            >
-                              {"(ة)ادخال معلومات الزوج"}
-                            </Button>
-                          ) : null}
-                          <Button
-                            href={`/demandeur/${dossierMap?._id}`}
-                            variant="success"
-                            className="mx-2"
-                          >
-                            {"تعديل معلومات طالب السكن"}
-                          </Button>
+                            {userInfo.usertype === "super" ? (
+                              <Button
+                                onClick={() => {
+                                  deleteHandler(dossierMap._id);
+                                }}
+                                variant="danger"
+                                className="mx-2"
+                              >
+                                حذف
+                              </Button>
+                            ) : null}
+                          </div>
+                        </Card.Header>
 
-                          <table className="table table-hover">
-                            <tbody>
-                              <tr>
-                                <th scope="col">تاريخ الايداع</th>
-                                <td>{dossierMap.date_depo}</td>
-                              </tr>
-                              <tr>
-                                <th scope="col">عدد الاولاد</th>
-                                <td>{dossierMap.num_enf}</td>
-                              </tr>
-                              <tr>
-                                <th scope="col">من ذوي الحقوق</th>
-                                <td>{dossierMap.stuation_s_avec_d}</td>
-                              </tr>
-                              <tr>
-                                <th scope="col">من ذوي الهمم</th>
-                                <td>{dossierMap.stuation_s_andicap}</td>
-                              </tr>
-                              <tr>
-                                <th scope="col">وضعية الاقامة الحالية</th>
-                                <td>{dossierMap.stuation_d}</td>
-                              </tr>
-                              <tr>
-                                <th scope="col">عدد الاشخاص المتكفل بهم</th>
-                                <td>{dossierMap.numb_p}</td>
-                              </tr>
-                              <tr>
-                                <th scope="col">الملاحظات</th>
-                                <td>{dossierMap.remark}</td>
-                              </tr>
-                              <tr>
-                                <th scope="col">التنقيط</th>
-                                <td>{dossierMap.notes}</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </blockquote>
-                      </Accordion.Body>
-                    </Accordion.Item>
-                  </Accordion>
-                ))
+                        <Accordion.Body>
+                          <blockquote>
+                            {dossierMap.scan_dossier === "true" ? (
+                              <Button
+                                href={"#"}
+                                variant="success"
+                                className="mx-2"
+                              >
+                                {"تعديل الملف الممسوح"}
+                              </Button>
+                            ) : (
+                              <Button
+                                href={"#"}
+                                variant="success"
+                                className="mx-2"
+                              >
+                                {"مسح الملف "}
+                              </Button>
+                            )}
+                            {dossierMap.saisi_conj === "true" ? (
+                              <Button
+                                href={`/updateConjoin/${dossierMap?._id}`}
+                                variant="success"
+                                className="mx-2"
+                              >
+                                {"(ة)تعديل معلومات الزوج"}
+                              </Button>
+                            ) : dossierMap.saisi_conj === "false" ? (
+                              <Button
+                                href={`/conjoin/${dossierMap?._id}`}
+                                variant="success"
+                                className="mx-2"
+                              >
+                                {"(ة)ادخال معلومات الزوج"}
+                              </Button>
+                            ) : null}
+                            <Button
+                              href={`/demandeur/${dossierMap?._id}`}
+                              variant="success"
+                              className="mx-2"
+                            >
+                              {"تعديل معلومات طالب السكن"}
+                            </Button>
+
+                            <table className="table table-hover">
+                              <tbody>
+                                <tr>
+                                  <th scope="col">تاريخ الايداع</th>
+                                  <td>{dossierMap.date_depo}</td>
+                                </tr>
+                                <tr>
+                                  <th scope="col">عدد الاولاد</th>
+                                  <td>{dossierMap.num_enf}</td>
+                                </tr>
+                                <tr>
+                                  <th scope="col">من ذوي الحقوق</th>
+                                  <td>{dossierMap.stuation_s_avec_d}</td>
+                                </tr>
+                                <tr>
+                                  <th scope="col">من ذوي الهمم</th>
+                                  <td>{dossierMap.stuation_s_andicap}</td>
+                                </tr>
+                                <tr>
+                                  <th scope="col">وضعية الاقامة الحالية</th>
+                                  <td>{dossierMap.stuation_d}</td>
+                                </tr>
+                                <tr>
+                                  <th scope="col">عدد الاشخاص المتكفل بهم</th>
+                                  <td>{dossierMap.numb_p}</td>
+                                </tr>
+                                <tr>
+                                  <th scope="col">الملاحظات</th>
+                                  <td>{dossierMap.remark}</td>
+                                </tr>
+                                <tr>
+                                  <th scope="col">التنقيط</th>
+                                  <td>{dossierMap.notes}</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </blockquote>
+                        </Accordion.Body>
+                      </Accordion.Item>
+                    </Accordion>
+                  );
+                })
             );
           })}
       </div>
