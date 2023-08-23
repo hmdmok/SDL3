@@ -118,6 +118,8 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
   res.download(file);
 });
 
+
+
 const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
   const { idDossierEnq, creator, remark } = req.body;
 

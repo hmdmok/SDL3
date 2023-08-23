@@ -7,6 +7,7 @@ const { calculate } = require("./CalculeNotesDossier");
 
 const getDossiers = asyncHandler(async (req, res) => {
   const dossiers = await dossier.find();
+
   if (dossiers) res.json(dossiers);
   else {
     res.status(400);

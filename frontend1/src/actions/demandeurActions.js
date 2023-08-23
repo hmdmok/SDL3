@@ -111,7 +111,7 @@ export const listDemandeursAction = () => async (dispatch, getState) => {
       type: DEMANDEUR_LIST_REQUEST,
     });
 
-    const { data } = await axios.get("/api/demandeurs");
+    const { data } = await axios.get("/api/persons");
 
     dispatch({
       type: DEMANDEUR_LIST_SUCCESS,
