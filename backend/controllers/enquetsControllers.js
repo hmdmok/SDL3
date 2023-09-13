@@ -118,14 +118,12 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
   res.download(file);
 });
 
-
-
 const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
   const { idDossierEnq, creator, remark } = req.body;
 
   const dossierEnqRecu = await DossierEnq.findById(idDossierEnq);
 
-  const file = XLSX.readFile(dossierEnqRecu, {
+  const file = XLSX.readFile(dossierEnqRecu?.nomFichier, {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -146,6 +144,7 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
 
   stream.on("end", function () {
     var newData = [];
+
     const dossiersMaped = excel_file?.map(
       asyncHandler(async (dossier) => {
         // // extract demandeur
@@ -162,23 +161,14 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
         // find dossier to update
         const dossierToEnquet = await Dossier.find({ num_dos: num_dos });
         if (dossierToEnquet.length > 0) {
+          console.log(dossierToEnquet);
           var demandeur = {};
           var conjoin = {};
-          if (
-            dossierToEnquet[0].id_demandeur &&
-            !(nom_fr_dema === "") &&
-            !(nom_fr_dema === "/") &&
-            !(nom_fr_dema == null)
-          ) {
+          if (dossierToEnquet[0].id_demandeur) {
             // get demandeur
             demandeur = await Person.findById(dossierToEnquet[0].id_demandeur);
           }
-          if (
-            dossierToEnquet[0].id_conjoin &&
-            !(nom_fr_conj === "") &&
-            !(nom_fr_conj === "/") &&
-            !(nom_fr_conj == null)
-          ) {
+          if (dossierToEnquet[0].id_conjoin) {
             // get conjoin
             conjoin = await Person.findById(dossierToEnquet[0].id_conjoin);
           }
@@ -304,7 +294,7 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
     `Provider=Microsoft.Jet.OLEDB.4.0;Data Source=./generatedEnq/${idDossierEnq}_enqCNAS.mdb;`
   );
 
-  const file = XLSX.readFile(dossierEnqRecu, {
+  const file = XLSX.readFile(dossierEnqRecu?.nomFichier, {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -330,35 +320,20 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
         asyncHandler(async (dossier) => {
           // // extract demandeur
 
-          const {
-            "N°": numOrdre,
-            "Ref demande": num_dos,
-            "Nom DE CONJOINT": nom_fr_conj,
-            Nom: nom_fr_dema,
-          } = dossier;
+          const { "N°": numOrdre, "Ref demande": num_dos } = dossier;
           console.log(num_dos);
           // find dossier to update
           const dossierToEnquet = await Dossier.find({ num_dos: num_dos });
           if (dossierToEnquet.length > 0) {
             var demandeur = {};
             var conjoin = {};
-            if (
-              dossierToEnquet[0].id_demandeur &&
-              !(nom_fr_dema === "") &&
-              !(nom_fr_dema === "/") &&
-              !(nom_fr_dema == null)
-            ) {
+            if (dossierToEnquet[0].id_demandeur) {
               // get demandeur
               demandeur = await Person.findById(
                 dossierToEnquet[0].id_demandeur
               );
             }
-            if (
-              dossierToEnquet[0].id_conjoin &&
-              !(nom_fr_conj === "") &&
-              !(nom_fr_conj === "/") &&
-              !(nom_fr_conj == null)
-            ) {
+            if (dossierToEnquet[0].id_conjoin) {
               // get conjoin
               conjoin = await Person.findById(dossierToEnquet[0].id_conjoin);
             }
@@ -393,7 +368,7 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
 
               await connection.execute(insert);
             }
-            if (conjoin._id) {
+            if (conjoin?._id) {
               var newRecord2 = {
                 "N°": "",
                 NUM_DOSS: num_dos,
@@ -477,7 +452,7 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
 
   const dossierEnqRecu = await DossierEnq.findById(idDossierEnq);
 
-  const file = XLSX.readFile(dossierEnqRecu, {
+  const file = XLSX.readFile(dossierEnqRecu?.nomFichier, {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -516,12 +491,7 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
           if (dossierToEnquet.length > 0) {
             var demandeur = {};
             var conjoin = {};
-            if (
-              dossierToEnquet[0].id_demandeur &&
-              !(nom_fr_dema === "") &&
-              !(nom_fr_dema === "/") &&
-              !(nom_fr_dema == null)
-            ) {
+            if (dossierToEnquet[0].id_demandeur) {
               // get demandeur
               demandeur = await Person.findById(
                 dossierToEnquet[0].id_demandeur
@@ -545,12 +515,7 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
               };
               records.push(demandeurF);
             }
-            if (
-              dossierToEnquet[0].id_conjoin &&
-              !(nom_fr_conj === "") &&
-              !(nom_fr_conj === "/") &&
-              !(nom_fr_conj == null)
-            ) {
+            if (dossierToEnquet[0].id_conjoin) {
               // get conjoin
               conjoin = await Person.findById(dossierToEnquet[0].id_conjoin);
               var conjoinF = {
