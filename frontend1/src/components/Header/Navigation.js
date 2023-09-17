@@ -7,11 +7,15 @@ import {
   Button,
   Form,
   Container,
+  Dropdown,
+  Badge,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import apartment from "./apartment.png";
 import { logout } from "../../actions/userActions";
+import { IoDocumentsOutline } from "react-icons/io5";
+import DropdownMenu from "react-bootstrap/esm/DropdownMenu";
 
 const Navigation = () => {
   let history = useNavigate();
@@ -114,6 +118,20 @@ const Navigation = () => {
 
                 <Nav.Link href="/help">مساعدة</Nav.Link>
                 <Nav.Link href="/contact">اتصل بنا</Nav.Link>
+                <Dropdown>
+                  <Dropdown.Toggle
+                    variant="success"
+                    className="mx-5"
+                    title="ملفات للتحقيق"
+                    id="basic-nav-dropdown"
+                  >
+                    <IoDocumentsOutline />
+                    <Badge>0</Badge>
+                  </Dropdown.Toggle>
+                  <DropdownMenu style={{ minWidth: 370 }}>
+                    <span style={{ padding: 10 }}>لا توجد ملفات</span>
+                  </DropdownMenu>
+                </Dropdown>
               </Nav>
             </Navbar.Collapse>
           </Nav>
@@ -123,7 +141,8 @@ const Navigation = () => {
             <Button
               onClick={logoutHandler}
               className="mx-1"
-              variant="outline-secondary"
+              variant="outline-dark"
+              size="lg"
             >
               تسجيل خروج
             </Button>
@@ -131,7 +150,8 @@ const Navigation = () => {
             <Button
               onClick={loginHandler}
               className="mx-1"
-              variant="outline-secondary"
+              variant="outline-dark"
+              size="lg"
             >
               تسجيل دخول
             </Button>

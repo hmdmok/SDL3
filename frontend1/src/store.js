@@ -63,6 +63,11 @@ import { importationDataReducer } from "./reducers/importationDataReducers";
 import { importationFichierReducer } from "./reducers/importationFichierReducers";
 import { importationFichierTempReducer } from "./reducers/templatesReducers";
 import { validateHeaderReducer } from "./reducers/validateHeaderReducers";
+import {
+  filesAddReducer,
+  filesDeleteReducer,
+  filesListReducer,
+} from "./reducers/filesReducers";
 
 const reducer = combineReducers({
   userLogin: userLoginReducer,
@@ -70,6 +75,8 @@ const reducer = combineReducers({
   userList: userListReducer,
   userUpdate: userUpdateReducer,
   userDelete: userDeleteReducer,
+
+  filesToCheck: filesListReducer,
 
   systemCheck: systemCheckReducer,
   systemAdd: systemAddReducer,
@@ -127,6 +134,10 @@ const userInfoFromStorage = localStorage.getItem("userInfo")
   ? JSON.parse(localStorage.getItem("userInfo"))
   : null;
 
+const filesInfoFromStorage = localStorage.getItem("filesInfo")
+  ? JSON.parse(localStorage.getItem("filesInfo"))
+  : { files: [], filesCount: 0 };
+
 const systemInfoFromStorage = localStorage.getItem("systemInfo")
   ? JSON.parse(localStorage.getItem("systemInfo"))
   : null;
@@ -134,6 +145,7 @@ const systemInfoFromStorage = localStorage.getItem("systemInfo")
 const initialState = {
   userLogin: { userInfo: userInfoFromStorage },
   systemCheck: { systemInfo: systemInfoFromStorage },
+  filesToCheck: { filesInfo: filesInfoFromStorage },
 };
 
 const middleware = [thunk];

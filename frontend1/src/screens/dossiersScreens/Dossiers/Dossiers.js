@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Accordion, Button, Card, Form } from "react-bootstrap";
+import { Accordion, Badge, Button, Card, Form } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import MainScreen from "../../../components/MainScreen/MainScreen";
@@ -82,7 +82,10 @@ function Dossiers() {
           <Link className="col" to="/demandeur">
             <Button>اضافة ملف جديد</Button>
           </Link>
-          <h3 className="col">ملف {dossiersCount} .</h3>
+          <Button variant="success" className="col">
+            <Badge>ملف</Badge>
+            <Badge>{dossiersCount}</Badge>
+          </Button>
         </div>
         <div className="row">
           {!nameSearch && !lastNameSearch && !birthDateSearch && (
