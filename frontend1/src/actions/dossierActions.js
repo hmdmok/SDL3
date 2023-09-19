@@ -81,28 +81,51 @@ export const addDossierAction =
     }
   };
 
-export const listDossiersAction = () => async (dispatch, getState) => {
-  try {
-    dispatch({
-      type: DOSSIER_LIST_REQUEST,
-    });
+export const listDossiersAction =
+  (dossiersCount, numDoss, nomFr, prenomFr, birthDate, fromDate, toDate) =>
+  async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: DOSSIER_LIST_REQUEST,
+      });
 
-    const { data } = await axios.get("/api/dossiers");
+      const {
+        userLogin: { userInfo },
+      } = getState();
 
-    dispatch({
-      type: DOSSIER_LIST_SUCCESS,
-      payload: data,
-    });
-  } catch (error) {
-    dispatch({
-      type: DOSSIER_LIST_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
-  }
-};
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      const formData = {
+        dossiersCount,
+        numDoss,
+        nomFr,
+        prenomFr,
+        birthDate,
+        fromDate,
+        toDate,
+      };
+
+      const { data } = await axios.post("/api/dossiers/filtred", formData, config);
+
+      dispatch({
+        type: DOSSIER_LIST_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: DOSSIER_LIST_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
 
 export const getDossierAction = (id) => async (dispatch, getState) => {
   try {

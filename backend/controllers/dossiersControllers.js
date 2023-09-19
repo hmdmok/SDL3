@@ -67,6 +67,78 @@ const getDossierByDates = asyncHandler(async (req, res) => {
   }
 });
 
+const getDossierByFilters = asyncHandler(async (req, res) => {
+  const {
+    dossiersCount,
+    numDoss,
+    nomFr,
+    prenomFr,
+    birthDate,
+    fromDate,
+    toDate,
+  } = req.body;
+
+  const persons = await Person.find();
+  const dossiers = await dossier.find();
+  const dossierByNotes = dossiers.map((dossierFound) => {
+    let newdossier = dossierFound;
+    persons.map((personMaped) => {
+      if (dossierFound.id_demandeur === personMaped._id.toString()) {
+        newdossier = { ...newdossier._doc, demandeur: personMaped };
+      }
+    });
+    return newdossier;
+  });
+  // await dossier.aggregate([
+  //   {
+  //     $match: {
+  //       date_depo: {
+  //         $gte: fromDate,
+  //         $lt: toDate,
+  //       },
+  //     },
+  //   },
+  //   {
+  //     $lookup: {
+  //       localField: "id_demandeur",
+  //       foreignField: "personId",
+  //       as: "demandeur",
+  //       pipeline: [{ $documents: persons }],
+  //     },
+  //   },
+  //   { $sort: { notes: -1 } },
+  // ]);
+
+  const filtredByDate = dossierByNotes.filter((filtredDossiers) => {
+    return filtredDossiers?.num_dos
+      .toLowerCase()
+      .includes(numDoss?.toLowerCase());
+  });
+
+  const filtredByNames = filtredByDate?.filter((filtredDemand) => {
+    return (
+      filtredDemand.demandeur?.nom_fr
+        ?.toLowerCase()
+        .includes(nomFr?.toLowerCase()) &&
+      filtredDemand.demandeur?.prenom_fr
+        ?.toLowerCase()
+        .includes(prenomFr?.toLowerCase()) &&
+      filtredDemand.demandeur?.date_n.includes(birthDate) &&
+      filtredDemand.date_depo >= fromDate &&
+      filtredDemand.date_depo <= toDate
+    );
+  });
+
+  const FinalList = filtredByNames?.slice(0, dossiersCount - 0);
+
+  if (dossierByNotes) {
+    res.json(FinalList);
+  } else {
+    res.status(400);
+    throw new Error("لا توجد ملفات");
+  }
+});
+
 const createDossier = asyncHandler(async (req, res) => {
   const {
     creator,
@@ -272,4 +344,5 @@ module.exports = {
   updateDossier,
   deleteDossier,
   getDossierByDates,
+  getDossierByFilters,
 };

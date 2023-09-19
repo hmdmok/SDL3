@@ -25,6 +25,10 @@ const Navigation = () => {
   const { userInfo } = userLogin;
   const logedUserType = userInfo?.usertype;
 
+  const filesToCheck = useSelector((state) => state.filesToCheck);
+  const { filesInfo } = filesToCheck;
+  const { files } = filesInfo;
+
   function logoutHandler() {
     dispatch(logout());
     history("/");
@@ -126,7 +130,7 @@ const Navigation = () => {
                     id="basic-nav-dropdown"
                   >
                     <IoDocumentsOutline />
-                    <Badge>0</Badge>
+                    <Badge>{files.length}</Badge>
                   </Dropdown.Toggle>
                   <DropdownMenu style={{ minWidth: 370 }}>
                     <span style={{ padding: 10 }}>لا توجد ملفات</span>

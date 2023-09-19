@@ -63,11 +63,7 @@ import { importationDataReducer } from "./reducers/importationDataReducers";
 import { importationFichierReducer } from "./reducers/importationFichierReducers";
 import { importationFichierTempReducer } from "./reducers/templatesReducers";
 import { validateHeaderReducer } from "./reducers/validateHeaderReducers";
-import {
-  filesAddReducer,
-  filesDeleteReducer,
-  filesListReducer,
-} from "./reducers/filesReducers";
+import { filesReducer } from "./reducers/filesReducers";
 
 const reducer = combineReducers({
   userLogin: userLoginReducer,
@@ -76,7 +72,7 @@ const reducer = combineReducers({
   userUpdate: userUpdateReducer,
   userDelete: userDeleteReducer,
 
-  filesToCheck: filesListReducer,
+  filesToCheck: filesReducer,
 
   systemCheck: systemCheckReducer,
   systemAdd: systemAddReducer,

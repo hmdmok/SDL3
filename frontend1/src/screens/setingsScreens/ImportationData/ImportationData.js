@@ -47,8 +47,8 @@ function ImportationData() {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
 
-  const fichierImported = useSelector((state) => state.importedFichier);
-  const { fichierInfo: imporFichierInfo } = fichierImported;
+  // const fichierImported = useSelector((state) => state.importedFichier);
+  // const { fichierInfo: imporFichierInfo } = fichierImported;
 
   useEffect(() => {
     setCreator(userInfo.username);

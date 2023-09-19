@@ -8,6 +8,7 @@ const {
   createDossier,
   updateDossier,
   deleteDossier,
+  getDossierByFilters
 } = require("../controllers/dossiersControllers");
 const {
   getEnquetCNLFile,
@@ -38,8 +39,9 @@ const uploadDossierPhoto = multer({
 const router = express.Router();
 
 router.route("/").get(getDossiers);
+router.route("/filtred").post(getDossierByFilters);
 router
-  .route("/:id")
+.route("/:id")
   .get(getDossierById)
   .put(updateDossier)
   .delete(protect, deleteDossier);
