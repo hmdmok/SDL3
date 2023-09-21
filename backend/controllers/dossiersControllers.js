@@ -124,8 +124,8 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
         ?.toLowerCase()
         .includes(prenomFr?.toLowerCase()) &&
       filtredDemand.demandeur?.date_n.includes(birthDate) &&
-      filtredDemand.date_depo >= fromDate &&
-      filtredDemand.date_depo <= toDate
+      new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
+      new Date(filtredDemand.date_depo) <= new Date(toDate)
     );
   });
 

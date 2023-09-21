@@ -10,12 +10,14 @@ import {
   Dropdown,
   Badge,
 } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import apartment from "./apartment.png";
 import { logout } from "../../actions/userActions";
 import { IoDocumentsOutline } from "react-icons/io5";
+import { AiFillDelete } from "react-icons/ai";
 import DropdownMenu from "react-bootstrap/esm/DropdownMenu";
+import { deleteFile } from "../../actions/filesActions";
 
 const Navigation = () => {
   let history = useNavigate();
@@ -28,6 +30,10 @@ const Navigation = () => {
   const filesToCheck = useSelector((state) => state.filesToCheck);
   const { filesInfo } = filesToCheck;
   const { files } = filesInfo;
+
+  const dellDossierFromCheck = (fileTo) => {
+    dispatch(deleteFile(fileTo));
+  };
 
   function logoutHandler() {
     dispatch(logout());
@@ -133,7 +139,31 @@ const Navigation = () => {
                     <Badge>{files.length}</Badge>
                   </Dropdown.Toggle>
                   <DropdownMenu style={{ minWidth: 370 }}>
-                    <span style={{ padding: 10 }}>لا توجد ملفات</span>
+                    {files.length > 0 ? (
+                      <>
+                        {files.map((file) => (
+                          <sapn className="file" key={file._id}>
+                            <div className="fileDetail">
+                              <span>N: {file.num_dos}</span>
+                              <span>Nom: {file.demandeur?.nom_fr}</span>
+                              <span>Prenom: {file.demandeur?.prenom_fr}</span>
+                            </div>
+                            <AiFillDelete
+                              fontSize={"20px"}
+                              style={{ cursor: "pointer" }}
+                              onClick={() => dellDossierFromCheck(file)}
+                            />
+                          </sapn>
+                        ))}
+                        <Link to="/enquetCNL">
+                          <Button style={{ width: "95%", margin: "0 10px" }}>
+                            صفحة ملفات التحقيق
+                          </Button>
+                        </Link>
+                      </>
+                    ) : (
+                      <span style={{ padding: 10 }}>لا توجد ملفات</span>
+                    )}
                   </DropdownMenu>
                 </Dropdown>
               </Nav>
