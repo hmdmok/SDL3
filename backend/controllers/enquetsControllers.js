@@ -6,11 +6,12 @@ const DossierEnq = require("../models/dossierEnqModel");
 const Enquete = require("../models/enqueteModel");
 const generateToken = require("../utils/generateToken");
 const { calculate } = require("./CalculeNotesDossier");
-const XLSX = require("xlsx");
+const XLSX = require("sheetjs-style");
 const ADODB = require("node-adodb");
 
 const fs = require("fs");
 const { DBFFile } = require("dbffile");
+const { getAlphabet } = require("../config/functions");
 
 const getDossierByDates = asyncHandler(async (req, res) => {
   const { fromDate, toDate } = req.body;
@@ -81,40 +82,104 @@ const uploadDossierEnq = asyncHandler(async (req, res) => {
 
 const getEnquetCNLFile = asyncHandler(async (req, res) => {
   var { dossierEnq } = req.body;
+
+  let workbook = XLSX.readFile("CNL.xlsx", { cellStyles: true });
+  let first_sheet_name = workbook.SheetNames[0];
+  let worksheet = workbook.Sheets[first_sheet_name];
+
+  const ss2 = {
+    // set the style for target cell
+    font: {
+      name: "Times New Roman",
+      sz: 24,
+      bold: true,
+      underline: true,
+    },
+  };
+
+  const sh1 = {
+    // set the style for target cell
+    fill: { patternType: "solid" },
+    font: {
+      name: "Times New Roman",
+      sz: 20,
+      color: { rgb: "FFFFFF" },
+    },
+
+    border: {
+      top: { style: "thin", color: { auto: 1 } },
+      bottom: { style: "thin", color: { auto: 1 } },
+      left: { style: "thin", color: { auto: 1 } },
+      right: { style: "thin", color: { auto: 1 } },
+    },
+  };
+
+  const ss3 = {
+    // set the style for target cell
+    font: {
+      name: "Times New Roman",
+      sz: 24,
+      bold: true,
+    },
+  };
+
+  worksheet[`A2`].s = {
+    // set the style for target cell
+    font: {
+      name: "Times New Roman",
+      sz: 36,
+      bold: true,
+      underline: true,
+    },
+    alignment: { horizontal: "center" },
+  };
+
+  worksheet[`A3`].s = ss2;
+  worksheet[`A4`].s = ss2;
+  worksheet[`A5`].s = ss2;
+
+  worksheet[`I6`].s = ss3;
+  worksheet[`I7`].s = ss3;
+
+  getAlphabet("fr").map((x) => {
+    if (
+      x.toUpperCase() !== "X" &&
+      x.toUpperCase() !== "Y" &&
+      x.toUpperCase() !== "Z"
+    ) {
+      worksheet[`${x.toUpperCase()}9`].s = sh1;
+    }
+  });
+
   var newData = dossierEnq.map(function (record, i) {
+    // modify value in D4
+    worksheet[`A${i + 11}`].v = record.num_dos;
+    worksheet[`A${i + 11}`].s = {
+      // set the style for target cell
+      font: {
+        name: "Times New Roman",
+        sz: 14,
+      },
+    };
+    // modify value if D4 is undefined / does not exists
+    XLSX.utils.sheet_add_aoa(worksheet, [[record.num_dos]], {
+      origin: `A${i + 10}`,
+    });
+
     var newRecord = {
       Ordre: i + 1,
-      Nom: record.dossier.demandeur[0]?.nom_fr || "" || "",
-      Prénom: record.dossier.demandeur[0]?.prenom_fr || "",
-      Sexe: record.dossier.demandeur[0]?.gender || "",
-      "Date de Naissance": record.dossier.demandeur[0]?.date_n || "",
-      "Type Date de Naissance": "" || "",
-      "Commune de Naissance": record.dossier.demandeur[0]?.com_n || "",
-      "WILAYA DE NAISSANCE": record.dossier.demandeur[0]?.wil_n || "",
-      "N°EXTR DE NAISSANCE": record.dossier.demandeur[0]?.num_act || "",
-      "Sit. Fam": record.dossier.demandeur[0]?.stuation_f || "",
-      "Prénom du Pére": record.dossier.demandeur[0]?.prenom_p_fr || "",
-      "Nom de la Mére": record.dossier.demandeur[0]?.nom_m_fr || "",
-      "Prénom de la Mére": record.dossier.demandeur[0]?.prenom_m_fr || "",
-      "Nom Conj": record.dossier.conjoin[0]?.nom_fr || "",
-      "Prénom conj": record.dossier.conjoin[0]?.prenom_fr || "",
-      "Date de Naissance conj": record.dossier.conjoin[0]?.date_n || "",
-      "Type Date de Naissance conj": "" || "",
-      "Commune de Naissance conj": record.dossier.conjoin[0]?.com_n || "",
-      "WILAYA DE NAISSANCE conj": record.dossier.conjoin[0]?.wil_n || "",
-      "N°EXTR DE NAISSANCE conj": record.dossier.conjoin[0]?.num_act || "",
-      "Prénom du Pére conj": record.dossier.conjoin[0]?.prenom_p_fr || "",
-      "Nom de la Mére conj": record.dossier.conjoin[0]?.nom_m_fr || "",
-      "Prénom de la Mére conj": record.dossier.conjoin[0]?.prenom_m_fr || "",
     };
     return newRecord;
   });
 
-  var newWB = XLSX.utils.book_new();
-  var newWS = XLSX.utils.json_to_sheet(newData);
-  XLSX.utils.book_append_sheet(newWB, newWS, "List");
-  XLSX.writeFile(newWB, "EnquetCNLnew.xlsx");
-  const file = `EnquetCNLnew.xlsx`;
+  // var newWB = XLSX.utils.book_new();
+  // var newWS = XLSX.utils.json_to_sheet(newData);
+  // XLSX.utils.book_append_sheet(newWB, newWS, "List");
+  const newFileName = `EnquetCNLnew${new Date().toDateString()}.xlsx`;
+  XLSX.writeFile(workbook, newFileName, {
+    cellStyles: true,
+  });
+  const file = newFileName;
   res.download(file);
 });
 

@@ -3,48 +3,115 @@
   src: url(A\ Arghavan\ Bold.ttf);
 }
 
+a {
+  text-decoration: none !important;
+  color: inherit !important;
+}
+
+tr {
+  display: flex;
+  flex-direction: row-reverse;
+  flex: 10%;
+}
+
+.fileContainer {
+  display: flex;
+  width: 70%;
+  flex: 1;
+  padding: 0 20px;
+  flex-direction: column;
+}
+
+.rigthPanel {
+  display: flex;
+  flex-direction: column;
+  width: 15%;
+}
+
+.filters {
+  background-color: rgb(56, 53, 50);
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 10px;
+  height: 86vh;
+  text-align: right;
+}
+
+.tools {
+  background-color: rgb(56, 53, 50);
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 10px;
+  height: 50vh;
+  text-align: right;
+}
+
+.file {
+  display: flex;
+  flex: 1;
+  flex-direction: column-reverse;
+  margin: 5px 10px;
+}
+
+.fileDetail {
+  display: flex;
+  flex: 1;
+  padding: 0 20px;
+  flex-direction: column;
+}
+
 .mainback {
   min-height: 85vh;
-  display: flex;
-  padding: 10px 0;
+  padding: 10px 30px;
   background-image: url("../../Background.jpg");
   background-position: center;
   background-size: cover;
 }
 
+.home {
+  display: flex;
+  flex: 1;
+  flex-direction: row-reverse;
+}
 .page {
   width: 100%;
+  text-align: right;
 }
 
 .heading {
   font-size: 60px;
-  font-family: "myFont", sans-serif;
+  font-family: sans-serif;
   padding: 5px 10px;
 }
 
 @media only screen and (min-width: 1200px) {
-    .title {
-      padding: 0 100px;
-    }
+  .title {
+    padding: 0 100px;
   }
-  @media only screen and (max-width: 1200px) {
-    .title {
-      font-size: 70px;
-    }
-  
-    .subtitle {
-      font-size: 20px;
-    }
+}
+@media only screen and (max-width: 1200px) {
+  .title {
+    font-size: 70px;
   }
-  @media only screen and (max-width: 600px) {
-    .heading {
-      font-size: 30px;
-      display: flex;
-      justify-content: center;
-    }
-  
-    .subtitle {
-      font-size: 15px;
-    }
+
+  .subtitle {
+    font-size: 20px;
   }
-  
+}
+@media only screen and (max-width: 600px) {
+  .heading {
+    font-size: 30px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .subtitle {
+    font-size: 15px;
+  }
+}

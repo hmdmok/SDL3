@@ -27,6 +27,7 @@
     "nodemon": "^3.0.1",
     "react-html-table-to-excel": "^2.0.0",
     "react-icons": "^4.11.0",
+    "sheetjs-style": "^0.15.8",
     "stream-json": "^1.8.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz"
   }

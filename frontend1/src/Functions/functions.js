@@ -53,4 +53,53 @@ function isStrictFrench(str) {
   return strictFrenchRegex.test(str);
 }
 
-export { isValidDate, validateHeader, isStrictArabic, isStrictFrench };
+const getCivility = (status, language) => {
+  let civility = "";
+
+  switch (status) {
+    case "C":
+      civility = language === "a" ? "أعزب/عزباء" : "Célibataire";
+      break;
+    case "M":
+      civility = language === "a" ? "متزوج/متزوجة" : "Marié(e)";
+      break;
+    case "D":
+      civility = language === "a" ? "مطلق/مطلقة" : "Divorcé(e)";
+      break;
+    case "V":
+      civility = language === "a" ? "أرمل/أرملة" : "Veuf/Veuve";
+      break;
+    default:
+      civility = "Unknown marital status";
+  }
+
+  return civility;
+};
+
+const getAlphabet = (language) => {
+  let alphabet = [];
+
+  if (language === "ar") {
+    for (let i = 0; i < 28; i++) {
+      alphabet.push(String.fromCharCode(1601 + i)); // Arabic characters start from Unicode 1601
+    }
+  } else if (language === "fr") {
+    for (let i = 65; i <= 90; i++) {
+      alphabet.push(String.fromCharCode(i)); // Uppercase Latin alphabet characters start from Unicode 65
+    }
+    for (let i = 97; i <= 122; i++) {
+      alphabet.push(String.fromCharCode(i)); // Lowercase Latin alphabet characters start from Unicode 97
+    }
+  }
+
+  return alphabet;
+};
+
+export {
+  isValidDate,
+  validateHeader,
+  isStrictArabic,
+  isStrictFrench,
+  getCivility,
+  getAlphabet,
+};
