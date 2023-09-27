@@ -1,12 +1,9 @@
 import React from "react";
 import {
-  Accordion,
   Badge,
   Button,
   Card,
-  Form,
-  FormLabel,
-  ListGroup,
+ 
 } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteDossierAction } from "../../../actions/dossierActions";

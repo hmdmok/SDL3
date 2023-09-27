@@ -64,7 +64,10 @@ import { importationFichierReducer } from "./reducers/importationFichierReducers
 import { importationFichierTempReducer } from "./reducers/templatesReducers";
 import { validateHeaderReducer } from "./reducers/validateHeaderReducers";
 import { filesReducer } from "./reducers/filesReducers";
-import { benefisiersReducer } from "./reducers/benefisiersReducers";
+import {
+  benefisiersReducer,
+  listBenefisiersReducer,
+} from "./reducers/benefisiersReducers";
 
 const reducer = combineReducers({
   userLogin: userLoginReducer,
@@ -119,6 +122,8 @@ const reducer = combineReducers({
   enquetCNLGet: enquetCNLGetReducer,
   enquetCNASGet: enquetCNASGetReducer,
   enquetCASNOSGet: enquetCASNOSGetReducer,
+  
+  listBenefisiersGet: listBenefisiersReducer,
 
   importationFichierTemp: importationFichierTempReducer,
 

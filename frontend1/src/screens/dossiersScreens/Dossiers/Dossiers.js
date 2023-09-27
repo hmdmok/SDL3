@@ -1,9 +1,6 @@
 import React from "react";
-import { Accordion, Button, Card } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import MainScreen from "../../../components/MainScreen/MainScreen";
-import { deleteDossierAction } from "../../../actions/dossierActions";
-import { addFile, deleteFile } from "../../../actions/filesActions";
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
 import Tools from "./Tools";
@@ -11,12 +8,6 @@ import Filters from "./Filters";
 import SingleDossier from "./SingleDossier";
 
 function Dossiers() {
-  const dispatch = useDispatch();
-
-  const filesToCheck = useSelector((state) => state.filesToCheck);
-  const { filesInfo } = filesToCheck;
-  const { files } = filesInfo;
-
   const dossierList = useSelector((state) => state.dossierList);
   const { loading, dossiers, error } = dossierList;
 
@@ -42,7 +33,7 @@ function Dossiers() {
         </div>
 
         <div className="fileContainer">
-          {dossiers?.map((dossierMap, i, passed) => {
+          {dossiers?.map((dossierMap) => {
             return (
               <SingleDossier dossierMap={dossierMap} key={dossierMap._id} />
             );

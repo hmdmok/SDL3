@@ -175,7 +175,7 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
   // var newWB = XLSX.utils.book_new();
   // var newWS = XLSX.utils.json_to_sheet(newData);
   // XLSX.utils.book_append_sheet(newWB, newWS, "List");
-  const newFileName = `EnquetCNLnew${new Date().toDateString()}.xlsx`;
+  const newFileName = `newEnquetCNL_${new Date().toDateString()}.xlsx`;
   XLSX.writeFile(workbook, newFileName, {
     cellStyles: true,
   });

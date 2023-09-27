@@ -3,10 +3,7 @@ import { Badge, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addList, deleteList } from "../../../actions/filesActions";
-import {
-  addBenefisierList,
-  deleteBenefisierList,
-} from "../../../actions/benifisierActions";
+import { addBenefisierList } from "../../../actions/benifisierActions";
 
 const Tools = () => {
   const dispatch = useDispatch();
@@ -24,10 +21,6 @@ const Tools = () => {
 
   const addListToBenefisiers = (fileTo) => {
     dispatch(addBenefisierList(fileTo));
-  };
-
-  const dellAllDossiersFromBenefisiers = () => {
-    dispatch(deleteBenefisierList());
   };
 
   return (

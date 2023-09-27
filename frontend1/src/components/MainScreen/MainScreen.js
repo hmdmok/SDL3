@@ -1,5 +1,4 @@
 import React from "react";
-import { Container, Row } from "react-bootstrap";
 import "./MainScreen.css";
 
 function MainScreen({ title, children }) {
