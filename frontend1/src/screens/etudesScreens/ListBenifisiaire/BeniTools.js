@@ -21,15 +21,15 @@ const BeniTools = () => {
     dispatch(deleteBenefisierList());
   };
 
-  const onGetBenefisiersList = (listDossierBenefisiers) => {
-    dispatch(listBenefisiersAction(listDossierBenefisiers));
+  const onGetBenefisiersList = (listDossierBenefisiers, type) => {
+    dispatch(listBenefisiersAction(listDossierBenefisiers, type));
   };
 
   useEffect(() => {
     if (success) {
       fileDownload(
         listBenefisiers.data,
-        listBenefisiers.headers["content-disposition"].split('"')[1]
+        listBenefisiers.headers["content-disposition"]?.split('"')[1]
       );
     }
   }, [dispatch, listBenefisiers, success]);
@@ -45,10 +45,39 @@ const BeniTools = () => {
         variant="success"
         className="m-1 "
         onClick={() => {
-          onGetBenefisiersList(benefisiers);
+          onGetBenefisiersList(benefisiers, "p");
         }}
       >
-        انشاء ملف المستفيدين
+        انشاء ملف المستفيدين اكبر من 35 بالفرنسية
+      </Button>
+
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() => {
+          onGetBenefisiersList(benefisiers, "m");
+        }}
+      >
+        انشاء ملف المستفيدين اقل من 35 بالفرنسية
+      </Button>
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() => {
+          onGetBenefisiersList(benefisiers, "p");
+        }}
+      >
+        انشاء ملف المستفيدين اكبر من 35
+      </Button>
+
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() => {
+          onGetBenefisiersList(benefisiers, "m");
+        }}
+      >
+        انشاء ملف المستفيدين اقل من 35
       </Button>
       <Button
         variant="danger"

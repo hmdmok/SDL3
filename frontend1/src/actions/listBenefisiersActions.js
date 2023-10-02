@@ -6,7 +6,7 @@ import {
 } from "../constants/benifisierConstants";
 
 export const listBenefisiersAction =
-  (dossiersList) => async (dispatch, getState) => {
+  (dossiersList, type) => async (dispatch, getState) => {
     try {
       dispatch({
         type: LIST_BENEFISIERS_GET_REQUEST,
@@ -20,11 +20,12 @@ export const listBenefisiersAction =
           "Content-Type": "application/json",
           Authorization: `Bearer ${userInfo.token}`,
         },
+        responseType: "arraybuffer",
       };
 
-      const formData = dossiersList;
+      const formData = { dossiersList: dossiersList, type: type };
 
-      const { data } = await axios.post(
+      const data = await axios.post(
         "/api/dossiers/listBenefisiers",
         formData,
         config

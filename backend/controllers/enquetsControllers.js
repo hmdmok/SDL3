@@ -12,6 +12,7 @@ const ADODB = require("node-adodb");
 const fs = require("fs");
 const { DBFFile } = require("dbffile");
 const { getAlphabet } = require("../config/functions");
+const ExcelJS = require("exceljs");
 
 const getDossierByDates = asyncHandler(async (req, res) => {
   const { fromDate, toDate } = req.body;
@@ -181,6 +182,51 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
   });
   const file = newFileName;
   res.download(file);
+});
+
+const getListBenefisiersFile = asyncHandler(async (req, res) => {
+  var { dossiersList, type } = req.body;
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile("ListBenefisiers.xlsx");
+
+  let worksheet;
+  if (type === "p") {
+    worksheet = workbook.worksheets[0];
+  } else {
+    worksheet = workbook.worksheets[1];
+  }
+
+  const newDoss = await dossiersList.map(asyncHandler(async function (record, i) {
+    // get conjoin
+    // const conjoin = await Person.findById(record.id_conjoin);
+
+    await worksheet.insertRow(
+      8 + i,
+      [
+        i + 1,
+        record.num_dos,
+        record.date_depo,
+        record.demandeur.nom,
+        record.demandeur.prenom,
+      ],
+      "i+"
+    );
+    if (i === 3) console.log(worksheet);
+    // worksheet.getCell(`A${i + 8}`).value = i + 1;
+    // worksheet.getCell(`B${i + 8}`).value = record.num_dos;
+  }));
+
+  const newFileName = `List Benifisiers ${
+    new Date().toISOString().split("T")[0]
+  }.xlsx`;
+  return Promise.all(newDoss).then(
+    asyncHandler(async () => {
+      await workbook.xlsx.writeFile(newFileName);
+
+      const file = newFileName;
+      res.download(file);
+    })
+  );
 });
 
 const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
@@ -747,4 +793,5 @@ module.exports = {
   getEnquetCNASFileTest,
   getEnquetCASNOSFileTest,
   uploadDossierEnq,
+  getListBenefisiersFile,
 };
