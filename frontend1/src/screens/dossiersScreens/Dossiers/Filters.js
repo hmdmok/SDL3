@@ -16,11 +16,9 @@ const Filters = () => {
     new Date("01/01/1900").toLocaleDateString()
   );
   const [toDate, setToDate] = useState(new Date().toLocaleDateString());
-
+  const [situationFamiliale, setSituationFamiliale] = useState("all");
   const dossierDelete = useSelector((state) => state.dossierDelete);
-  const {
-    success: successDossierDelete,
-  } = dossierDelete;
+  const { success: successDossierDelete } = dossierDelete;
 
   useEffect(() => {
     dispatch(
@@ -31,7 +29,8 @@ const Filters = () => {
         nameSearch,
         birthDateSearch,
         fromDate,
-        toDate
+        toDate,
+        situationFamiliale
       )
     );
   }, [
@@ -44,6 +43,7 @@ const Filters = () => {
     dossiersCount,
     fromDate,
     toDate,
+    situationFamiliale,
   ]);
 
   return (
@@ -60,7 +60,81 @@ const Filters = () => {
         }}
         className="m-1  text-right"
       />
-
+      <Form.Check
+        name="situation_f"
+        type="radio"
+        id={`situation_f-1`}
+        className="d-flex flex-row-reverse p-1"
+        onChange={() => {
+          setSituationFamiliale("all");
+        }}
+      />
+      <Form.Label
+        htmlFor="situation_f"
+        className="d-flex justify-content-center p-1"
+      >
+        {"الكل"}
+      </Form.Label>
+      <Form.Check
+        name="situation_f"
+        type="radio"
+        id={`situation_f-2`}
+        className="d-flex flex-row-reverse p-1"
+        onChange={() => {
+          setSituationFamiliale("C");
+        }}
+      />
+      <Form.Label
+        htmlFor="situation_f"
+        className="d-flex justify-content-center p-1"
+      >
+        {"اعزب"}
+      </Form.Label>
+      <Form.Check
+        name="situation_f"
+        type="radio"
+        id={`situation_f-3`}
+        className="d-flex flex-row-reverse p-1"
+        onChange={() => {
+          setSituationFamiliale("M");
+        }}
+      />
+      <Form.Label
+        htmlFor="situation_f"
+        className="d-flex justify-content-center p-1"
+      >
+        {"متزوج"}
+      </Form.Label>
+      <Form.Check
+        name="situation_f"
+        type="radio"
+        id={`situation_f-4`}
+        className="d-flex flex-row-reverse p-1"
+        onChange={() => {
+          setSituationFamiliale("D");
+        }}
+      />
+      <Form.Label
+        htmlFor="situation_f"
+        className="d-flex justify-content-center p-1"
+      >
+        {"مطلق"}
+      </Form.Label>
+      <Form.Check
+        name="situation_f"
+        type="radio"
+        id={`situation_f-5`}
+        className="d-flex flex-row-reverse p-1"
+        onChange={() => {
+          setSituationFamiliale("V");
+        }}
+      />
+      <Form.Label
+        htmlFor="situation_f"
+        className="d-flex justify-content-center p-1"
+      >
+        {"ارمل"}
+      </Form.Label>
       <Form.Label htmlFor="inputFromDate">{"من"}</Form.Label>
       <Form.Control
         value={new Date(fromDate)?.toISOString().split("T")[0]}
@@ -84,7 +158,7 @@ const Filters = () => {
         }}
         type="date"
         id="inputToDate"
-        className="m-1  text-right"
+        className="m-1  text-right "
       />
 
       {!nameSearch && !lastNameSearch && !birthDateSearch && (

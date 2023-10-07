@@ -105,6 +105,9 @@ const Navigation = () => {
                       <NavDropdown.Item href={"/importationData"}>
                         استيراد بيانات طالبي السكن
                       </NavDropdown.Item>
+                      <NavDropdown.Item href={"/importationDemPhoto"}>
+                        استيراد صور طالبي السكن
+                      </NavDropdown.Item>
                       <NavDropdown.Divider />
                     </NavDropdown>
                   </>

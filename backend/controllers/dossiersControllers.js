@@ -76,6 +76,7 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
     birthDate,
     fromDate,
     toDate,
+    situationFamiliale,
   } = req.body;
 
   const persons = await Person.find();
@@ -85,6 +86,9 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
     persons.map((personMaped) => {
       if (dossierFound.id_demandeur === personMaped._id.toString()) {
         newdossier = { ...newdossier._doc, demandeur: personMaped };
+      }
+      if (dossierFound.id_conjoin === personMaped._id.toString()) {
+        newdossier = { ...newdossier, conjoin: personMaped };
       }
     });
     return newdossier;
@@ -111,7 +115,7 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
 
   const filtredByDate = dossierByNotes.filter((filtredDossiers) => {
     return filtredDossiers?.num_dos
-      .toLowerCase()
+      ?.toLowerCase()
       .includes(numDoss?.toLowerCase());
   });
 
@@ -125,11 +129,16 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
         .includes(prenomFr?.toLowerCase()) &&
       filtredDemand.demandeur?.date_n.includes(birthDate) &&
       new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
-      new Date(filtredDemand.date_depo) <= new Date(toDate)
+      new Date(filtredDemand.date_depo) <= new Date(toDate) 
     );
   });
 
-  const FinalList = filtredByNames?.slice(0, dossiersCount - 0);
+  const filtredBySituation = filtredByNames.filter((filtredDossiers) => {
+    if (situationFamiliale === "all") return true;
+    else return filtredDossiers.demandeur?.stuation_f === situationFamiliale;
+  });
+
+  const FinalList = filtredBySituation?.slice(0, dossiersCount - 0);
 
   if (dossierByNotes) {
     res.json(FinalList);

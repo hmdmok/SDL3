@@ -45,7 +45,7 @@ const BeniTools = () => {
         variant="success"
         className="m-1 "
         onClick={() => {
-          onGetBenefisiersList(benefisiers, "p");
+          onGetBenefisiersList(benefisiers, "pf");
         }}
       >
         انشاء ملف المستفيدين اكبر من 35 بالفرنسية
@@ -55,30 +55,72 @@ const BeniTools = () => {
         variant="success"
         className="m-1 "
         onClick={() => {
-          onGetBenefisiersList(benefisiers, "m");
+          onGetBenefisiersList(benefisiers, "pfa");
         }}
       >
-        انشاء ملف المستفيدين اقل من 35 بالفرنسية
-      </Button>
-      <Button
-        variant="success"
-        className="m-1 "
-        onClick={() => {
-          onGetBenefisiersList(benefisiers, "p");
-        }}
-      >
-        انشاء ملف المستفيدين اكبر من 35
+        انشاء ملف الاحتياطيين اكبر من 35 بالفرنسية
       </Button>
 
       <Button
         variant="success"
         className="m-1 "
         onClick={() => {
-          onGetBenefisiersList(benefisiers, "m");
+          onGetBenefisiersList(benefisiers, "mf");
+        }}
+      >
+        انشاء ملف المستفيدين اقل من 35 بالفرنسية
+      </Button>
+
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() => {
+          onGetBenefisiersList(benefisiers, "mfa");
+        }}
+      >
+        انشاء ملف الاحتياطيين اقل من 35 بالفرنسية
+      </Button>
+
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() => {
+          onGetBenefisiersList(benefisiers, "pa");
+        }}
+      >
+        انشاء ملف المستفيدين اكبر من 35
+      </Button>
+      
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() => {
+          onGetBenefisiersList(benefisiers, "paa");
+        }}
+      >
+        انشاء ملف الاحتياطيين اكبر من 35
+      </Button>
+
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() => {
+          onGetBenefisiersList(benefisiers, "ma");
         }}
       >
         انشاء ملف المستفيدين اقل من 35
       </Button>
+      
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() => {
+          onGetBenefisiersList(benefisiers, "maa");
+        }}
+      >
+        انشاء ملف الاحتياطيين اقل من 35
+      </Button>
+
       <Button
         variant="danger"
         className="m-1 "

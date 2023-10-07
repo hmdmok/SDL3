@@ -28,8 +28,8 @@ function Dossiers() {
       </div>
       <MainScreen title={"البحث عبر الملفات "}>
         <div className="rigthPanel">
-          <Tools />
           <Filters />
+          <Tools />
         </div>
 
         <div className="fileContainer">

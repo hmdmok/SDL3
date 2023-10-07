@@ -36,7 +36,7 @@ tr {
   flex-direction: column;
   width: 100%;
   margin: 10px;
-  height: 86vh;
+  height: auto;
   text-align: right;
 }
 
@@ -48,7 +48,8 @@ tr {
   flex-direction: column;
   width: 100%;
   margin: 10px;
-  height: 50vh;
+  height: auto;
+  
   text-align: right;
 }
 

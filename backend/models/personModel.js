@@ -77,6 +77,9 @@ const personSchema = mongoose.Schema(
     creator: {
       type: String,
     },
+    photo_link: {
+      type: String,
+    },
   },
   {
     timestamps: true,

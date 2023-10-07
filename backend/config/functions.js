@@ -95,6 +95,18 @@ const getAlphabet = (language) => {
   return alphabet;
 };
 
+const getGenderName = (gender, language) => {
+  let genderName = "";
+
+  if (gender === "F") {
+    genderName = language === "a" ? "أنثى" : "Femme"; // Arabic: 'أنثى', French: 'Femme'
+  } else if (gender === "M") {
+    genderName = language === "a" ? "ذكر" : "Homme"; // Arabic: 'ذكر', French: 'Homme'
+  }
+
+  return genderName;
+};
+
 module.exports = {
   isValidDate,
   validateHeader,
@@ -102,4 +114,5 @@ module.exports = {
   isStrictFrench,
   getCivility,
   getAlphabet,
+  getGenderName,
 };

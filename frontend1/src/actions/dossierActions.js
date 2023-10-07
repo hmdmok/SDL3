@@ -82,7 +82,16 @@ export const addDossierAction =
   };
 
 export const listDossiersAction =
-  (dossiersCount, numDoss, nomFr, prenomFr, birthDate, fromDate, toDate) =>
+  (
+    dossiersCount,
+    numDoss,
+    nomFr,
+    prenomFr,
+    birthDate,
+    fromDate,
+    toDate,
+    situationFamiliale
+  ) =>
   async (dispatch, getState) => {
     try {
       dispatch({
@@ -108,9 +117,14 @@ export const listDossiersAction =
         birthDate,
         fromDate,
         toDate,
+        situationFamiliale,
       };
 
-      const { data } = await axios.post("/api/dossiers/filtred", formData, config);
+      const { data } = await axios.post(
+        "/api/dossiers/filtred",
+        formData,
+        config
+      );
 
       dispatch({
         type: DOSSIER_LIST_SUCCESS,

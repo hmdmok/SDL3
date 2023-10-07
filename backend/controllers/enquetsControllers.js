@@ -11,7 +11,11 @@ const ADODB = require("node-adodb");
 
 const fs = require("fs");
 const { DBFFile } = require("dbffile");
-const { getAlphabet } = require("../config/functions");
+const {
+  getAlphabet,
+  getCivility,
+  getGenderName,
+} = require("../config/functions");
 const ExcelJS = require("exceljs");
 
 const getDossierByDates = asyncHandler(async (req, res) => {
@@ -187,40 +191,103 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
 const getListBenefisiersFile = asyncHandler(async (req, res) => {
   var { dossiersList, type } = req.body;
   const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile("ListBenefisiers.xlsx");
 
   let worksheet;
-  if (type === "p") {
-    worksheet = workbook.worksheets[0];
-  } else {
-    worksheet = workbook.worksheets[1];
+  switch (type) {
+    case "pa": {
+      await workbook.xlsx.readFile("ListBenefisiers.xlsx");
+      worksheet = workbook.worksheets[0];
+    }
+    case "ma": {
+      await workbook.xlsx.readFile("ListBenefisiers.xlsx");
+      worksheet = workbook.worksheets[1];
+    }
+    case "paa": {
+      await workbook.xlsx.readFile("ListBenefisiers.xlsx");
+      worksheet = workbook.worksheets[2];
+    }
+    case "maa": {
+      await workbook.xlsx.readFile("ListBenefisiers.xlsx");
+      worksheet = workbook.worksheets[3];
+    }
+    case "pf": {
+      await workbook.xlsx.readFile("ListBenefisiersFr.xlsx");
+      worksheet = workbook.worksheets[0];
+    }
+    case "mf": {
+      await workbook.xlsx.readFile("ListBenefisiersFr.xlsx");
+      worksheet = workbook.worksheets[1];
+    }
+    case "pfa": {
+      await workbook.xlsx.readFile("ListBenefisiersFr.xlsx");
+      worksheet = workbook.worksheets[2];
+    }
+    case "mfa": {
+      await workbook.xlsx.readFile("ListBenefisiersFr.xlsx");
+      worksheet = workbook.worksheets[3];
+    }
   }
 
-  const newDoss = await dossiersList.map(asyncHandler(async function (record, i) {
-    // get conjoin
-    // const conjoin = await Person.findById(record.id_conjoin);
+  const imageId1 = workbook.addImage({
+    filename: "HMDMOK logo.PNG",
+    extension: "png",
+  });
 
-    await worksheet.insertRow(
-      8 + i,
-      [
-        i + 1,
-        record.num_dos,
-        record.date_depo,
-        record.demandeur.nom,
-        record.demandeur.prenom,
-      ],
-      "i+"
-    );
-    if (i === 3) console.log(worksheet);
-    // worksheet.getCell(`A${i + 8}`).value = i + 1;
-    // worksheet.getCell(`B${i + 8}`).value = record.num_dos;
-  }));
+  // insert an image over B2:D6
+  worksheet.addImage(imageId1, "AA2:AB3");
 
+  const newDoss = await dossiersList.map(
+    asyncHandler(async function (record, i) {
+      
+      if (type.includes("f"))
+        await worksheet.addRow(
+          [
+            i + 1,
+            record.num_dos,
+            record.date_depo,
+            record.demandeur.nom_fr,
+            record.demandeur.prenom_fr,
+            getGenderName(record.demandeur.gender, "f"),
+            record.demandeur.date_n,
+            record.demandeur.num_act,
+            record.demandeur.lieu_n_fr,
+            getCivility(record.demandeur.stuation_f, "f"),
+            record.demandeur.prenom_p_fr,
+            record.demandeur.nom_m_fr,
+            record.demandeur.prenom_m_fr,
+            record.adress,
+            record.conjoin?.nom_fr,
+            record.conjoin?.prenom_fr,
+            record.conjoin?.date_n,
+            record.conjoin?.num_act,
+            record.conjoin?.lieu_n_fr,
+            record.conjoin?.prenom_p_fr,
+            record.conjoin?.nom_m_fr,
+            record.conjoin?.prenom_m_fr,
+          ],
+          "i+"
+        );
+      else
+        await worksheet.insertRow(
+          8 + i,
+          [
+            i + 1,
+            record.num_dos,
+            record.date_depo,
+            record.demandeur.nom,
+            record.demandeur.prenom,
+          ],
+          "i+"
+        );
+    })
+  );
+  // worksheet.spliceRows(7, 1);
   const newFileName = `List Benifisiers ${
     new Date().toISOString().split("T")[0]
   }.xlsx`;
   return Promise.all(newDoss).then(
     asyncHandler(async () => {
+      await worksheet.spliceRows(7, 1);
       await workbook.xlsx.writeFile(newFileName);
 
       const file = newFileName;

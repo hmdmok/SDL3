@@ -17,6 +17,9 @@ const dossierSchema = mongoose.Schema(
     num_dos: {
       type: String,
     },
+    adress: {
+      type: String,
+    },
     num_enf: {
       type: String,
     },

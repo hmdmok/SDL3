@@ -27,6 +27,7 @@ import UserProfile from "./screens/usersScreens/UserProfile/UserProfile";
 import UpdateDemandeur from "./screens/dossiersScreens/UpdateDemandeur/UpdateDemandeur";
 import AddConjoin from "./screens/dossiersScreens/AddConjoin/AddConjoin";
 import System from "./screens/setingsScreens/System/System";
+import ImportationDemPhoto from "./screens/setingsScreens/ImportationDemPhoto/ImportationDemPhoto";
 
 const App = () => (
   <BrowserRouter>
@@ -51,6 +52,7 @@ const App = () => (
 
       <Route path="/listBenifisiaire" element={<ListBenifisiaire />} />
       <Route path="/importationData" element={<ImportationData />} />
+      <Route path="/importationDemPhoto" element={<ImportationDemPhoto />} />
       <Route path="/willaya" element={<Willaya />} />
       <Route path="/commune" element={<Commune />} />
       <Route path="/tableNotes" element={<TableNotes />} />
