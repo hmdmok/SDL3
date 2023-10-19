@@ -7,7 +7,7 @@ const importationFileStorage = multer.diskStorage({
     cb(null, `./importationFileUpload/`);
   },
   filename: function (req, file, cb) {
-    cb(null, req.body.fileName);
+    cb(null, `${file?.originalname}`);
   },
 });
 const uploadImportationFile = multer({
@@ -29,7 +29,6 @@ router
 router
   .route("/update")
   .post(
-    protect,
     uploadImportationFile.single("importation_File"),
     importationDossiersControllers.updateDossiers
   );

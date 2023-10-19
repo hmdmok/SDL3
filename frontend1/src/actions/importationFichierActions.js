@@ -21,9 +21,9 @@ export const sendImportationFichierAction =
       const formData = new FormData();
       formData.append("creator", creator);
       formData.append("remark", remark);
-      formData.append("dossierEnq", file);
+      formData.append("importation_File", file);
       const { data } = await axios.post(
-        "/api/enquets/uploadDossierEnq",
+        "/api/importationData/update",
         formData,
         config
       );

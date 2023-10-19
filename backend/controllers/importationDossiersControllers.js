@@ -378,7 +378,7 @@ const updateDossiersFran = asyncHandler(async (req, res) => {
               prenom_m_fr: prenom_m_conj,
               nom_m_fr: nom_m_conj,
               num_i_n: num_act_conj + " " + date_n_conj,
-              creator: "test3",
+              creator: creator,
             });
             dossierToUpdate[0].id_conjoin = conjoinAdded._id || "";
             await dossierToUpdate[0].save();
@@ -414,7 +414,7 @@ const updateDossiersFran = asyncHandler(async (req, res) => {
               nom_m_fr: nom_m_dem,
               num_i_n: num_act_dem + " " + date_n_dem,
               stuation_f: stuation_f_dem,
-              creator: "test3",
+              creator: creator,
             });
           }
 
@@ -437,13 +437,13 @@ const updateDossiersFran = asyncHandler(async (req, res) => {
               prenom_m_fr: prenom_m_conj,
               nom_m_fr: nom_m_conj,
               num_i_n: num_act_conj + " " + date_n_conj,
-              creator: "test3",
+              creator: creator,
             });
           }
 
           // add dossier
           const dossierAdded = await Dossier.create({
-            creator: "test3",
+            creator: creator,
             id_demandeur: demandeurAdded?._id,
             id_conjoin: conjoinAdded?._id || "",
             date_depo: date_depo,
@@ -475,7 +475,11 @@ const updateDossiersFran = asyncHandler(async (req, res) => {
 });
 
 const updateDossiers = asyncHandler(async (req, res) => {
-  const file = reader.readFile("../Book2.xlsx", {
+  const { creator, remark } = req.body;
+
+  const importation_File = req.file?.path;
+
+  const file = reader.read(importation_File, {
     dense: true,
     dateNF: "dd/mm/yyyy",
   });
@@ -631,7 +635,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
             situation_p: "",
             profession: "",
             salaire: "",
-            creator: "test3",
+            creator: creator,
           });
 
           // add conjoin if any
@@ -660,13 +664,13 @@ const updateDossiers = asyncHandler(async (req, res) => {
               situation_p: "",
               profession: "",
               salaire: "",
-              creator: "test3",
+              creator: creator,
             });
           }
 
           // add dossier
           const dossierAdded = await Dossier.create({
-            creator: "test3",
+            creator: creator,
             id_demandeur: demandeurAdded?._id,
             id_conjoin: conjoinAdded?._id || "",
             date_depo: date_depo,

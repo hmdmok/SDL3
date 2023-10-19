@@ -1,20 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import MainScreen from "../../../components/MainScreen/MainScreen";
-import ErrorMessage from "../../../components/ErrorMessage";
-import Loading from "../../../components/Loading";
 import { Card, Form } from "react-bootstrap";
 import ImportPhotoTools from "./ImportPhotoTools";
 
 function ImportationDemPhoto() {
   const [photo_files, setPhoto_files] = useState(null);
-
   return (
     <MainScreen title="تحميل صور طالبي السكن">
       {/* {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
       {message && <ErrorMessage variant="info">{message}</ErrorMessage>}
       {loading && <Loading />} */}
       <div className="rigthPanel">
-        <ImportPhotoTools />
+        <ImportPhotoTools photo_files={photo_files} />
       </div>
       <div className="fileContainer">
         <Form>
@@ -34,11 +31,11 @@ function ImportationDemPhoto() {
             {photo_files?.map((selectedPhoto, i) => {
               return (
                 <Card.Body
-                  class="flex-shrink-0"
+                  className="flex-shrink-0"
                   style={{ width: "200px", margin: "10px" }}
                   key={`pic${i}`}
                 >
-                  <Card.Text>{selectedPhoto.name} </Card.Text>
+                  <Card.Text>{selectedPhoto.name.split(".")[0]} </Card.Text>
                   <Card.Img
                     src={URL.createObjectURL(selectedPhoto)}
                     width="100px"

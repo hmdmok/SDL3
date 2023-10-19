@@ -87,7 +87,7 @@ function ImportationData() {
 
   const sendFile = async (event) => {
     if (file) {
-      dispatch(validateHeaderAction(file, validHeader));
+      dispatch(sendImportationFichierAction(file, creator, "Fichier Imported"));
     }
   };
   useEffect(() => {
@@ -167,7 +167,7 @@ function ImportationData() {
       {loading && <Loading />}
 
       {fichierInfo && (
-        <Message variant="info">{`تم تحميل الملف "${fichierInfo.nomFichier}" بنجاح.`}</Message>
+        <Message variant="info">{`تم تحميل الملف "${fichierInfo}" بنجاح.`}</Message>
       )}
       <div className="card mt-5">
         <div className="card-header d-flex flex-row-reverse">

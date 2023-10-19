@@ -171,10 +171,28 @@ const deletePerson = asyncHandler(async (req, res) => {
   }
 });
 
+const addPhotoToPerson = asyncHandler(async (req, res) => {
+  const { personToUpdateId } = req.body;
+
+  const photo_link = req.file?.path;
+
+  const personToUpdate = await person.findById(personToUpdateId);
+
+  if (!personToUpdate) {
+    res.status(400);
+    throw new Error("هذا الشخص غير موجود");
+  } else {
+    personToUpdate.photo_link = photo_link;
+    const updatedPerson = await personToUpdate.save();
+    res.status(201).json(updatedPerson);
+  }
+});
+
 module.exports = {
   createPerson,
   getPersons,
   getPersonById,
   updatePerson,
   deletePerson,
+  addPhotoToPerson
 };

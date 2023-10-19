@@ -9,6 +9,7 @@ const {
   updateDossier,
   deleteDossier,
   getDossierByFilters,
+  getDossierByNumDoss,
 } = require("../controllers/dossiersControllers");
 const {
   getEnquetCNLFile,
@@ -19,6 +20,14 @@ const {
   getEnquetCASNOSFileTest,
   getListBenefisiersFile,
 } = require("../controllers/enquetsControllers");
+const personPhotoStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, `./personsPicUpload/`);
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${req.params.num_dos}_Demandeur_Picture.png`);
+  },
+});
 const dossierScanStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, `./dossiersScanUpload/`);
@@ -36,6 +45,12 @@ const uploadDossierPhoto = multer({
     fileSize: 1024 * 1024 * 10,
   },
 });
+const uploadPersonPhoto = multer({
+  storage: personPhotoStorage,
+  limits: {
+    fileSize: 1024 * 1024 * 10,
+  },
+});
 
 const router = express.Router();
 
@@ -46,6 +61,9 @@ router
   .get(getDossierById)
   .put(updateDossier)
   .delete(protect, deleteDossier);
+router
+  .route("/num/:num_dos")
+  .post(uploadPersonPhoto.single("photo_link"), getDossierByNumDoss);
 router.route("/create").post(createDossier);
 router.route("/enquetCNLs").post(getDossierByDates);
 router.route("/enqCNL").post(getEnquetCNLFile);

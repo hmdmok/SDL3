@@ -4,6 +4,7 @@ const Person = require("../models/personModel");
 const Notes = require("../models/notesModel");
 const generateToken = require("../utils/generateToken");
 const { calculate } = require("./CalculeNotesDossier");
+const person = require("../models/personModel");
 
 const getDossiers = asyncHandler(async (req, res) => {
   const dossiers = await dossier.find();
@@ -12,6 +13,28 @@ const getDossiers = asyncHandler(async (req, res) => {
   else {
     res.status(400);
     throw new Error("لا يوجد ملفات");
+  }
+});
+
+const getDossierByNumDoss = asyncHandler(async (req, res) => {
+  const id = req.params.num_dos.replace("-", "/");
+
+  const photo_link = req.file?.path;
+
+  const dossierById = await dossier.findOne({ num_dos: id });
+  if (dossierById) {
+    const personToUpdate = await person.findById(dossierById.id_demandeur);
+    if (!personToUpdate) {
+      res.status(400);
+      throw new Error("هذا الشخص غير موجود");
+    } else {
+      personToUpdate.photo_link = photo_link;
+      const updatedPerson = await personToUpdate.save();
+      res.status(201).json(updatedPerson);
+    }
+  } else {
+    res.status(400);
+    throw new Error("الملف غير موجود");
   }
 });
 
@@ -129,7 +152,7 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
         .includes(prenomFr?.toLowerCase()) &&
       filtredDemand.demandeur?.date_n.includes(birthDate) &&
       new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
-      new Date(filtredDemand.date_depo) <= new Date(toDate) 
+      new Date(filtredDemand.date_depo) <= new Date(toDate)
     );
   });
 
@@ -354,4 +377,5 @@ module.exports = {
   deleteDossier,
   getDossierByDates,
   getDossierByFilters,
+  getDossierByNumDoss,
 };
