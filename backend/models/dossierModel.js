@@ -21,7 +21,7 @@ const dossierSchema = mongoose.Schema(
       type: String,
     },
     num_enf: {
-      type: String,
+      type: Number,
     },
     stuation_s_avec_d: {
       type: String,
@@ -51,7 +51,7 @@ const dossierSchema = mongoose.Schema(
       type: String,
     },
     notes: {
-      type: String,
+      type: Number,
     },
   },
   {

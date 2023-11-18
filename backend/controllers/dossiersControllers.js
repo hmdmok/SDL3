@@ -103,7 +103,8 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
   } = req.body;
 
   const persons = await Person.find();
-  const dossiers = await dossier.find();
+
+  const dossiers = await dossier.find().sort({ notes: -1 });
   const dossierByNotes = dossiers.map((dossierFound) => {
     let newdossier = dossierFound;
     persons.map((personMaped) => {
@@ -161,7 +162,9 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
     else return filtredDossiers.demandeur?.stuation_f === situationFamiliale;
   });
 
-  const FinalList = filtredBySituation?.slice(0, dossiersCount - 0);
+  const FinalList = filtredBySituation
+    ?.sort((a, b) => b.notes - a.notes)
+    .slice(0, dossiersCount - 0);
 
   if (dossierByNotes) {
     res.json(FinalList);
