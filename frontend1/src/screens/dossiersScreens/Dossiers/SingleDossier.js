@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Badge,
-  Button,
-  Card,
- 
-} from "react-bootstrap";
+import { Badge, Button, Card } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteDossierAction } from "../../../actions/dossierActions";
 import { addFile, deleteFile } from "../../../actions/filesActions";
