@@ -5,39 +5,39 @@ import Message from "../../../components/Message";
 import Loading from "../../../components/Loading";
 
 import { sendImportationFichierAction } from "../../../actions/importationFichierActions";
-import { validateHeaderAction } from "../../../actions/validateHeaderActions";
+// import { validateHeaderAction } from "../../../actions/validateHeaderActions";
 import { downloadImportationFichierTemplateAction } from "../../../actions/templatesActions";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "react-bootstrap";
 import fileDownload from "js-file-download";
 
 function ImportationData() {
-  const validHeader = [
-    "N°",
-    "Type D N",
-    "Nom",
-    "Prenom",
-    "N°\r\nDE ACT",
-    "Date de naissance",
-    "Lieu de naissance",
-    "sexe",
-    "Prénom du pére",
-    "Nom de la mére",
-    "Prenom de la mére",
-    "S F ",
-    "Ref demande",
-    "Date demande",
-    "Type D N C",
-    "Nom DE CONJOINT",
-    "Prenom DE CONJOINT",
-    "Date de naissance",
-    "N DE L ACT",
-    "Lieu de naissance",
-    "Prénom du pére",
-    "Nom de la mére",
-    "Prénom de la mére",
-    "Remarque",
-  ];
+  // const validHeader = [
+  //   "N°",
+  //   "Type D N",
+  //   "Nom",
+  //   "Prenom",
+  //   "N°\r\nDE ACT",
+  //   "Date de naissance",
+  //   "Lieu de naissance",
+  //   "sexe",
+  //   "Prénom du pére",
+  //   "Nom de la mére",
+  //   "Prenom de la mére",
+  //   "S F ",
+  //   "Ref demande",
+  //   "Date demande",
+  //   "Type D N C",
+  //   "Nom DE CONJOINT",
+  //   "Prenom DE CONJOINT",
+  //   "Date de naissance",
+  //   "N DE L ACT",
+  //   "Lieu de naissance",
+  //   "Prénom du pére",
+  //   "Nom de la mére",
+  //   "Prénom de la mére",
+  //   "Remarque",
+  // ];
   const [fileName, setFileName] = useState(null);
   const [file, setFile] = useState(null);
   const [creator, setCreator] = useState("");
