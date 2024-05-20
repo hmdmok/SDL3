@@ -27,57 +27,81 @@ const createSystem = asyncHandler(async (req, res) => {
   let machineCode = "";
   hddserial.first(function (err, serial) {
     machineCode = serial;
+    console.log("machine code: " + machineCode);
   });
 
-  mongoose.connection.close();
-  connectSystemDB().then(async () => {
-    const allOnlineSystem = await OnlineSystem.findOne({ machineCode });
+  mongoose.connection.close().then();
+  connectSystemDB().then(async (x) => {
+    if (x) {
+      const allOnlineSystem = await OnlineSystem.findOne({ machineCode });
 
-    if (allOnlineSystem) {
-      mongoose.connection.close().then(
-
-      );
-      connectDB().then(async () => {
-        console.log("alredy have an account !!!");
-        //fixing update instead of create
-        const systemToAdd = await System.create({
-          installDate: allOnlineSystem.installDate,
-          installType: allOnlineSystem.installType,
-          administrationType: allOnlineSystem.administrationType,
-          administrationName: allOnlineSystem.administrationName,
-          machineCode: allOnlineSystem.machineCode,
-          onlineID: allOnlineSystem._id,
-          onlineCheckDate: allOnlineSystem.onlineCheckDate,
-        });
-        if (systemToAdd) {
-          res.status(201).json({
-            _id: systemToAdd._id,
-            installType: systemToAdd.installType,
-            onlineID: systemToAdd.onlineID,
+      if (allOnlineSystem) {
+        mongoose.connection.close().then();
+        connectDB().then(async () => {
+          console.log("alredy have an account !!!");
+          //fixing update instead of create
+          const systemToAdd = await System.create({
+            installDate: allOnlineSystem.installDate,
+            installType: allOnlineSystem.installType,
+            administrationType: allOnlineSystem.administrationType,
+            administrationName: allOnlineSystem.administrationName,
+            machineCode: allOnlineSystem.machineCode,
+            onlineID: allOnlineSystem._id,
+            onlineCheckDate: allOnlineSystem.onlineCheckDate,
           });
-        } else {
-          res.status(400);
-          throw new Error("Error add System File");
-        }
-      });
+          if (systemToAdd) {
+            res.status(201).json({
+              _id: systemToAdd._id,
+              installType: systemToAdd.installType,
+              onlineID: systemToAdd.onlineID,
+            });
+          } else {
+            res.status(400);
+            throw new Error("Error add System File");
+          }
+        });
+      } else {
+        const onlineSystemToAdd = await OnlineSystem.create({
+          installDate,
+          installType,
+          administrationType,
+          administrationName,
+          machineCode,
+          onlineCheckDate,
+        });
+        mongoose.connection.close();
+        connectDB().then(async () => {
+          const systemToAdd = await System.create({
+            installDate,
+            installType,
+            administrationType,
+            administrationName,
+            machineCode,
+            onlineID: onlineSystemToAdd._id,
+            onlineCheckDate,
+          });
+          if (systemToAdd) {
+            res.status(201).json({
+              _id: systemToAdd._id,
+              installType: systemToAdd.installType,
+              onlineID: systemToAdd.onlineID,
+            });
+          } else {
+            res.status(400);
+            throw new Error("Error add System File");
+          }
+        });
+      }
     } else {
-      const onlineSystemToAdd = await OnlineSystem.create({
-        installDate,
-        installType,
-        administrationType,
-        administrationName,
-        machineCode,
-        onlineCheckDate,
-      });
-      mongoose.connection.close();
+      console.log("not able to connect to the web server");
       connectDB().then(async () => {
         const systemToAdd = await System.create({
           installDate,
           installType,
           administrationType,
           administrationName,
-          machineCode,
-          onlineID: onlineSystemToAdd._id,
+          machineCode: machineCode,
+          onlineID: "not able to connect to the web server",
           onlineCheckDate,
         });
         if (systemToAdd) {
