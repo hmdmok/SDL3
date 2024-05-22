@@ -9,6 +9,11 @@ const {
   updateDossier,
   deleteDossier,
 } = require("../controllers/dossiersControllers");
+const {
+  getEnquetCNLFile,
+  getEnquetCNASFile,
+  getEnquetCASNOSFile,
+} = require("../controllers/enquetsControllers");
 const dossierScanStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, `./dossiersScanUpload/`);
@@ -37,5 +42,8 @@ router
   .delete(protect, deleteDossier);
 router.route("/create").post(createDossier);
 router.route("/enquetCNLs").post(getDossierByDates);
+router.route("/enqCNL").post(getEnquetCNLFile);
+router.route("/enqCNAS").post(getEnquetCNASFile);
+router.route("/enqCASNOS").post(getEnquetCASNOSFile);
 
 module.exports = router;

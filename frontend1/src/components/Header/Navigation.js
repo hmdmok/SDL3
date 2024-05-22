@@ -68,13 +68,7 @@ const Navigation = () => {
                     </NavDropdown>
                     <NavDropdown title="تسيير الدراسة" id="basic-nav-dropdown">
                       <NavDropdown.Item href="/enquetCNL">
-                        قائمة تحقيق CNL
-                      </NavDropdown.Item>
-                      <NavDropdown.Item href="/enquetCNAS">
-                        قائمة تحقيق CNAS
-                      </NavDropdown.Item>
-                      <NavDropdown.Item href="/enquetCASNOS">
-                        قائمة تحقيق CASNOS
+                        قائمة تحقيق
                       </NavDropdown.Item>
                       <NavDropdown.Item href="/listBenifisiaire">
                         قائمة المستفيدين

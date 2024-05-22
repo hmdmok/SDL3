@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import ErrorMessage from "../../../components/ErrorMessage";
-// import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import MainScreen from "../../../components/MainScreen/MainScreen";
-// import { Table } from "react-bootstrap";
-
+import FileDownload from "js-file-download";
 import { Accordion, Button, Card, Form } from "react-bootstrap";
 // import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { listEnquetCNLsAction } from "../../../actions/enquetCNLActions";
+import {
+  listEnquetCNLsAction,
+  getEnquetCNLAction,
+  getEnquetCNASAction,
+  getEnquetCASNOSAction,
+} from "../../../actions/enquetCNLActions";
 import Loading from "../../../components/Loading";
 
 function EnquetCNL() {
@@ -22,10 +25,46 @@ function EnquetCNL() {
     toDate: new Date().toISOString().split("T")[0],
   });
   const enquetCNLList = useSelector((state) => state.enquetCNLList);
-  const { loading, enquetCNLs: dossierEnq, error } = enquetCNLList;
+  const { loading, enquetCNLs: dossierEnq, error, success } = enquetCNLList;
+
+  const getEnquetCNL = useSelector((state) => state.enquetCNLGet);
+  const {
+    loading: getEnquetCNLLoading,
+    enquetCNLs: enqCNLFile,
+    error: getEnquetCNLerror,
+    success: getEnquetCNLSuccess,
+  } = getEnquetCNL;
+
+  const getEnquetCNAS = useSelector((state) => state.enquetCNASGet);
+  const {
+    loading: getEnquetCNASLoading,
+    enquetCNASs: enqCNASFile,
+    error: getEnquetCNASerror,
+    success: getEnquetCNASSuccess,
+  } = getEnquetCNAS;
+
+  const getEnquetCASNOS = useSelector((state) => state.enquetCASNOSGet);
+  const {
+    loading: getEnquetCASNOSLoading,
+    enquetCASNOSs: enqCASNOSFile,
+    error: getEnquetCASNOSerror,
+    success: getEnquetCASNOSSuccess,
+  } = getEnquetCASNOS;
 
   const onUpload = () => {
     dispatch(listEnquetCNLsAction(form.fromDate, form.toDate));
+  };
+
+  const onGetEnqCNL = () => {
+    dispatch(getEnquetCNLAction(listDossierEnquet));
+  };
+
+  const onGetEnqCNAS = () => {
+    dispatch(getEnquetCNASAction(listDossierEnquet));
+  };
+
+  const onGetEnqCASNOS = () => {
+    dispatch(getEnquetCASNOSAction(listDossierEnquet));
   };
 
   useEffect(() => {
@@ -38,6 +77,24 @@ function EnquetCNL() {
     }
   }, [dispatch, dossierEnq]);
 
+  useEffect(() => {
+    if (getEnquetCNLSuccess) {
+      FileDownload(enqCNLFile.data, "EnquetCNL.xlsx");
+    }
+  }, [dispatch, enqCNLFile, getEnquetCNLSuccess]);
+
+  useEffect(() => {
+    if (getEnquetCNASSuccess) {
+      FileDownload(enqCNASFile.data, "EnquetCNAS.mdb");
+    }
+  }, [dispatch, enqCNASFile, getEnquetCNASSuccess]);
+
+  useEffect(() => {
+    if (getEnquetCASNOSSuccess) {
+      FileDownload(enqCASNOSFile.data, "CASNOSENQ.dbf");
+    }
+  }, [dispatch, enqCASNOSFile, getEnquetCASNOSSuccess]);
+
   const handleSelect = (event, dossier) => {
     const value = dossier;
     const isChecked = event.target.checked;
@@ -48,7 +105,9 @@ function EnquetCNL() {
       console.log(listDossierEnquet);
     } else {
       //Remove unchecked item from checkList
-      const filteredList = listDossierEnquet.filter((item) => item.dossier._id !== value._id);
+      const filteredList = listDossierEnquet.filter(
+        (item) => item.dossier._id !== value._id
+      );
       setListDossierEnquet(filteredList);
       console.log(listDossierEnquet);
     }
@@ -67,9 +126,24 @@ function EnquetCNL() {
   };
 
   return (
-    <MainScreen title={"تحقيق CNL"}>
+    <MainScreen title={"التحقيق"}>
       {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
       {loading && <Loading />}
+
+      {getEnquetCNLerror && (
+        <ErrorMessage variant="danger">{getEnquetCNLerror}</ErrorMessage>
+      )}
+      {getEnquetCNLLoading && <Loading />}
+
+      {getEnquetCNASerror && (
+        <ErrorMessage variant="danger">{getEnquetCNASerror}</ErrorMessage>
+      )}
+      {getEnquetCNASLoading && <Loading />}
+
+      {getEnquetCASNOSerror && (
+        <ErrorMessage variant="danger">{getEnquetCASNOSerror}</ErrorMessage>
+      )}
+      {getEnquetCASNOSLoading && <Loading />}
 
       <h1 className="text-right">الرجاء ادخال تاريخ ايداع الملفات</h1>
       {dateMessage && (
@@ -113,8 +187,22 @@ function EnquetCNL() {
         </div>
       </div>
       <br />
-      <h1 className="text-right">الرجاء تحديد الملفات للتحقيق</h1>
-      <br />
+
+      {success ? (
+        <>
+          <h1 className="text-right">الرجاء تحديد الملفات للتحقيق</h1>
+          <br />
+          <Button className="btn btn-primary m-2" onClick={onGetEnqCNL}>
+            Enquet CNL
+          </Button>
+          <Button className="btn btn-primary m-2" onClick={onGetEnqCNAS}>
+            Enquet CNAS
+          </Button>
+          <Button className="btn btn-primary m-2" onClick={onGetEnqCASNOS}>
+            Enquet CASNOS
+          </Button>
+        </>
+      ) : null}
       {listDossierEnquet?.map((dossierMap) => (
         <Accordion key={dossierMap.dossier?._id}>
           <Accordion.Item
@@ -137,15 +225,15 @@ function EnquetCNL() {
                   alignSelf: "center",
                   fontSize: 18,
                 }}
-                className="text-right"
               >
-                {`الملف رقم : ${dossierMap.dossier?.num_dos} /  
-                 اسم طالب السكن : ${dossierMap.dossier?.demandeur[0]?.nom}
-                ;  ${dossierMap.dossier?.demandeur[0]?.prenom} /n `}
+                {`الملف رقم: ${dossierMap.dossier?.num_dos} `}
+                <br />
+                {`اسم طالب السكن: ${dossierMap.dossier?.demandeur[0]?.nom}
+                ;  ${dossierMap.dossier?.demandeur[0]?.prenom}`}
+                <br />
                 {dossierMap.dossier?.conjoin[0]
-                  ? `
-                 اسم الزوجة : ${dossierMap.dossier?.conjoin[0]?.nom}
-                 . ${dossierMap.dossier?.conjoin[0]?.prenom}`
+                  ? `اسم الزوجة: ${dossierMap.dossier?.conjoin[0]?.nom}
+                 ; ${dossierMap.dossier?.conjoin[0]?.prenom}`
                   : null}
               </Accordion.Header>
             </Card.Header>
@@ -172,11 +260,15 @@ function EnquetCNL() {
                     </tr>
                     <tr>
                       <th scope="col">من ذوي الحقوق</th>
-                      <td>{dossierMap.dossier?.stuation_s_avec_d ? "نعم" : "لا"}</td>
+                      <td>
+                        {dossierMap.dossier?.stuation_s_avec_d ? "نعم" : "لا"}
+                      </td>
                     </tr>
                     <tr>
                       <th scope="col">من ذوي الهمم</th>
-                      <td>{dossierMap.dossier?.stuation_s_andicap ? "نعم" : "لا"}</td>
+                      <td>
+                        {dossierMap.dossier?.stuation_s_andicap ? "نعم" : "لا"}
+                      </td>
                     </tr>
                     <tr>
                       <th scope="col">وضعية الاقامة الحالية</th>
@@ -201,105 +293,6 @@ function EnquetCNL() {
           </Accordion.Item>
         </Accordion>
       ))}
-      {/* {dossierEnq.dossierTotal.length !== 0 ? (
-        <ReactHTMLTableToExcel
-          id="test-table-xls-button"
-          className="download-table-xls-button  btn btn-primary mb-3"
-          table="data-table"
-          filename={
-            "Enquet CNL " + new Date().toISOString().split("T")[0] + ".xlsx"
-          }
-          sheet="Enquet"
-          buttonText="تحميل ملف التحقيق"
-        />
-      ) : null}
-      <br />
-      <Table striped bordered hover responsive id="data-table">
-        <thead className="thead-dark">
-          <tr>
-            <th scope="col">Ordre</th>
-            <th scope="col">Nom</th>
-            <th scope="col">Prénom</th>
-            <th scope="col">Sexe</th>
-            <th scope="col">Date de Naissance</th>
-            <th scope="col">Type Date de Naissance</th>
-            <th scope="col">Commune de Naissance</th>
-            <th scope="col">WILAYA DE NAISSANCE</th>
-            <th scope="col">N°EXTR DE NAISSANCE</th>
-            <th scope="col">Sit. Fam</th>
-            <th scope="col">Prénom du Pére</th>
-            <th scope="col">Nom de la Mére</th>
-            <th scope="col">Prénom de la Mére</th>
-            <th scope="col">Nom Conj</th>
-            <th scope="col"> Prénom conj</th>
-            <th scope="col"> Date de Naissance conj</th>
-            <th scope="col">Type Date de Naissance conj</th>
-            <th scope="col">Commune de Naissance conj</th>
-            <th scope="col">WILAYA DE NAISSANCE conj</th>
-            <th scope="col">N°EXTR DE NAISSANCE conj</th>
-            <th scope="col">Prénom du Pére conj</th>
-            <th scope="col"> Nom de la Mére conj</th>
-            <th scope="col">Prénom de la Mére conj</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dossierEnq.dossierTotal.length !== 0
-            ? dossierEnq.dossierTotal.map((dossierMap, i) => (
-                <tr className={dossierMap.id_dossier} key={i}>
-                  <th scope="row">{i + 1}</th>
-                  <td>{dossierMap.nom_fr}</td>
-                  <td>{dossierMap.prenom_fr}</td>
-                  <td>{dossierMap.gender}</td>
-                  <td>{dossierMap.date_n.split("T")[0]}</td>
-                  <td>{dossierMap.type_date_nais}</td>
-                  <td>{dossierMap.nom_commune_fr}</td>
-                  <td>{dossierMap.nom_wilaya_fr}</td>
-                  <td>{dossierMap.num_act}</td>
-                  <td>{dossierMap.stuation_f}</td>
-                  <td>{dossierMap.prenom_p_fr}</td>
-                  <td>{dossierMap.nom_m_fr}</td>
-                  <td>{dossierMap.prenom_m_fr}</td>
-                  <td>{dossierMap.conjoin ? dossierMap.conjoin.nom : null}</td>
-                  <td>
-                    {dossierMap.conjoin ? dossierMap.conjoin.prenom_fr : null}
-                  </td>
-                  <td>
-                    {dossierMap.conjoin
-                      ? dossierMap.conjoin.date_n.split("T")[0]
-                      : null}
-                  </td>
-                  <td>
-                    {dossierMap.conjoin
-                      ? dossierMap.conjoin.type_date_nais
-                      : null}
-                  </td>
-                  <td>
-                    {dossierMap.conjoin
-                      ? dossierMap.conjoin.nom_commune_fr
-                      : null}
-                  </td>
-                  <td>
-                    {dossierMap.conjoin
-                      ? dossierMap.conjoin.nom_wilaya_fr
-                      : null}
-                  </td>
-                  <td>
-                    {dossierMap.conjoin ? dossierMap.conjoin.num_act : null}
-                  </td>
-                  <td>
-                    {dossierMap.conjoin ? dossierMap.conjoin.prenom_p_fr : null}
-                  </td>
-                  <td>
-                    {dossierMap.conjoin ? dossierMap.conjoin.nom_m_fr : null}
-                  </td>
-                  <td>
-                    {dossierMap.conjoin ? dossierMap.conjoin.prenom_m_fr : null}
-                  </td>
-                </tr>
-              ))
-            : null}
-        </tbody>
-      </Table> */}
     </MainScreen>
   );
 }
