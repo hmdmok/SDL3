@@ -7,11 +7,21 @@ import {
   Button,
   Form,
   Container,
+  Dropdown,
+  Badge,
 } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import apartment from "./apartment.png";
 import { logout } from "../../actions/userActions";
+import {
+  AiFillDelete,
+  AiFillTrophy,
+  AiOutlineFileSearch,
+} from "react-icons/ai";
+import DropdownMenu from "react-bootstrap/esm/DropdownMenu";
+import { deleteFile } from "../../actions/filesActions";
+import { deleteBenefisier } from "../../actions/benifisierActions";
 
 const Navigation = () => {
   let history = useNavigate();
@@ -20,6 +30,22 @@ const Navigation = () => {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
   const logedUserType = userInfo?.usertype;
+
+  const filesToCheck = useSelector((state) => state.filesToCheck);
+  const { filesInfo } = filesToCheck;
+  const { files } = filesInfo;
+
+  const filesToBenifits = useSelector((state) => state.filesToBenifits);
+  const { benefisiersInfo } = filesToBenifits;
+  const { benefisiers } = benefisiersInfo;
+
+  const dellDossierFromCheck = (fileTo) => {
+    dispatch(deleteFile(fileTo));
+  };
+
+  const dellDossierFromBenefisiers = (fileTo) => {
+    dispatch(deleteBenefisier(fileTo));
+  };
 
   function logoutHandler() {
     dispatch(logout());
@@ -79,6 +105,9 @@ const Navigation = () => {
                       <NavDropdown.Item href={"/importationData"}>
                         استيراد بيانات طالبي السكن
                       </NavDropdown.Item>
+                      <NavDropdown.Item href={"/importationDemPhoto"}>
+                        استيراد صور طالبي السكن
+                      </NavDropdown.Item>
                       <NavDropdown.Divider />
                     </NavDropdown>
                   </>
@@ -114,6 +143,82 @@ const Navigation = () => {
 
                 <Nav.Link href="/help">مساعدة</Nav.Link>
                 <Nav.Link href="/contact">اتصل بنا</Nav.Link>
+                <Dropdown>
+                  <Dropdown.Toggle
+                    variant="success"
+                    className="mx-2"
+                    title="ملفات للتحقيق"
+                    id="basic-nav-dropdown"
+                  >
+                    <AiOutlineFileSearch />
+                    <Badge className="m-1">{files.length}</Badge>
+                  </Dropdown.Toggle>
+                  <DropdownMenu style={{ minWidth: 370 }}>
+                    {files.length > 0 ? (
+                      <>
+                        {files.map((file) => (
+                          <span className="file" key={file._id}>
+                            <div className="fileDetail">
+                              <span>N: {file.num_dos}</span>
+                              <span>Nom: {file.demandeur?.nom_fr}</span>
+                              <span>Prenom: {file.demandeur?.prenom_fr}</span>
+                            </div>
+                            <AiFillDelete
+                              fontSize={"20px"}
+                              style={{ cursor: "pointer" }}
+                              onClick={() => dellDossierFromCheck(file)}
+                            />
+                          </span>
+                        ))}
+                        <Link to="/enquetCNL">
+                          <Button style={{ width: "95%", margin: "0 10px" }}>
+                            صفحة ملفات التحقيق
+                          </Button>
+                        </Link>
+                      </>
+                    ) : (
+                      <span style={{ padding: 10 }}>لا توجد ملفات</span>
+                    )}
+                  </DropdownMenu>
+                </Dropdown>
+                <Dropdown>
+                  <Dropdown.Toggle
+                    variant="success"
+                    className="mx-2"
+                    title="ملفات المستفيدين"
+                    id="basic-nav-dropdown"
+                  >
+                    <AiFillTrophy />
+                    <Badge className="m-1">{benefisiers.length}</Badge>
+                  </Dropdown.Toggle>
+                  <DropdownMenu style={{ minWidth: 370 }}>
+                    {benefisiers.length > 0 ? (
+                      <>
+                        {benefisiers.map((file) => (
+                          <span className="file" key={file._id}>
+                            <div className="fileDetail">
+                              <span>N: {file.num_dos}</span>
+                              <span>Nom: {file.demandeur?.nom_fr}</span>
+                              <span>Prenom: {file.demandeur?.prenom_fr}</span>
+                            </div>
+                            <AiFillDelete
+                              fontSize={"20px"}
+                              style={{ cursor: "pointer" }}
+                              onClick={() => dellDossierFromBenefisiers(file)}
+                            />
+                          </span>
+                        ))}
+                        <Link to="/listBenifisiaire">
+                          <Button style={{ width: "95%", margin: "0 10px" }}>
+                            صفحة ملفات المستفيدين
+                          </Button>
+                        </Link>
+                      </>
+                    ) : (
+                      <span style={{ padding: 10 }}>لا توجد ملفات</span>
+                    )}
+                  </DropdownMenu>
+                </Dropdown>
               </Nav>
             </Navbar.Collapse>
           </Nav>
@@ -123,7 +228,8 @@ const Navigation = () => {
             <Button
               onClick={logoutHandler}
               className="mx-1"
-              variant="outline-secondary"
+              variant="outline-dark"
+              size="lg"
             >
               تسجيل خروج
             </Button>
@@ -131,7 +237,8 @@ const Navigation = () => {
             <Button
               onClick={loginHandler}
               className="mx-1"
-              variant="outline-secondary"
+              variant="outline-dark"
+              size="lg"
             >
               تسجيل دخول
             </Button>

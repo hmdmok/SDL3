@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import { Button, Col, Form, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
@@ -593,7 +594,8 @@ function UpdateDemandeur() {
             name="stuation_f"
             onChange={(e) => {
               setStuation_f(e.target.value);
-              if (e.target.value === "m" && saisi_conj !== "true") setSaisi_conj("false");
+              if (e.target.value === "m" && saisi_conj !== "true")
+                setSaisi_conj("false");
             }}
             className="text-right"
           >

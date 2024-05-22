@@ -49,13 +49,6 @@ const createPerson = asyncHandler(async (req, res) => {
     creator,
   } = req.body;
 
-  const personExists = await person.findOne({ num_i_n });
-
-  if (personExists) {
-    res.status(400);
-    throw new Error("هذا الملف موجود من قبل");
-  }
-
   const personToAdd = await person.create({
     type,
     prenom,
@@ -178,10 +171,28 @@ const deletePerson = asyncHandler(async (req, res) => {
   }
 });
 
+const addPhotoToPerson = asyncHandler(async (req, res) => {
+  const { personToUpdateId } = req.body;
+
+  const photo_link = req.file?.path;
+
+  const personToUpdate = await person.findById(personToUpdateId);
+
+  if (!personToUpdate) {
+    res.status(400);
+    throw new Error("هذا الشخص غير موجود");
+  } else {
+    personToUpdate.photo_link = photo_link;
+    const updatedPerson = await personToUpdate.save();
+    res.status(201).json(updatedPerson);
+  }
+});
+
 module.exports = {
   createPerson,
   getPersons,
   getPersonById,
   updatePerson,
-  deletePerson
+  deletePerson,
+  addPhotoToPerson
 };

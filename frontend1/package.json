@@ -5,27 +5,44 @@
   "proxy": "http://127.0.0.1:4000",
   "dependencies": {
     "@redux-devtools/core": "^3.13.1",
+<<<<<<< HEAD
     "@reduxjs/toolkit": "^1.8.3",
+=======
+    "@reduxjs/toolkit": "^1.9.1",
+>>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.27.2",
     "bootstrap": "^5.2.3",
+<<<<<<< HEAD
+=======
+    "hddserial": "0.0.7",
+>>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
     "js-file-download": "^0.4.12",
     "react": "^18.2.0",
     "react-bootstrap": "2.6.0",
     "react-dom": "^18.2.0",
+<<<<<<< HEAD
     "react-parallax-tilt": "^1.7.70",
     "react-redux": "^8.0.2",
     "react-router-dom": "^6.4.3",
+=======
+    "react-html-table-to-excel": "^2.0.0",
+    "react-parallax-tilt": "^1.7.76",
+    "react-redux": "^8.0.2",
+    "react-router-dom": "^6.4.5",
+>>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
     "react-scripts": "5.0.1",
     "redux": "^4.2.0",
     "redux-devtools-extension": "^2.13.9",
     "redux-thunk": "^2.4.1",
-    "web-vitals": "^2.1.4"
+    "semver": "^7.5.4",
+    "web-vitals": "^2.1.4",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "react-scripts --openssl-legacy-provider start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

@@ -1,17 +1,25 @@
 const express = require("express");
 const dossiers = require("./DataBase/dossiers");
 const dotenv = require("dotenv");
-const connectDB = require("./config/db");
+const { connectDB } = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
+const enquetsRoutes = require("./routes/enquetsRoutes");
+const systemRoutes = require("./routes/systemRoutes");
 const dossiersRoutes = require("./routes/dossiersRoutes");
 const scanDossiersRoutes = require("./routes/scanDossiersRoutes");
 const notesRoutes = require("./routes/notesRoutes");
 const wilayasRoutes = require("./routes/wilayasRoutes");
 const communesRoutes = require("./routes/communesRoutes");
+const dairasRoutes = require("./routes/dairasRoutes");
 const personsRoutes = require("./routes/personsRoutes");
+const importDossiersRoutes = require("./routes/importDossiersRoutes");
+const templatesRoutes = require("./routes/templatesRoutes");
 const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
 const cors = require("cors");
+<<<<<<< HEAD
 
+=======
+>>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
 
 const app = express();
 dotenv.config();
@@ -24,20 +32,23 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/users", userRoutes);
+app.use("/api/system", systemRoutes);
 app.use("/api/dossiers", dossiersRoutes);
 app.use("/api/scandossiers", scanDossiersRoutes);
 app.use("/api/notes", notesRoutes);
 app.use("/api/wilayas", wilayasRoutes);
 app.use("/api/communes", communesRoutes);
+app.use("/api/dairas", dairasRoutes);
 app.use("/api/persons", personsRoutes);
+app.use("/api/importationData", importDossiersRoutes);
+app.use("/api/enquets", enquetsRoutes);
+app.use("/api/templates", templatesRoutes);
 
 app.use("/usersPicUpload", express.static("usersPicUpload"));
+app.use("/personsPicUpload", express.static("personsPicUpload"));
 app.use("/dossiersScanUpload", express.static("dossiersScanUpload"));
-
-app.use(notFound);
-app.use(errorHandler);
-
-app.use("/api/users", userRoutes);
+app.use("/dossiersEnqUpload", express.static("dossiersEnqUpload"));
+app.use("/importationFileUpload", express.static("importationFileUpload"));
 
 app.use(notFound);
 app.use(errorHandler);

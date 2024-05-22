@@ -23,6 +23,9 @@ const personSchema = mongoose.Schema(
     num_act: {
       type: String,
     },
+    type_date_n: {
+      type: String,
+    },
     date_n: {
       type: String,
     },
@@ -72,6 +75,9 @@ const personSchema = mongoose.Schema(
       type: String,
     },
     creator: {
+      type: String,
+    },
+    photo_link: {
       type: String,
     },
   },

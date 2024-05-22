@@ -1,5 +1,6 @@
+import React from "react";
 import "./App.css";
-import "./bootstrap.min.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import LandingPage from "./screens/LandingPage/LandingPage";
@@ -26,6 +27,8 @@ import UpdateUser from "./screens/usersScreens/UpdateUser/UpdateUser";
 import UserProfile from "./screens/usersScreens/UserProfile/UserProfile";
 import UpdateDemandeur from "./screens/dossiersScreens/UpdateDemandeur/UpdateDemandeur";
 import AddConjoin from "./screens/dossiersScreens/AddConjoin/AddConjoin";
+import System from "./screens/setingsScreens/System/System";
+import ImportationDemPhoto from "./screens/setingsScreens/ImportationDemPhoto/ImportationDemPhoto";
 
 const App = () => (
   <BrowserRouter>
@@ -34,6 +37,7 @@ const App = () => (
       <Route path="/" element={<LandingPage />} />
       <Route path="/dossiers" element={<Dossiers />} />
       <Route path="/home" element={<HomeScreen />} />
+      <Route path="/system" element={<System />} />
       <Route path="/adddossiers/:id" element={<UpdateDossiers />} />
       <Route path="/scandossier" element={<ScanDossier />} />
       <Route path="/demandeur" element={<AddDemandeur />} />
@@ -49,6 +53,7 @@ const App = () => (
 
       <Route path="/listBenifisiaire" element={<ListBenifisiaire />} />
       <Route path="/importationData" element={<ImportationData />} />
+      <Route path="/importationDemPhoto" element={<ImportationDemPhoto />} />
       <Route path="/willaya" element={<Willaya />} />
       <Route path="/commune" element={<Commune />} />
       <Route path="/tableNotes" element={<TableNotes />} />

@@ -49,9 +49,9 @@ export const dossierGetReducer = (state = {}, actions) => {
     case DOSSIER_GET_REQUEST:
       return { loading: true };
     case DOSSIER_GET_SUCCESS:
-      return { loading: false, dossier: actions.payload };
+      return { loading: false, dossier: actions.payload, success: true };
     case DOSSIER_GET_FAIL:
-      return { loading: false, error: actions.payload };
+      return { loading: false, error: actions.payload, success: false };
 
     default:
       return state;

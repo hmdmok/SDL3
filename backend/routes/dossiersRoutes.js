@@ -8,12 +8,30 @@ const {
   createDossier,
   updateDossier,
   deleteDossier,
+  getDossierByFilters,
+  getDossierByNumDoss,
 } = require("../controllers/dossiersControllers");
 const {
   getEnquetCNLFile,
   getEnquetCNASFile,
   getEnquetCASNOSFile,
+<<<<<<< HEAD
 } = require("../controllers/enquetsControllers");
+=======
+  getEnquetCNLFileTest,
+  getEnquetCNASFileTest,
+  getEnquetCASNOSFileTest,
+  getListBenefisiersFile,
+} = require("../controllers/enquetsControllers");
+const personPhotoStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, `./personsPicUpload/`);
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${req.params.num_dos}_Demandeur_Picture.png`);
+  },
+});
+>>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
 const dossierScanStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, `./dossiersScanUpload/`);
@@ -31,19 +49,38 @@ const uploadDossierPhoto = multer({
     fileSize: 1024 * 1024 * 10,
   },
 });
+const uploadPersonPhoto = multer({
+  storage: personPhotoStorage,
+  limits: {
+    fileSize: 1024 * 1024 * 10,
+  },
+});
 
 const router = express.Router();
 
 router.route("/").get(getDossiers);
+router.route("/filtred").post(getDossierByFilters);
 router
   .route("/:id")
   .get(getDossierById)
   .put(updateDossier)
   .delete(protect, deleteDossier);
+router
+  .route("/num/:num_dos")
+  .post(uploadPersonPhoto.single("photo_link"), getDossierByNumDoss);
 router.route("/create").post(createDossier);
 router.route("/enquetCNLs").post(getDossierByDates);
 router.route("/enqCNL").post(getEnquetCNLFile);
+<<<<<<< HEAD
 router.route("/enqCNAS").post(getEnquetCNASFile);
 router.route("/enqCASNOS").post(getEnquetCASNOSFile);
+=======
+router.route("/listBenefisiers").post(getListBenefisiersFile);
+router.route("/enqCNLtest").post(getEnquetCNLFileTest);
+router.route("/enqCNAS").post(getEnquetCNASFile);
+router.route("/enqCNAStest").post(getEnquetCNASFileTest);
+router.route("/enqCASNOS").post(getEnquetCASNOSFile);
+router.route("/enqCASNOStest").post(getEnquetCASNOSFileTest);
+>>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
 
 module.exports = router;

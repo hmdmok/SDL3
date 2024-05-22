@@ -20,11 +20,15 @@ function Login() {
 
   let history = useNavigate();
   useEffect(() => {
-    // const userInfo = localStorage.getItem("userInfo");
-    if (userInfo) {
-      history("/home");
+    if (error === "Initiate system file!!!") {
+      history("/system");
+    } else {
+      // const userInfo = localStorage.getItem("userInfo");
+      if (userInfo) {
+        history("/home");
+      }
     }
-  }, [history, userInfo]);
+  }, [history, userInfo, error]);
 
   const submitHandler = async (event) => {
     event.preventDefault();

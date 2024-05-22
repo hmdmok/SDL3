@@ -9,6 +9,11 @@ import {
   userUpdateReducer,
 } from "./reducers/userReducers";
 import {
+  systemAddReducer,
+  systemCheckReducer,
+  systemUpdateReducer,
+} from "./reducers/systemReducers";
+import {
   noteAddReducer,
   noteDeleteReducer,
   noteGetReducer,
@@ -31,6 +36,10 @@ import {
   communeUpdateReducer,
 } from "./reducers/communeReducers";
 import {
+  dairaGetByWilayaReducer,
+  dairaListReducer,
+} from "./reducers/dairaReducers";
+import {
   demandeurAddReducer,
   demandeurDeleteReducer,
   demandeurGetReducer,
@@ -50,6 +59,15 @@ import {
   enquetCASNOSGetReducer,
   enquetCNLListReducer,
 } from "./reducers/enquetCNLReducers";
+import { importationDataReducer } from "./reducers/importationDataReducers";
+import { importationFichierReducer } from "./reducers/importationFichierReducers";
+import { importationFichierTempReducer } from "./reducers/templatesReducers";
+import { validateHeaderReducer } from "./reducers/validateHeaderReducers";
+import { filesReducer } from "./reducers/filesReducers";
+import {
+  benefisiersReducer,
+  listBenefisiersReducer,
+} from "./reducers/benefisiersReducers";
 
 const reducer = combineReducers({
   userLogin: userLoginReducer,
@@ -57,6 +75,14 @@ const reducer = combineReducers({
   userList: userListReducer,
   userUpdate: userUpdateReducer,
   userDelete: userDeleteReducer,
+
+  filesToCheck: filesReducer,
+
+  filesToBenifits: benefisiersReducer,
+
+  systemCheck: systemCheckReducer,
+  systemAdd: systemAddReducer,
+  systemUpdate: systemUpdateReducer,
 
   noteAdd: noteAddReducer,
   noteList: noteListReducer,
@@ -77,6 +103,9 @@ const reducer = combineReducers({
   communeGet: communeGetReducer,
   communeGetByWilaya: communeGetByWilayaReducer,
 
+  dairaList: dairaListReducer,
+  dairaGetByWilaya: dairaGetByWilayaReducer,
+
   demandeurAdd: demandeurAddReducer,
   demandeurList: demandeurListReducer,
   demandeurUpdate: demandeurUpdateReducer,
@@ -93,14 +122,42 @@ const reducer = combineReducers({
   enquetCNLGet: enquetCNLGetReducer,
   enquetCNASGet: enquetCNASGetReducer,
   enquetCASNOSGet: enquetCASNOSGetReducer,
+<<<<<<< HEAD
+=======
+  
+  listBenefisiersGet: listBenefisiersReducer,
+
+  importationFichierTemp: importationFichierTempReducer,
+
+  importedData: importationDataReducer,
+
+  importedFichier: importationFichierReducer,
+
+  validateHeader: validateHeaderReducer,
+>>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
 });
 
 const userInfoFromStorage = localStorage.getItem("userInfo")
   ? JSON.parse(localStorage.getItem("userInfo"))
   : null;
 
+const filesInfoFromStorage = localStorage.getItem("filesInfo")
+  ? JSON.parse(localStorage.getItem("filesInfo"))
+  : { files: [], filesCount: 0 };
+
+const benefisiersInfoFromStorage = localStorage.getItem("benefisiersInfo")
+  ? JSON.parse(localStorage.getItem("benefisiersInfo"))
+  : { benefisiers: [] };
+
+const systemInfoFromStorage = localStorage.getItem("systemInfo")
+  ? JSON.parse(localStorage.getItem("systemInfo"))
+  : null;
+
 const initialState = {
   userLogin: { userInfo: userInfoFromStorage },
+  systemCheck: { systemInfo: systemInfoFromStorage },
+  filesToCheck: { filesInfo: filesInfoFromStorage },
+  filesToBenifits: { benefisiersInfo: benefisiersInfoFromStorage },
 };
 
 const middleware = [thunk];

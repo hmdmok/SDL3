@@ -81,28 +81,65 @@ export const addDossierAction =
     }
   };
 
-export const listDossiersAction = () => async (dispatch, getState) => {
-  try {
-    dispatch({
-      type: DOSSIER_LIST_REQUEST,
-    });
+export const listDossiersAction =
+  (
+    dossiersCount,
+    numDoss,
+    nomFr,
+    prenomFr,
+    birthDate,
+    fromDate,
+    toDate,
+    situationFamiliale
+  ) =>
+  async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: DOSSIER_LIST_REQUEST,
+      });
 
-    const { data } = await axios.get("/api/dossiers");
+      const {
+        userLogin: { userInfo },
+      } = getState();
 
-    dispatch({
-      type: DOSSIER_LIST_SUCCESS,
-      payload: data,
-    });
-  } catch (error) {
-    dispatch({
-      type: DOSSIER_LIST_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
-    });
-  }
-};
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      const formData = {
+        dossiersCount,
+        numDoss,
+        nomFr,
+        prenomFr,
+        birthDate,
+        fromDate,
+        toDate,
+        situationFamiliale,
+      };
+
+      const { data } = await axios.post(
+        "/api/dossiers/filtred",
+        formData,
+        config
+      );
+
+      dispatch({
+        type: DOSSIER_LIST_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: DOSSIER_LIST_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
 
 export const getDossierAction = (id) => async (dispatch, getState) => {
   try {
@@ -126,6 +163,44 @@ export const getDossierAction = (id) => async (dispatch, getState) => {
     });
   }
 };
+export const getDossierByNumAction =
+  (num_dos, photo_file) => async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: DOSSIER_GET_REQUEST,
+      });
+      const {
+        userLogin: { userInfo },
+      } = getState();
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      const formData = new FormData();
+      formData.append("photo_link", photo_file);
+      const { data } = await axios.post(
+        `/api/dossiers/num/${num_dos}`,
+        formData,
+        config
+      );
+
+      dispatch({
+        type: DOSSIER_GET_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: DOSSIER_GET_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
 
 export const updateDossierAction =
   (

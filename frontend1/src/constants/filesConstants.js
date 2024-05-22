@@ -1,0 +1,4 @@
+export const FILES_ADD_TO_LIST = "FILES_ADD_TO_LIST";
+export const LIST_ADD_TO_LIST = "LIST_ADD_TO_LIST";
+export const FILES_DELETE_FROM_LIST = "FILES_DELETE_FROM_LIST";
+export const DELETE_LIST = "DELETE_LIST";

@@ -16,9 +16,11 @@
     "concurrently": "^7.6.0",
     "cors": "^2.8.5",
     "dbffile": "^1.9.2",
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.3.1",
+    "exceljs": "^4.3.0",
     "express": "^4.18.2",
     "express-async-handler": "^1.2.0",
+<<<<<<< HEAD
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.7.3",
     "multer": "^1.4.5-lts.1",
@@ -26,5 +28,18 @@
     "nodemon": "^2.0.20",
     "react-html-table-to-excel": "^2.0.0",
     "xlsx": "^0.18.5"
+=======
+    "hddserial": "0.0.7",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^6.12.0",
+    "multer": "^1.4.5-lts.1",
+    "node-adodb": "^5.0.3",
+    "nodemon": "^3.0.1",
+    "react-html-table-to-excel": "^2.0.0",
+    "react-icons": "^4.11.0",
+    "sheetjs-style": "^0.15.8",
+    "stream-json": "^1.8.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz"
+>>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
   }
 }
