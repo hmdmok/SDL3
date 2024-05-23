@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useEffect, useState } from "react";
 import ErrorMessage from "../../../components/ErrorMessage";
 import MainScreen from "../../../components/MainScreen/MainScreen";
@@ -294,29 +293,6 @@ function EnquetCNL() {
           </Accordion.Item>
         </Accordion>
       ))}
-=======
-import React from "react";
-import MainScreen from "../../../components/MainScreen/MainScreen";
-import { ListGroup } from "react-bootstrap";
-import { useSelector } from "react-redux";
-
-import SingleDossier from "../../dossiersScreens/Dossiers/SingleDossier";
-import EnqTools from "./EnqTools";
-
-function EnquetCNL() {
-  const filesToCheck = useSelector((state) => state.filesToCheck);
-  const { filesInfo } = filesToCheck;
-  const { files } = filesInfo;
-
-  return (
-    <MainScreen title={"التحقيق"}>
-      <ListGroup>
-        {files?.map((dossierMap) => (
-          <SingleDossier dossierMap={dossierMap} key={dossierMap._id} />
-        ))}
-      </ListGroup>
-      <EnqTools />
->>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
     </MainScreen>
   );
 }

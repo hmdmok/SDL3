@@ -122,19 +122,6 @@ const reducer = combineReducers({
   enquetCNLGet: enquetCNLGetReducer,
   enquetCNASGet: enquetCNASGetReducer,
   enquetCASNOSGet: enquetCASNOSGetReducer,
-<<<<<<< HEAD
-=======
-  
-  listBenefisiersGet: listBenefisiersReducer,
-
-  importationFichierTemp: importationFichierTempReducer,
-
-  importedData: importationDataReducer,
-
-  importedFichier: importationFichierReducer,
-
-  validateHeader: validateHeaderReducer,
->>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
 });
 
 const userInfoFromStorage = localStorage.getItem("userInfo")
