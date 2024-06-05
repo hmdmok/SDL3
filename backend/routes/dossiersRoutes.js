@@ -15,9 +15,6 @@ const {
   getEnquetCNLFile,
   getEnquetCNASFile,
   getEnquetCASNOSFile,
-<<<<<<< HEAD
-} = require("../controllers/enquetsControllers");
-=======
   getEnquetCNLFileTest,
   getEnquetCNASFileTest,
   getEnquetCASNOSFileTest,
@@ -31,7 +28,6 @@ const personPhotoStorage = multer.diskStorage({
     cb(null, `${req.params.num_dos}_Demandeur_Picture.png`);
   },
 });
->>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
 const dossierScanStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, `./dossiersScanUpload/`);
@@ -71,16 +67,11 @@ router
 router.route("/create").post(createDossier);
 router.route("/enquetCNLs").post(getDossierByDates);
 router.route("/enqCNL").post(getEnquetCNLFile);
-<<<<<<< HEAD
-router.route("/enqCNAS").post(getEnquetCNASFile);
-router.route("/enqCASNOS").post(getEnquetCASNOSFile);
-=======
 router.route("/listBenefisiers").post(getListBenefisiersFile);
 router.route("/enqCNLtest").post(getEnquetCNLFileTest);
 router.route("/enqCNAS").post(getEnquetCNASFile);
 router.route("/enqCNAStest").post(getEnquetCNASFileTest);
 router.route("/enqCASNOS").post(getEnquetCASNOSFile);
 router.route("/enqCASNOStest").post(getEnquetCASNOSFileTest);
->>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
 
 module.exports = router;

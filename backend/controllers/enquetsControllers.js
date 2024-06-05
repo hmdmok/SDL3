@@ -1,18 +1,4 @@
 const asyncHandler = require("express-async-handler");
-<<<<<<< HEAD
-const dossier = require("../models/dossierModel");
-const Person = require("../models/personModel");
-const Notes = require("../models/notesModel");
-const generateToken = require("../utils/generateToken");
-const { calculate } = require("./CalculeNotesDossier");
-const XLSX = require("xlsx");
-const ADODB = require("node-adodb");
-const connection = ADODB.open(
-  "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=enqCNAS.mdb;"
-);
-const fs = require("fs");
-const { DBFFile } = require("dbffile");
-=======
 const Dossier = require("../models/dossierModel");
 const Person = require("../models/personModel");
 const Notes = require("../models/notesModel");
@@ -31,7 +17,6 @@ const {
   getGenderName,
 } = require("../config/functions");
 const ExcelJS = require("exceljs");
->>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
 
 const getDossierByDates = asyncHandler(async (req, res) => {
   const { fromDate, toDate } = req.body;
@@ -40,11 +25,7 @@ const getDossierByDates = asyncHandler(async (req, res) => {
       $addFields: { personId: { $toString: "$_id" } },
     },
   ]);
-<<<<<<< HEAD
-  const dossierByDates = await dossier.aggregate([
-=======
   const dossierByDates = await Dossier.aggregate([
->>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
     {
       $match: {
         date_depo: {
@@ -79,35 +60,6 @@ const getDossierByDates = asyncHandler(async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-const getEnquetCNLFile = asyncHandler(async (req, res) => {
-  var { dossierEnq } = req.body;
-  var newData = dossierEnq.map(function (record, i) {
-    var newRecord = {
-      Ordre: i + 1,
-      Nom: record.dossier.demandeur[0]?.nom_fr || "" || "",
-      Prénom: record.dossier.demandeur[0]?.prenom_fr || "",
-      Sexe: record.dossier.demandeur[0]?.gender || "",
-      "Date de Naissance": record.dossier.demandeur[0]?.date_n || "",
-      "Type Date de Naissance": "" || "",
-      "Commune de Naissance": record.dossier.demandeur[0]?.com_n || "",
-      "WILAYA DE NAISSANCE": record.dossier.demandeur[0]?.wil_n || "",
-      "N°EXTR DE NAISSANCE": record.dossier.demandeur[0]?.num_act || "",
-      "Sit. Fam": record.dossier.demandeur[0]?.stuation_f || "",
-      "Prénom du Pére": record.dossier.demandeur[0]?.prenom_p_fr || "",
-      "Nom de la Mére": record.dossier.demandeur[0]?.nom_m_fr || "",
-      "Prénom de la Mére": record.dossier.demandeur[0]?.prenom_m_fr || "",
-      "Nom Conj": record.dossier.conjoin[0]?.nom_fr || "",
-      "Prénom conj": record.dossier.conjoin[0]?.prenom_fr || "",
-      "Date de Naissance conj": record.dossier.conjoin[0]?.date_n || "",
-      "Type Date de Naissance conj": "" || "",
-      "Commune de Naissance conj": record.dossier.conjoin[0]?.com_n || "",
-      "WILAYA DE NAISSANCE conj": record.dossier.conjoin[0]?.wil_n || "",
-      "N°EXTR DE NAISSANCE conj": record.dossier.conjoin[0]?.num_act || "",
-      "Prénom du Pére conj": record.dossier.conjoin[0]?.prenom_p_fr || "",
-      "Nom de la Mére conj": record.dossier.conjoin[0]?.nom_m_fr || "",
-      "Prénom de la Mére conj": record.dossier.conjoin[0]?.prenom_m_fr || "",
-=======
 const uploadDossierEnq = asyncHandler(async (req, res) => {
   const { creator, remark } = req.body;
 
@@ -221,24 +173,10 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
 
     var newRecord = {
       Ordre: i + 1,
->>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
     };
     return newRecord;
   });
 
-<<<<<<< HEAD
-  var newWB = XLSX.utils.book_new();
-  var newWS = XLSX.utils.json_to_sheet(newData);
-  XLSX.utils.book_append_sheet(newWB, newWS, "List");
-  XLSX.writeFile(newWB, "EnquetCNLnew.xlsx");
-  const file = `EnquetCNLnew.xlsx`;
-  res.download(file);
-});
-
-const getEnquetCNASFile = asyncHandler(async (req, res) => {
-  var { dossierEnq } = req.body;
-  fs.copyFile("enqueteCNAS.mdb", "enqCNAS.mdb", (err) => {
-=======
   // var newWB = XLSX.utils.book_new();
   // var newWS = XLSX.utils.json_to_sheet(newData);
   // XLSX.utils.book_append_sheet(newWB, newWS, "List");
@@ -467,7 +405,6 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
 const getEnquetCNASFile = asyncHandler(async (req, res) => {
   var { dossierEnq } = req.body;
   fs.copyFile("./sourceEnq/enqueteCNAS.mdb", "enqCNAS.mdb", (err) => {
->>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
     if (err) {
       console.log("Error Found:", err);
     } else {
@@ -514,8 +451,6 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
   res.download("enqCNAS.mdb");
 });
 
-<<<<<<< HEAD
-=======
 const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
   const { idDossierEnq, creator, remark } = req.body;
 
@@ -828,7 +763,6 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
   );
 });
 
->>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
 const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
   var { dossierEnq } = req.body;
   fs.unlink("CASNOSENQ.dbf", (err) => {
@@ -922,12 +856,9 @@ module.exports = {
   getEnquetCNLFile,
   getEnquetCNASFile,
   getEnquetCASNOSFile,
-<<<<<<< HEAD
-=======
   getEnquetCNLFileTest,
   getEnquetCNASFileTest,
   getEnquetCASNOSFileTest,
   uploadDossierEnq,
   getListBenefisiersFile,
->>>>>>> b7e9886259844540b0ba387106a452ce8a2545b2
 };
