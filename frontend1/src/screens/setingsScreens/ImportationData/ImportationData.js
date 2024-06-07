@@ -171,56 +171,69 @@ function ImportationData() {
       )}
       <div className="card mt-5">
         <div className="card-header d-flex flex-row-reverse">
-          <b>اختار ملف</b>
+          <b>اختار ملف جدول المعلومات</b>
         </div>
-
         <div className="card-body ">
-          <div className="custom-file">
+          <div className="card-body ">
+            <p class="card-text">
+              تسمح الواجهه بتحميل ملف جدول المعلومات الذي يجب ملئه بمعلومات
+              الملفات بالعربيه او الفرنسية كل منهما في ورقه على حده
+            </p>
+          </div>
+        </div>
+        <div className="card-header d-flex flex-row-reverse">
+          <b>جدول المعلومات بالعربي</b>
+        </div>
+        <div className="card-body ">
+          <div className="input-group mb-3">
             <input
               type="file"
-              className="custom-file-input"
-              id="customFileLang"
+              class="form-control"
+              id="inputGroupFile01"
+              aria-describedby="inputGroupFileAddon01"
+              aria-label="Upload"
               onChange={onChange}
             />
-            <label className="custom-file-label" htmlFor="customFileLang">
+            <Button className="" onClick={sendFile}>
+              رفع ملف جدول المعلومات بالعربي
+            </Button>
+            <label className="custom-file-label" htmlFor="inputGroupFile01">
               {fileName}
             </label>
-            <div className="card-body d-flex flex-row-reverse">
-              <Button className="m-2" onClick={sendFile}>
-                رفع الملف
-              </Button>
-              <Button className="m-2" onClick={downloadTemplate}>
-                تحميل المثال للملئ
-              </Button>
-            </div>
           </div>
+          <Button className="m-2" onClick={updateDB}>
+            {"اظافة المعلومات العربية لقاعدة المعطيات"}
+          </Button>
+          <Button className="m-2" onClick={downloadTemplate}>
+            {"تحميل ملف جدول المعلومات بالعربي للملئ"}
+          </Button>
         </div>
-        <div className="card mt-3">
-          <div className="card-header d-flex flex-row-reverse">
-            <b>اختار العملية</b>
+        <div className="card-header d-flex flex-row-reverse">
+          <b>جدول المعلومات بالفرنسي</b>
+        </div>
+        <div className="card-body ">
+          <div className="input-group mb-3">
+            <input
+              type="file"
+              class="form-control"
+              id="inputGroupFile02"
+              aria-describedby="inputGroupFileAddon02"
+              aria-label="Upload"
+              onChange={onChange}
+            />
+            <Button className="" onClick={sendFile}>
+              رفع ملف جدول المعلومات بالفرنسي
+            </Button>
+            <label className="custom-file-label" htmlFor="inputGroupFile02">
+              {fileName}
+            </label>
           </div>
-          <div className="card-body d-flex flex-row-reverse">
-            <Button className="m-2" onClick={updateDBfr}>
-              Ajout dossiers francais
-            </Button>
-            <Button className="m-2" onClick={updateDB}>
-              Mise a Jour dossiers arab
-            </Button>
-            <Button className="m-2" onClick={correctionDB}>
-              Correction DB
-            </Button>
-          </div>
-          <div className="card-body d-flex flex-row-reverse">
-            <Button className="m-2" onClick={enquetCNL}>
-              Enquet CNL
-            </Button>
-            <Button className="m-2" onClick={enquetCNAS}>
-              Enquet CNnas
-            </Button>
-            <Button className="m-2" onClick={enquetCASNOS}>
-              Enquet CASNOS
-            </Button>
-          </div>
+          <Button className="m-2" onClick={updateDBfr}>
+            {"اظافة المعلومات الفرنسية لقاعدة المعطيات"}
+          </Button>
+          <Button className="m-2" onClick={downloadTemplate}>
+            {"تحميل ملف جدول المعلومات بالفرنسي للملئ"}
+          </Button>
         </div>
       </div>
     </MainScreen>
