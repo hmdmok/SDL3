@@ -59,14 +59,14 @@ import {
   enquetCASNOSGetReducer,
   enquetCNLListReducer,
 } from "./reducers/enquetCNLReducers";
-import { importationDataReducer } from "./reducers/importationDataReducers";
+// import { importationDataReducer } from "./reducers/importationDataReducers";
 import { importationFichierReducer } from "./reducers/importationFichierReducers";
 import { importationFichierTempReducer } from "./reducers/templatesReducers";
 import { validateHeaderReducer } from "./reducers/validateHeaderReducers";
 import { filesReducer } from "./reducers/filesReducers";
 import {
   benefisiersReducer,
-  listBenefisiersReducer,
+  // listBenefisiersReducer,
 } from "./reducers/benefisiersReducers";
 
 const reducer = combineReducers({
@@ -79,6 +79,12 @@ const reducer = combineReducers({
   filesToCheck: filesReducer,
 
   filesToBenifits: benefisiersReducer,
+
+  importationFichierTemp: importationFichierTempReducer,
+
+  validateHeader: validateHeaderReducer,
+
+  importedFichier: importationFichierReducer,
 
   systemCheck: systemCheckReducer,
   systemAdd: systemAddReducer,
