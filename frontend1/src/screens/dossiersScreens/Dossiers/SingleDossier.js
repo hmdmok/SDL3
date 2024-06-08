@@ -1,5 +1,5 @@
 import React from "react";
-import { Badge, Button, Card } from "react-bootstrap";
+import { Badge, Button, Card, ListGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteDossierAction } from "../../../actions/dossierActions";
 import { addFile, deleteFile } from "../../../actions/filesActions";
@@ -45,35 +45,57 @@ const SingleDossier = ({ dossierMap }) => {
   };
 
   return (
-    <div className="file">
-      <Card
-        style={{ display: "flex", flexDirection: "row-reverse", flex: "auto" }}
-      >
-        <Badge bg="warning" text="dark" style={{ margin: "5px", flex: "auto" }}>
-          Nom: {dossierMap.demandeur?.nom_fr}{" "}
-        </Badge>
-        <Badge bg="light" text="dark" style={{ margin: "5px", flex: "auto" }}>
-          Prenom: {dossierMap.demandeur?.prenom_fr}
-        </Badge>
-        <Badge bg="warning" text="dark" style={{ margin: "5px", flex: "auto" }}>
-          Date naissance: {dossierMap.demandeur?.date_n}
-        </Badge>
-        <Badge bg="light" text="dark" style={{ margin: "5px", flex: "auto" }}>
-          Dossier num: {dossierMap.num_dos}
-        </Badge>
-        <Badge bg="warning" text="dark" style={{ margin: "5px", flex: "auto" }}>
-          Notes: {dossierMap.notes}
-        </Badge>
-        <Badge bg="light" text="dark" style={{ margin: "5px", flex: "auto" }}>
-          Situation: {getCivility(dossierMap?.demandeur?.stuation_f, "f")}
-        </Badge>
-        <Badge bg="warning" text="dark" style={{ margin: "5px", flex: "auto" }}>
-          Date depot: {dossierMap?.date_depo}
-        </Badge>
+    <div className="">
+      <Card style={{ display: "flex", flexDirection: "row-reverse" }}>
+        <ListGroup variant="flush" style={{ width: "9rem" }}>
+          <Badge bg="warning" text="dark">
+            {" Nom:"}
+          </Badge>
+          <Badge>{dossierMap.demandeur?.nom_fr}</Badge>
+        </ListGroup>
 
-        <Button variant="success" className="m-1">
-          <Link to={`/adddossiers/${dossierMap._id}`}> تعديل الملف</Link>
-        </Button>
+        <ListGroup variant="flush" style={{ width: "9rem" }}>
+          <Badge bg="warning" text="dark">
+            Prenom:
+          </Badge>
+          <Badge>{dossierMap.demandeur?.prenom_fr}</Badge>
+        </ListGroup>
+
+        <ListGroup variant="flush" style={{ width: "9rem" }}>
+          <Badge bg="warning" text="dark">
+            Date naissance:
+          </Badge>
+          <Badge>{dossierMap.demandeur?.date_n}</Badge>
+        </ListGroup>
+
+        <ListGroup variant="flush" style={{ width: "7rem" }}>
+          <Badge bg="warning" text="dark">
+            {"Num Doss:"}
+          </Badge>
+          <Badge>{dossierMap.num_dos}</Badge>
+        </ListGroup>
+
+        <ListGroup variant="flush" style={{ width: "5rem" }}>
+          <Badge bg="warning" text="dark">
+            {"Notes:"}
+          </Badge>
+          <Badge>{dossierMap.notes}</Badge>
+        </ListGroup>
+
+        <ListGroup variant="flush" style={{ width: "7rem" }}>
+          <Badge bg="warning" text="dark">
+            {"Situation:"}
+          </Badge>
+          <Badge>{getCivility(dossierMap?.demandeur?.stuation_f, "f")}</Badge>
+        </ListGroup>
+
+        <ListGroup variant="flush" style={{ width: "8rem" }}>
+          <Badge bg="warning" text="dark">
+            {"Date depot:"}
+          </Badge>
+          <Badge>{dossierMap?.date_depo}</Badge>
+        </ListGroup>
+
         {files?.some((f) => f._id === dossierMap._id) ? (
           <Button
             variant="success"
@@ -91,6 +113,7 @@ const SingleDossier = ({ dossierMap }) => {
             اظافة الملف للتحقيق
           </Button>
         )}
+
         {benefisiers?.some((f) => f._id === dossierMap._id) ? (
           <Button
             variant="success"
@@ -108,6 +131,10 @@ const SingleDossier = ({ dossierMap }) => {
             اظافة الملف للمستفيدين
           </Button>
         )}
+
+        <Button variant="success" className="m-1">
+          <Link to={`/adddossiers/${dossierMap._id}`}> تعديل الملف</Link>
+        </Button>
 
         {userInfo.usertype === "super" ? (
           <Button

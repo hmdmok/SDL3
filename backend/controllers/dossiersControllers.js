@@ -105,6 +105,7 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
   const persons = await Person.find();
 
   const dossiers = await dossier.find().sort({ notes: -1 });
+
   const dossierByNotes = dossiers.map((dossierFound) => {
     let newdossier = dossierFound;
     persons.map((personMaped) => {
@@ -137,27 +138,39 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
   //   { $sort: { notes: -1 } },
   // ]);
 
-  const filtredByDate = dossierByNotes.filter((filtredDossiers) => {
+  const filtredByNumDoss = dossierByNotes.filter((filtredDossiers) => {
     return filtredDossiers?.num_dos
       ?.toLowerCase()
       .includes(numDoss?.toLowerCase());
   });
 
-  const filtredByNames = filtredByDate?.filter((filtredDemand) => {
+  const filtredByNames = filtredByNumDoss?.filter((filtredDemand) => {
     return (
       filtredDemand.demandeur?.nom_fr
         ?.toLowerCase()
         .includes(nomFr?.toLowerCase()) &&
       filtredDemand.demandeur?.prenom_fr
         ?.toLowerCase()
-        .includes(prenomFr?.toLowerCase()) &&
-      filtredDemand.demandeur?.date_n.includes(birthDate) &&
-      new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
-      new Date(filtredDemand.date_depo) <= new Date(toDate)
+        .includes(prenomFr?.toLowerCase())
+      //   &&
+      // filtredDemand.demandeur?.date_n.includes(birthDate) &&
+      // new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
+      // new Date(filtredDemand.date_depo) <= new Date(toDate)
     );
   });
 
-  const filtredBySituation = filtredByNames.filter((filtredDossiers) => {
+  const filtredByBirthday = filtredByNames?.filter((filtredDemand) => {
+    if (birthDate === "") return true;
+    else {
+      return (
+        filtredDemand.demandeur?.date_n.includes(birthDate) &&
+        new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
+        new Date(filtredDemand.date_depo) <= new Date(toDate)
+      );
+    }
+  });
+
+  const filtredBySituation = filtredByBirthday.filter((filtredDossiers) => {
     if (situationFamiliale === "all") return true;
     else return filtredDossiers.demandeur?.stuation_f === situationFamiliale;
   });

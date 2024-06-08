@@ -6,6 +6,7 @@ import Loading from "../../../components/Loading";
 import Tools from "./Tools";
 import Filters from "./Filters";
 import SingleDossier from "./SingleDossier";
+import { ListGroup } from "react-bootstrap";
 
 function Dossiers() {
   const dossierList = useSelector((state) => state.dossierList);
@@ -31,14 +32,14 @@ function Dossiers() {
           <Filters />
           <Tools />
         </div>
-
-        <div className="fileContainer">
+        <ListGroup>
           {dossiers?.map((dossierMap) => {
             return (
               <SingleDossier dossierMap={dossierMap} key={dossierMap._id} />
             );
           })}
-        </div>
+        </ListGroup>
+       
       </MainScreen>
     </>
   );
