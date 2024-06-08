@@ -38,8 +38,8 @@ function ImportationData() {
   //   "Prénom de la mére",
   //   "Remarque",
   // ];
-  const [fileName, setFileName] = useState(null);
-  const [file, setFile] = useState(null);
+  const [frFile, setFrFile] = useState(null);
+  const [arFile, setArFile] = useState(null);
   const [creator, setCreator] = useState("");
   const [headerMessage, setHeaderMessage] = useState("");
   const dispatch = useDispatch();
@@ -81,20 +81,37 @@ function ImportationData() {
     }
   }, [dispatch, importationFichierTemp, downloadTemplateSuccess]);
 
-  const downloadTemplate = (event) => {
-    if (creator) dispatch(downloadImportationFichierTemplateAction(creator));
+  const downloadTemplateAr = (event) => {
+    if (creator)
+      dispatch(downloadImportationFichierTemplateAction(creator, "Ar"));
   };
 
-  const sendFile = async (event) => {
-    if (file) {
-      dispatch(sendImportationFichierAction(file, creator, "Fichier Imported"));
+  const downloadTemplateFr = (event) => {
+    if (creator)
+      dispatch(downloadImportationFichierTemplateAction(creator, "Fr"));
+  };
+
+  const sendArFile = async (event) => {
+    if (arFile) {
+      dispatch(
+        sendImportationFichierAction(arFile, creator, "Arabic Fichier Imported")
+      );
     }
   };
+
+  const sendFrFile = async (event) => {
+    if (frFile) {
+      dispatch(
+        sendImportationFichierAction(frFile, creator, "French Fichier Imported")
+      );
+    }
+  };
+
   useEffect(() => {
     if (headerValidationSuccess)
       if (headerValidationStatus)
         dispatch(
-          sendImportationFichierAction(file, creator, "Fichier Imported")
+          sendImportationFichierAction(frFile, creator, "Fichier Imported")
         );
       else setHeaderMessage("الملف غير مناسب يرجى تحميل المثال");
   }, [
@@ -102,7 +119,22 @@ function ImportationData() {
     headerValidationStatus,
     creator,
     dispatch,
-    file,
+    frFile,
+  ]);
+
+  useEffect(() => {
+    if (headerValidationSuccess)
+      if (headerValidationStatus)
+        dispatch(
+          sendImportationFichierAction(arFile, creator, "Fichier Imported")
+        );
+      else setHeaderMessage("الملف غير مناسب يرجى تحميل المثال");
+  }, [
+    headerValidationSuccess,
+    headerValidationStatus,
+    creator,
+    dispatch,
+    arFile,
   ]);
 
   const importedFichier = useSelector((state) => state.importedFichier);
@@ -112,131 +144,123 @@ function ImportationData() {
   //   var validFile = false;
   //   var headerRow = false;
   // };
-  const correctionDB = (event) => {
-    //send request to correct DB
-  };
 
-  const updateDB = async (event) => {
-    //send request to correct DB
-  };
-
-  const updateDBfr = async (event) => {
-    //send request to correct DB
-  };
-
-  const enquetCASNOS = async (event) => {
-    //send request to correct DB
-  };
-
-  const enquetCNAS = async (event) => {
-    //send request to correct DB
-  };
-
-  const enquetCNL = async (event) => {
-    //send request to correct DB
-  };
-
-  const onChange = (event) => {
+  const onChangeAr = (event) => {
     if (
       event.target.files[0].type ===
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
       event.target.files[0].type === "application/vnd.ms-excel"
     ) {
-      setFileName(event.target.files[0].name);
-      setFile(event.target.files[0]);
+      setArFile(event.target.files[0]);
+    }
+  };
+
+  const onChangeFr = (event) => {
+    if (
+      event.target.files[0].type ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+      event.target.files[0].type === "application/vnd.ms-excel"
+    ) {
+      setFrFile(event.target.files[0]);
     }
   };
 
   return (
-    <MainScreen title={"رفع الملف من اجل اظافة او التحقيق"}>
-      {downloadTemplateError && (
-        <ErrorMessage variant="danger">{downloadTemplateError}</ErrorMessage>
-      )}
+    <>
+      <div className="alerts">
+        {downloadTemplateError && (
+          <ErrorMessage variant="danger">{downloadTemplateError}</ErrorMessage>
+        )}
 
-      {downloadTemplateLoading && <Loading />}
-      {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
+        {downloadTemplateLoading && <Loading />}
+        {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
 
-      {headerValidationLoading && <Loading />}
-      {headerValidationError && (
-        <ErrorMessage variant="danger">{headerValidationError}</ErrorMessage>
-      )}
-      {headerMessage && (
-        <ErrorMessage variant="danger">{headerMessage}</ErrorMessage>
-      )}
+        {headerValidationLoading && <Loading />}
+        {headerValidationError && (
+          <ErrorMessage variant="danger">{headerValidationError}</ErrorMessage>
+        )}
+        {headerMessage && (
+          <ErrorMessage variant="danger">{headerMessage}</ErrorMessage>
+        )}
 
-      {loading && <Loading />}
+        {loading && <Loading />}
 
-      {fichierInfo && (
-        <Message variant="info">{`تم تحميل الملف "${fichierInfo}" بنجاح.`}</Message>
-      )}
-      <div className="card mt-5">
-        <div className="card-header d-flex flex-row-reverse">
-          <b>اختار ملف جدول المعلومات</b>
-        </div>
-        <div className="card-body ">
-          <div className="card-body ">
-            <p class="card-text">
-              تسمح الواجهه بتحميل ملف جدول المعلومات الذي يجب ملئه بمعلومات
-              الملفات بالعربيه او الفرنسية كل منهما في ورقه على حده
-            </p>
-          </div>
-        </div>
-        <div className="card-header d-flex flex-row-reverse">
-          <b>جدول المعلومات بالعربي</b>
-        </div>
-        <div className="card-body ">
-          <div className="input-group mb-3">
-            <input
-              type="file"
-              class="form-control"
-              id="inputGroupFile01"
-              aria-describedby="inputGroupFileAddon01"
-              aria-label="Upload"
-              onChange={onChange}
-            />
-            <Button className="" onClick={sendFile}>
-              رفع ملف جدول المعلومات بالعربي
-            </Button>
-            <label className="custom-file-label" htmlFor="inputGroupFile01">
-              {fileName}
-            </label>
-          </div>
-          <Button className="m-2" onClick={updateDB}>
-            {"اظافة المعلومات العربية لقاعدة المعطيات"}
-          </Button>
-          <Button className="m-2" onClick={downloadTemplate}>
-            {"تحميل ملف جدول المعلومات بالعربي للملئ"}
-          </Button>
-        </div>
-        <div className="card-header d-flex flex-row-reverse">
-          <b>جدول المعلومات بالفرنسي</b>
-        </div>
-        <div className="card-body ">
-          <div className="input-group mb-3">
-            <input
-              type="file"
-              class="form-control"
-              id="inputGroupFile02"
-              aria-describedby="inputGroupFileAddon02"
-              aria-label="Upload"
-              onChange={onChange}
-            />
-            <Button className="" onClick={sendFile}>
-              رفع ملف جدول المعلومات بالفرنسي
-            </Button>
-            <label className="custom-file-label" htmlFor="inputGroupFile02">
-              {fileName}
-            </label>
-          </div>
-          <Button className="m-2" onClick={updateDBfr}>
-            {"اظافة المعلومات الفرنسية لقاعدة المعطيات"}
-          </Button>
-          <Button className="m-2" onClick={downloadTemplate}>
-            {"تحميل ملف جدول المعلومات بالفرنسي للملئ"}
-          </Button>
-        </div>
+        {fichierInfo && (
+          <Message variant="info">{`تم تحميل الملف "${fichierInfo}" بنجاح.`}</Message>
+        )}
       </div>
-    </MainScreen>
+
+      <MainScreen title={"رفع الملف من اجل اظافة او التحقيق"}>
+        <div className="card mt-5">
+          <div className="card-header d-flex flex-row-reverse">
+            <b>اختار ملف جدول المعلومات</b>
+          </div>
+          <div className="card-body ">
+            <div className="card-body ">
+              <p class="card-text">
+                تسمح الواجهه بتحميل ملف جدول المعلومات الذي يجب ملئه بمعلومات
+                الملفات بالعربيه او الفرنسية كل منهما في ورقه على حده
+              </p>
+            </div>
+          </div>
+          <div className="card-header d-flex flex-row-reverse">
+            <b>جدول المعلومات بالعربي</b>
+          </div>
+          <div className="card-body ">
+            <div className="input-group mb-3">
+              <input
+                type="file"
+                class="form-control"
+                id="inputGroupFile01"
+                aria-describedby="inputGroupFileAddon01"
+                aria-label="Upload"
+                onChange={onChangeAr}
+              />
+              <Button
+                className=""
+                id="inputGroupFileAddon01"
+                onClick={sendArFile}
+              >
+                رفع ملف جدول المعلومات بالعربي
+              </Button>
+            </div>
+
+            <Button className="m-2" onClick={downloadTemplateAr}>
+              {"تحميل ملف جدول المعلومات بالعربي للملئ"}
+            </Button>
+          </div>
+          <div className="card-header d-flex flex-row-reverse">
+            <b>جدول المعلومات بالفرنسي</b>
+          </div>
+          <div className="card-body ">
+            <div className="input-group mb-3">
+              <input
+                type="file"
+                class="form-control"
+                id="inputGroupFile02"
+                aria-describedby="inputGroupFileAddon02"
+                aria-label="Upload"
+                onChange={onChangeFr}
+              />
+              <Button
+                className=""
+                id="inputGroupFileAddon02"
+                onClick={sendFrFile}
+              >
+                رفع ملف جدول المعلومات بالفرنسي
+              </Button>
+              {/* <label className="custom-file-label" htmlFor="inputGroupFileAddon02">
+              {fileName}
+            </label> */}
+            </div>
+
+            <Button className="m-2" onClick={downloadTemplateFr}>
+              {"تحميل ملف جدول المعلومات بالفرنسي للملئ"}
+            </Button>
+          </div>
+        </div>
+      </MainScreen>
+    </>
   );
 }
 

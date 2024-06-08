@@ -6,7 +6,7 @@ import {
 } from "../constants/templatesConstants";
 
 export const downloadImportationFichierTemplateAction =
-  (creator) => async (dispatch) => {
+  (creator, langue) => async (dispatch) => {
     try {
       dispatch({ type: IMPORTATIONFICHIERTEMPLATE_DOWNLOAD_REQUEST });
 
@@ -21,6 +21,7 @@ export const downloadImportationFichierTemplateAction =
         "/api/templates/importationFichierTemplate",
         {
           creator,
+          langue,
         },
         config
       );

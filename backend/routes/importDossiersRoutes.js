@@ -19,22 +19,14 @@ const uploadImportationFile = multer({
 
 const router = express.Router();
 
-router
-  .route("/")
-  .post(
-    protect,
-    uploadImportationFile.single("importation_File"),
-    importationDossiersControllers.addDossiers
-  );
+
 router
   .route("/update")
   .post(
     uploadImportationFile.single("importation_File"),
     importationDossiersControllers.updateDossiers
   );
-router
-  .route("/updateFr")
-  .post(importationDossiersControllers.updateDossiersFran);
+
 
 router.route("/correctionDB").post(importationDossiersControllers.correctionDB);
 
