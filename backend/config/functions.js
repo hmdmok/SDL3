@@ -107,6 +107,20 @@ const getGenderName = (gender, language) => {
   return genderName;
 };
 
+function convertDateFormat(dateStr) {
+  // Split the input date string by "/"
+  let parts = dateStr.split("/");
+
+  // Change 00 to 01 if its found
+  if (parts[0] === "00") parts[0] = "01";
+  if (parts[1] === "00") parts[1] = "01";
+
+  // Rearrange the parts into the new format
+  let newDateStr = `${parts[0]}-${parts[1]}-${parts[2]}`;
+
+  return newDateStr;
+}
+
 module.exports = {
   isValidDate,
   validateHeader,
@@ -115,4 +129,5 @@ module.exports = {
   getCivility,
   getAlphabet,
   getGenderName,
+  convertDateFormat,
 };

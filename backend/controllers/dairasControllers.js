@@ -61,7 +61,26 @@ const getDairaByًWilya = asyncHandler(async (req, res) => {
   }
 });
 
+const getDairaByًCode = asyncHandler(async (req, res) => {
+  const codeDaira = req.body.codeDaira;
+  const dairas = dairasList();
+  // make a dairas list without duplicates
+  const daira = dairas.filter((element) => {
+    if (element.code == codeDaira) {
+      return true;
+    }
+
+    return false;
+  });
+  if (daira) res.json(daira);
+  else {
+    res.status(400);
+    throw new Error("الدوائر غير موجودة");
+  }
+});
+
 module.exports = {
   getDairas,
   getDairaByًWilya,
+  getDairaByًCode
 };

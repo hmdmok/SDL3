@@ -8,6 +8,7 @@ const generateToken = require("../utils/generateToken");
 const { calculate } = require("./CalculeNotesDossier");
 const XLSX = require("sheetjs-style");
 const ADODB = require("node-adodb");
+const { convertDateFormat } = require("../config/functions");
 
 const fs = require("fs");
 const { DBFFile } = require("dbffile");
@@ -89,7 +90,7 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
   var { dossierEnq } = req.body;
 
   let workbook = XLSX.readFile("CNL.xlsx", { cellStyles: true });
-  let first_sheet_name = workbook.SheetNames[0];
+  let first_sheet_name = workbook.SheetNames;
   let worksheet = workbook.Sheets[first_sheet_name];
 
   const ss2 = {
@@ -158,7 +159,6 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
 
   var newData = dossierEnq.map(function (record, i) {
     // modify value in D4
-    worksheet[`A${i + 11}`].v = record.num_dos;
     worksheet[`A${i + 11}`].s = {
       // set the style for target cell
       font: {
@@ -167,8 +167,21 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
       },
     };
     // modify value if D4 is undefined / does not exists
-    XLSX.utils.sheet_add_aoa(worksheet, [[record.num_dos]], {
+    XLSX.utils.sheet_add_aoa(worksheet, [[i + 1]], {
       origin: `A${i + 10}`,
+    });
+    console.log(record.demandeur.nom_fr);
+    // modify value in other
+    worksheet[`B${i + 11}`].s = {
+      // set the style for target cell
+      font: {
+        name: "Times New Roman",
+        sz: 14,
+      },
+    };
+    // modify value if other is undefined / does not exists
+    XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.nom_fr]], {
+      origin: `B${i + 10}`,
     });
 
     var newRecord = {
@@ -196,7 +209,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
   switch (type) {
     case "pa": {
       await workbook.xlsx.readFile("ListBenefisiersAr.xlsx");
-      worksheet = workbook.worksheets[0];
+      worksheet = workbook.worksheets;
     }
     case "ma": {
       await workbook.xlsx.readFile("ListBenefisiersAr.xlsx");
@@ -212,7 +225,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
     }
     case "pf": {
       await workbook.xlsx.readFile("ListBenefisiersFr.xlsx");
-      worksheet = workbook.worksheets[0];
+      worksheet = workbook.worksheets;
     }
     case "mf": {
       await workbook.xlsx.readFile("ListBenefisiersFr.xlsx");
@@ -238,7 +251,6 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
 
   const newDoss = await dossiersList.map(
     asyncHandler(async function (record, i) {
-      
       if (type.includes("f"))
         await worksheet.addRow(
           [
@@ -282,9 +294,9 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
     })
   );
   // worksheet.spliceRows(7, 1);
-  const newFileName = `List Benifisiers ${
-    new Date().toISOString().split("T")[0]
-  }.xlsx`;
+  const newFileName = `List Benifisiers ${new Date()
+    .toISOString()
+    .split("T")}.xlsx`;
   return Promise.all(newDoss).then(
     asyncHandler(async () => {
       await worksheet.spliceRows(7, 1);
@@ -311,7 +323,7 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
   // var work_book = XLSX.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
   var sheet_name = file.SheetNames;
   console.log(sheet_name);
-  var stream = XLSX.stream.to_json(file.Sheets[sheet_name[0]], {
+  var stream = XLSX.stream.to_json(file.Sheets[sheet_name], {
     raw: false,
   });
 
@@ -342,13 +354,13 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
           console.log(dossierToEnquet);
           var demandeur = {};
           var conjoin = {};
-          if (dossierToEnquet[0].id_demandeur) {
+          if (dossierToEnquet.id_demandeur) {
             // get demandeur
-            demandeur = await Person.findById(dossierToEnquet[0].id_demandeur);
+            demandeur = await Person.findById(dossierToEnquet.id_demandeur);
           }
-          if (dossierToEnquet[0].id_conjoin) {
+          if (dossierToEnquet.id_conjoin) {
             // get conjoin
-            conjoin = await Person.findById(dossierToEnquet[0].id_conjoin);
+            conjoin = await Person.findById(dossierToEnquet.id_conjoin);
           }
           var newRecord = {
             Ordre: numOrdre,
@@ -404,51 +416,78 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
 
 const getEnquetCNASFile = asyncHandler(async (req, res) => {
   var { dossierEnq } = req.body;
-  fs.copyFile("./sourceEnq/enqueteCNAS.mdb", "enqCNAS.mdb", (err) => {
-    if (err) {
-      console.log("Error Found:", err);
-    } else {
-      console.log("File copied succesfuly");
+  fs.copyFile(
+    "./sourceEnq/enqueteCNAS.mdb",
+    "./sourceEnq/enqCNAS.mdb",
+    (err) => {
+      if (err) {
+        console.log("Error Found:", err);
+      } else {
+        console.log("File copied succesfuly");
+      }
     }
-  });
-
+  );
+  const connection = ADODB.open(
+    `Provider=Microsoft.Jet.OLEDB.4.0;Data Source=./sourceEnq/enqCNAS.mdb;`
+  );
   var newData = await dossierEnq.map(
     asyncHandler(async function (record) {
-      if (record.dossier.demandeur.length > 0) {
+      if (record.demandeur) {
         const insert = `INSERT INTO  Table1 (NOM_P, PRENOM_P, DDN_P, NUM_ACT_P, PP, NPM, LIB_SEXE, NC, WILAYA)
-        VALUES ("${record.dossier.demandeur[0]?.nom_fr || "a"}", 
-        "${record.dossier.demandeur[0]?.prenom_fr || "s"}",
-        "${record.dossier.demandeur[0]?.date_n || "2000-01-01"}",
-        "${record.dossier.demandeur[0]?.num_act || "f"}",
-        "${record.dossier.demandeur[0]?.prenom_p_fr || "g"}",
-        "${record.dossier.demandeur[0]?.nom_m_fr || "h"}",
-        "${record.dossier.demandeur[0]?.gender || "j"}",
-        "${record.dossier.demandeur[0]?.com_n || "k"}", 
-        "${record.dossier.demandeur[0]?.wil_n || "l"}");`;
-
-        await connection.execute(insert);
+        VALUES ("${record.demandeur?.nom_fr}",  
+        "${record.demandeur?.prenom_fr}",
+         "${convertDateFormat(record.demandeur?.date_n)}",
+        "${record.demandeur?.num_act || ""}",
+        "${record.demandeur?.prenom_p_fr}", 
+        "${record.demandeur?.nom_m_fr}",
+        "${record.demandeur?.gender}",
+        "${record.demandeur?.com_n}", 
+        "${record.demandeur?.wil_n}");`;
+        try {
+          await connection.execute(insert);
+        } catch (error) {
+          console.log("Insert1 error: ", error.process.message);
+        }
       }
 
-      if (record.dossier.conjoin.length > 0) {
+      if (record.conjoin) {
         const sql = `INSERT INTO Table1 (NOM_P, PRENOM_P, DDN_P, NUM_ACT_P, PP, NPM, LIB_SEXE, NC, WILAYA) VALUES ("${
-          record.dossier.conjoin[0]?.nom_fr || "q"
-        }", "${record.dossier.conjoin[0]?.prenom_fr || "w"}",
-        "${record.dossier.conjoin[0]?.date_n || "2000-01-01"}", 
-        "${record.dossier.conjoin[0]?.num_act || "r"}",
-        "${record.dossier.conjoin[0]?.prenom_p_fr || "t"}",
-        "${record.dossier.conjoin[0]?.nom_m_fr || "y"}",
-        "${record.dossier.conjoin[0]?.gender || "u"}",
-        "${record.dossier.conjoin[0]?.com_n || "i"}", 
-        "${record.dossier.conjoin[0]?.wil_n || "20"}");`;
-        await connection.execute(sql);
+          record.conjoin?.nom_fr
+        }", "${record.conjoin?.prenom_fr}",
+        "${convertDateFormat(record.conjoin?.date_n)}", 
+        "${record.conjoin?.num_act || ""}",
+        "${record.conjoin?.prenom_p_fr}", 
+        "${record.conjoin?.nom_m_fr}",
+        "${record.conjoin?.gender}",
+        "${record.conjoin?.com_n}", 
+        "${record.conjoin?.wil_n}");`;
+        try {
+          await connection.execute(sql);
+        } catch (error) {
+          console.log("insert 2 error: ", error.process.message);
+          console.log(
+            `"${record.conjoin?.date_n}", 
+        "${record.conjoin?.num_act}",
+        "${record.conjoin?.prenom_p_fr}", 
+        "${record.conjoin?.nom_m_fr}",
+        "${record.conjoin?.gender}",
+        "${record.conjoin?.com_n}", 
+        "${record.conjoin?.wil_n}");`
+          );
+        }
       }
       return record;
     })
   );
-  const select = `SELECT * FROM Table1;`;
-  let selection = await connection.query(select);
-  let selection2 = await connection.query(select);
-  res.download("enqCNAS.mdb");
+
+  return Promise.all(newData)
+    .then(async () => {
+      // file download
+      res.download("./sourceEnq/enqCNAS.mdb");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
@@ -471,7 +510,7 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
   const connection = ADODB.open(
     `Provider=Microsoft.Jet.OLEDB.4.0;Data Source=./generatedEnq/${idDossierEnq}_enqCNAS.mdb;`
   );
-
+  console.log(dossierEnqRecu);
   const file = XLSX.readFile(dossierEnqRecu?.nomFichier, {
     dense: true,
     dateNF: "dd/mm/yyyy",
@@ -481,7 +520,7 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
 
   // var work_book = XLSX.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
   var sheet_name = file.SheetNames;
-  var stream = XLSX.stream.to_json(file.Sheets[sheet_name[0]], {
+  var stream = XLSX.stream.to_json(file.Sheets[sheet_name], {
     raw: false,
   });
 
@@ -505,15 +544,13 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
           if (dossierToEnquet.length > 0) {
             var demandeur = {};
             var conjoin = {};
-            if (dossierToEnquet[0].id_demandeur) {
+            if (dossierToEnquet.id_demandeur) {
               // get demandeur
-              demandeur = await Person.findById(
-                dossierToEnquet[0].id_demandeur
-              );
+              demandeur = await Person.findById(dossierToEnquet.id_demandeur);
             }
-            if (dossierToEnquet[0].id_conjoin) {
+            if (dossierToEnquet.id_conjoin) {
               // get conjoin
-              conjoin = await Person.findById(dossierToEnquet[0].id_conjoin);
+              conjoin = await Person.findById(dossierToEnquet.id_conjoin);
             }
             if (demandeur._id) {
               var newRecord = {
@@ -640,7 +677,7 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
   // var work_book = XLSX.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
   var sheet_name = file.SheetNames;
   console.log(sheet_name);
-  var stream = XLSX.stream.to_json(file.Sheets[sheet_name[0]], {
+  var stream = XLSX.stream.to_json(file.Sheets[sheet_name], {
     raw: false,
   });
 
@@ -669,11 +706,9 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
           if (dossierToEnquet.length > 0) {
             var demandeur = {};
             var conjoin = {};
-            if (dossierToEnquet[0].id_demandeur) {
+            if (dossierToEnquet.id_demandeur) {
               // get demandeur
-              demandeur = await Person.findById(
-                dossierToEnquet[0].id_demandeur
-              );
+              demandeur = await Person.findById(dossierToEnquet.id_demandeur);
 
               var demandeurF = {
                 CODE_P: numOrdre,
@@ -693,9 +728,9 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
               };
               records.push(demandeurF);
             }
-            if (dossierToEnquet[0].id_conjoin) {
+            if (dossierToEnquet.id_conjoin) {
               // get conjoin
-              conjoin = await Person.findById(dossierToEnquet[0].id_conjoin);
+              conjoin = await Person.findById(dossierToEnquet.id_conjoin);
               var conjoinF = {
                 CODE_P: `${parseInt(numOrdre) + excel_file.length}`,
                 NOM_P: conjoin.nom_fr || "",
@@ -791,41 +826,41 @@ const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
 
   var newData = await dossierEnq.map(
     asyncHandler(async function (record) {
-      if (record.dossier.demandeur.length > 0) {
+      if (record.demandeur.length > 0) {
         var demandeur = {
           CODE_P: "",
-          NOM_P: record.dossier.demandeur[0]?.nom_fr || "",
-          PRENOM_P: record.dossier.demandeur[0]?.prenom_fr || "",
-          DNN_P: record.dossier.demandeur[0]?.date_n || "1800-01-01",
+          NOM_P: record.demandeur?.nom_fr || "",
+          PRENOM_P: record.demandeur?.prenom_fr || "",
+          DNN_P: record.demandeur?.date_n || "1800-01-01",
           ADR_P: "",
-          NUM_ACT_P: record.dossier.demandeur[0]?.num_act || "",
-          PRENP: record.dossier.demandeur[0]?.prenom_p_fr || "",
-          NPM: `${record.dossier.demandeur[0]?.nom_m_fr || ""} ${
-            record.dossier.demandeur[0]?.prenom_m_fr || ""
+          NUM_ACT_P: record.demandeur?.num_act || "",
+          PRENP: record.demandeur?.prenom_p_fr || "",
+          NPM: `${record.demandeur?.nom_m_fr || ""} ${
+            record.demandeur?.prenom_m_fr || ""
           }`,
-          LIB_SEXE: record.dossier.demandeur[0]?.gender || "",
+          LIB_SEXE: record.demandeur?.gender || "",
           CC: "",
-          NC: record.dossier.demandeur[0]?.com_n || "",
-          WILAYA: record.dossier.demandeur[0]?.wil_n || "",
+          NC: record.demandeur?.com_n || "",
+          WILAYA: record.demandeur?.wil_n || "",
         };
         records.push(demandeur);
       }
-      if (record.dossier.conjoin.length > 0) {
+      if (record.conjoin.length > 0) {
         var conjoin = {
           CODE_P: "",
-          NOM_P: record.dossier.conjoin[0]?.nom_fr || "",
-          PRENOM_P: record.dossier.conjoin[0]?.prenom_fr || "",
-          DNN_P: record.dossier.conjoin[0]?.date_n || "1800-01-01",
+          NOM_P: record.conjoin?.nom_fr || "",
+          PRENOM_P: record.conjoin?.prenom_fr || "",
+          DNN_P: record.conjoin?.date_n || "1800-01-01",
           ADR_P: "",
-          NUM_ACT_P: record.dossier.conjoin[0]?.num_act || "",
-          PRENP: record.dossier.conjoin[0]?.prenom_p_fr || "",
-          NPM: `${record.dossier.conjoin[0]?.nom_m_fr || ""} ${
-            record.dossier.conjoin[0]?.prenom_m_fr || ""
+          NUM_ACT_P: record.conjoin?.num_act || "",
+          PRENP: record.conjoin?.prenom_p_fr || "",
+          NPM: `${record.conjoin?.nom_m_fr || ""} ${
+            record.conjoin?.prenom_m_fr || ""
           }`,
-          LIB_SEXE: record.dossier.conjoin[0]?.gender || "",
+          LIB_SEXE: record.conjoin?.gender || "",
           CC: "",
-          NC: record.dossier.conjoin[0]?.com_n || "",
-          WILAYA: record.dossier.conjoin[0]?.wil_n || "",
+          NC: record.conjoin?.com_n || "",
+          WILAYA: record.conjoin?.wil_n || "",
         };
         records.push(conjoin);
       }

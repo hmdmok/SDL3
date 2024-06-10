@@ -76,7 +76,11 @@ export const getEnquetCNLAction =
       };
 
       const formData = { dossierEnq: dossierEnq };
-      const data = await axios.post(`/api/dossiers/enqCNL`, formData, config);
+      const data = await axios.post(
+        `/api/dossiers/enqCNL`,
+        formData,
+        config
+      );
 
       dispatch({
         type: ENQUETCNL_GET_SUCCESS,
