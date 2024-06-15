@@ -3,19 +3,25 @@ import { Form } from "react-bootstrap";
 import { isValidDate } from "../../../Functions/functions";
 import { useDispatch, useSelector } from "react-redux";
 import { listDossiersAction } from "../../../actions/dossierActions";
+import RadioGroup from "../../../Functions/RadioGroup";
 
 const Filters = () => {
   const dispatch = useDispatch();
 
+  const PlusMoinRadioItems = [
+    { value: "p", label: "اكثر من 35 سنة" },
+    { value: "m", label: "اقل من 35 سنة" },
+  ];
+
+  const [plusMoin35Value, setPlusMoin35Value] = useState("");
+  const [dateEtude, setDateEtude] = useState("");
   const [dossiersCount, setDossiersCount] = useState(50);
   const [search, setSearch] = useState("");
   const [nameSearch, setNameSearch] = useState("");
   const [lastNameSearch, setLastNameSearch] = useState("");
   const [birthDateSearch, setBirthDateSearch] = useState("");
-  const [fromDate, setFromDate] = useState(
-    new Date("01/01/1900").toLocaleDateString()
-  );
-  const [toDate, setToDate] = useState(new Date().toLocaleDateString());
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [situationFamiliale, setSituationFamiliale] = useState("all");
   const dossierDelete = useSelector((state) => state.dossierDelete);
   const { success: successDossierDelete } = dossierDelete;
@@ -30,9 +36,12 @@ const Filters = () => {
         birthDateSearch,
         fromDate,
         toDate,
-        situationFamiliale
+        situationFamiliale,
+        dateEtude,
+        plusMoin35Value
       )
     );
+    console.log(plusMoin35Value);
   }, [
     dispatch,
     successDossierDelete,
@@ -44,11 +53,13 @@ const Filters = () => {
     fromDate,
     toDate,
     situationFamiliale,
+    dateEtude,
+    plusMoin35Value,
   ]);
 
   return (
     <div className="filters">
-      <h4>{"ادوات البحث"}</h4>
+      <h4>{"ادوات البحث والفرز"}</h4>
       <hr />
       <Form.Label>{"عدد الملفات للبحث"}</Form.Label>
       <Form.Control
@@ -60,7 +71,24 @@ const Filters = () => {
         }}
         className="m-1  text-right"
       />
-
+      <Form.Label>{"تاريخ الدراسة"}</Form.Label>
+      <Form.Control
+        type="date"
+        className="m-1"
+        onChange={(e) => {
+          setDateEtude(e.target.value);
+        }}
+      />
+      <RadioGroup
+        name="plusMoin35"
+        items={PlusMoinRadioItems}
+        value={plusMoin35Value}
+        onChange={(e) => {
+          setPlusMoin35Value(e.target.value);
+          console.log(plusMoin35Value);
+        }}
+        desabled={dateEtude === ""}
+      />
       <Form.Check
         name="situation_f"
         type="radio"
@@ -138,7 +166,7 @@ const Filters = () => {
       </Form.Label>
       <Form.Label htmlFor="inputFromDate">{"من"}</Form.Label>
       <Form.Control
-        value={new Date(fromDate)?.toISOString().split("T")[0]}
+        value={fromDate}
         name="fromDate"
         onChange={(e) => {
           if (isValidDate(e.target.value))
@@ -148,10 +176,9 @@ const Filters = () => {
         id="inputFromDate"
         className="m-1  text-right"
       />
-
       <Form.Label htmlFor="inputToDate">{"الى"}</Form.Label>
       <Form.Control
-        value={new Date(toDate)?.toISOString().split("T")[0]}
+        value={toDate}
         name="toDate"
         onChange={(e) => {
           if (isValidDate(e.target.value))
@@ -161,7 +188,6 @@ const Filters = () => {
         id="inputToDate"
         className="m-1  text-right "
       />
-
       {!nameSearch && !lastNameSearch && !birthDateSearch && (
         <Form.Control
           type="search"
@@ -173,7 +199,6 @@ const Filters = () => {
           }}
         />
       )}
-
       {!search && (
         <>
           <Form.Control

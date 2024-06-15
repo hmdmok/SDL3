@@ -5,6 +5,7 @@ import { deleteList } from "../../../actions/filesActions";
 import {
   getEnquetCNASAction,
   getEnquetCNLAction,
+  getEnquetCASNOSAction,
 } from "../../../actions/enquetCNLActions";
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
@@ -17,27 +18,12 @@ const EnqTools = () => {
   const { filesInfo } = filesToCheck;
   const { files } = filesInfo;
 
+  // for EnqCNL
   const enquetCNLGet = useSelector((state) => state.enquetCNLGet);
   const { loading, enquetCNLs, error, success } = enquetCNLGet;
 
-  const enquetCNASGet = useSelector((state) => state.enquetCNASGet);
-  const {
-    loading: loadingCNAS,
-    enquetCNASs,
-    error: errorCNAS,
-    success: successCNAS,
-  } = enquetCNASGet;
-
-  const dellAllDossiersFromCheck = () => {
-    dispatch(deleteList());
-  };
-
   const onGetEnqCNL = (listDossierEnquet) => {
     dispatch(getEnquetCNLAction(listDossierEnquet));
-  };
-
-  const onGetEnqCNAS = (listDossierEnquet) => {
-    dispatch(getEnquetCNASAction(listDossierEnquet));
   };
 
   useEffect(() => {
@@ -49,6 +35,19 @@ const EnqTools = () => {
     }
   }, [dispatch, enquetCNLs, success]);
 
+  // for EnqCNAS
+  const enquetCNASGet = useSelector((state) => state.enquetCNASGet);
+  const {
+    loading: loadingCNAS,
+    enquetCNASs,
+    error: errorCNAS,
+    success: successCNAS,
+  } = enquetCNASGet;
+
+  const onGetEnqCNAS = (listDossierEnquet) => {
+    dispatch(getEnquetCNASAction(listDossierEnquet));
+  };
+
   useEffect(() => {
     if (successCNAS) {
       fileDownload(
@@ -57,6 +56,33 @@ const EnqTools = () => {
       );
     }
   }, [dispatch, enquetCNASs, successCNAS]);
+
+  // for EnqCASNOS
+  const enquetCASNOSGet = useSelector((state) => state.enquetCASNOSGet);
+  const {
+    loading: loadingCASNOS,
+    enquetCASNOSs,
+    error: errorCASNOS,
+    success: successCASNOS,
+  } = enquetCASNOSGet;
+
+  const onGetEnqCASNOS = (listDossierEnquet) => {
+    dispatch(getEnquetCASNOSAction(listDossierEnquet));
+  };
+
+  useEffect(() => {
+    if (successCASNOS) {
+      fileDownload(
+        enquetCASNOSs.data,
+        enquetCASNOSs.headers["content-disposition"].split('"')[1]
+      );
+    }
+  }, [dispatch, enquetCASNOSs, successCASNOS]);
+
+  // for dell all from files to check
+  const dellAllDossiersFromCheck = () => {
+    dispatch(deleteList());
+  };
 
   return (
     <div className="tools">
@@ -73,7 +99,12 @@ const EnqTools = () => {
       >
         انشاء ملف تحقيق CNAS
       </Button>
-      <Button className="m-1 " onClick={() => {}}>
+      <Button
+        className="m-1 "
+        onClick={() => {
+          onGetEnqCASNOS(files);
+        }}
+      >
         انشاء ملف تحقيق CASNOS
       </Button>
 
@@ -100,6 +131,8 @@ const EnqTools = () => {
         {loading && <Loading />}
         {errorCNAS && <ErrorMessage variant="danger">{errorCNAS}</ErrorMessage>}
         {loadingCNAS && <Loading />}
+        {errorCASNOS && <ErrorMessage variant="danger">{errorCASNOS}</ErrorMessage>}
+        {loadingCASNOS && <Loading />}
       </div>
     </div>
   );

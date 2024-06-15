@@ -66,7 +66,7 @@ import { validateHeaderReducer } from "./reducers/validateHeaderReducers";
 import { filesReducer } from "./reducers/filesReducers";
 import {
   benefisiersReducer,
-  // listBenefisiersReducer,
+  listBenefisiersReducer,
 } from "./reducers/benefisiersReducers";
 
 const reducer = combineReducers({
@@ -79,6 +79,7 @@ const reducer = combineReducers({
   filesToCheck: filesReducer,
 
   filesToBenifits: benefisiersReducer,
+  listBenefisiersGet: listBenefisiersReducer,
 
   importationFichierTemp: importationFichierTempReducer,
 

@@ -107,18 +107,87 @@ const getGenderName = (gender, language) => {
   return genderName;
 };
 
-function convertDateFormat(dateStr) {
-  // Split the input date string by "/"
-  let parts = dateStr.split("/");
+function convertDateFormat(dateStr, outputType) {
+  // Helper function to add leading zero if needed
+  function padZero(number) {
+    return number < 10 ? "0" + number : number;
+  }
 
-  // Change 00 to 01 if its found
-  if (parts[0] === "00") parts[0] = "01";
-  if (parts[1] === "00") parts[1] = "01";
+  // Regular expressions to match dd/mm/yyyy, dd-mm-yyyy, yyyy/mm/dd, and yyyy-mm-dd formats
+  const dateRegex1 = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/; // dd/mm/yyyy or dd-mm-yyyy
+  const dateRegex2 = /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/; // yyyy/mm/dd or yyyy-mm-dd
+  let match1 = dateRegex1.exec(dateStr);
+  let match2 = dateRegex2.exec(dateStr);
 
-  // Rearrange the parts into the new format
-  let newDateStr = `${parts[0]}-${parts[1]}-${parts[2]}`;
+  let day, month, year;
+  let type = "E"; // Default to "E" for error
 
-  return newDateStr;
+  if (match1) {
+    day = parseInt(match1[1], 10);
+    month = parseInt(match1[2], 10);
+    year = parseInt(match1[3], 10);
+
+    // Basic validation for day and month ranges
+    if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
+      type = "N"; // Normal date
+    } else {
+      // Swap day and month if they seem reversed
+      if (day >= 1 && day <= 12 && month >= 1 && month <= 31) {
+        let temp = day;
+        day = month;
+        month = temp;
+        type = "N";
+      } else {
+        // If day or month is 00
+        if (day == 0 || month == 0) {
+          day = 1;
+          month = 1;
+          type = "P";
+        } else {
+          type = "E"; // Still an error
+        }
+      }
+    }
+  } else if (match2) {
+    year = parseInt(match2[1], 10);
+    month = parseInt(match2[2], 10);
+    day = parseInt(match2[3], 10);
+
+    // Basic validation for day and month ranges
+    if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
+      type = "N"; // Normal date
+    } else {
+      type = "E"; // Error if day or month are out of range
+    }
+  } else {
+    // Try to find a 4-digit year and presume a valid date
+    let yearMatch = /\b(\d{4})\b/.exec(dateStr);
+    if (yearMatch) {
+      year = parseInt(yearMatch[1], 10);
+      day = 1;
+      month = 1;
+      type = "P"; // Presumed date
+    } else {
+      // If no valid year is found, return the fixed error date
+      return { date: "01-01-1800", type: type };
+    }
+  }
+
+  if (type === "E") {
+    // Return the fixed error date
+    return { date: "01-01-1800", type: type };
+  }
+
+  // Format the date parts with leading zeros
+  day = padZero(day);
+  month = padZero(month);
+
+  // Determine the separator based on outputType
+  let separator = outputType === "T" ? "-" : "/";
+  let formattedDate = `${day}${separator}${month}${separator}${year}`;
+  let jsFormattedDate = `${month}${separator}${day}${separator}${year}`;
+
+  return { date: formattedDate, type: type, jsDate: jsFormattedDate };
 }
 
 module.exports = {

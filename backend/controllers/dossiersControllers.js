@@ -4,6 +4,7 @@ const Person = require("../models/personModel");
 const Notes = require("../models/notesModel");
 const generateToken = require("../utils/generateToken");
 const { calculate } = require("./CalculeNotesDossier");
+const { convertDateFormat } = require("../config/functions");
 const person = require("../models/personModel");
 
 const getDossiers = asyncHandler(async (req, res) => {
@@ -22,8 +23,11 @@ const getDossierByNumDoss = asyncHandler(async (req, res) => {
   const photo_link = req.file?.path;
 
   const dossierById = await dossier.findOne({ num_dos: id });
+
   if (dossierById) {
     const personToUpdate = await person.findById(dossierById.id_demandeur);
+    
+
     if (!personToUpdate) {
       res.status(400);
       throw new Error("هذا الشخص غير موجود");
@@ -100,6 +104,8 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
     fromDate,
     toDate,
     situationFamiliale,
+    dateEtude,
+    plusMoin35Value,
   } = req.body;
 
   const persons = await Person.find();
@@ -162,15 +168,36 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
   const filtredByBirthday = filtredByNames?.filter((filtredDemand) => {
     if (birthDate === "") return true;
     else {
-      return (
-        filtredDemand.demandeur?.date_n.includes(birthDate) &&
-        new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
-        new Date(filtredDemand.date_depo) <= new Date(toDate)
-      );
+      return filtredDemand.demandeur?.date_n.includes(birthDate);
+      // &&
+      // new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
+      // new Date(filtredDemand.date_depo) <= new Date(toDate)
     }
   });
 
-  const filtredBySituation = filtredByBirthday.filter((filtredDossiers) => {
+  const filtredByDateDepo = filtredByBirthday?.filter((filtredDemand) => {
+    if (plusMoin35Value === "m") {
+      return (
+        new Date(convertDateFormat(filtredDemand.demandeur?.date_n).jsDate) >=
+        new Date(
+          new Date(dateEtude).getFullYear() - 35,
+          new Date(dateEtude).getMonth(),
+          new Date(dateEtude).getDate()
+        )
+      );
+    } else if (plusMoin35Value === "p")
+      return (
+        new Date(convertDateFormat(filtredDemand.demandeur?.date_n).jsDate) <=
+        new Date(
+          new Date(dateEtude).getFullYear() - 35,
+          new Date(dateEtude).getMonth(),
+          new Date(dateEtude).getDate()
+        )
+      );
+    else return true;
+  });
+
+  const filtredBySituation = filtredByDateDepo.filter((filtredDossiers) => {
     if (situationFamiliale === "all") return true;
     else return filtredDossiers.demandeur?.stuation_f === situationFamiliale;
   });

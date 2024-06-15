@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const Dossier = require("../models/dossierModel");
 const person = require("../models/personModel");
 const reader = require("xlsx");
+const { convertDateFormat } = require("../config/functions");
 
 const updateDossiers = asyncHandler(async (req, res) => {
   const { creator, remark } = req.body;
@@ -148,7 +149,8 @@ const updateDossiers = asyncHandler(async (req, res) => {
                 nom_fr: nom_dem,
                 gender: gender_dem,
                 num_act: num_act_dem,
-                date_n: date_n_dem,
+                date_n: convertDateFormat(date_n_dem, "S").date,
+                type_date_n: convertDateFormat(date_n_dem, "S").type,
                 lieu_n: "",
                 lieu_n_fr: lieu_n_dem,
                 wil_n: "",
@@ -183,7 +185,8 @@ const updateDossiers = asyncHandler(async (req, res) => {
                 nom_fr: nom_conj,
                 gender: gender_conj,
                 num_act: num_act_conj,
-                date_n: date_n_conj,
+                date_n: convertDateFormat(date_n_conj, "S").date,
+                type_date_n: convertDateFormat(date_n_conj, "S").type,
                 lieu_n: "",
                 lieu_n_fr: lieu_n_conj,
                 wil_n: "",
@@ -374,7 +377,8 @@ const updateDossiers = asyncHandler(async (req, res) => {
               nom_fr: "",
               gender: gender_dem,
               num_act: num_act_dem,
-              date_n: date_n_dem,
+              date_n: convertDateFormat(date_n_dem, "S").date,
+              type_date_n: convertDateFormat(date_n_dem, "S").type,
               lieu_n: lieu_n_dem,
               lieu_n_fr: "",
               wil_n: "",
@@ -403,7 +407,8 @@ const updateDossiers = asyncHandler(async (req, res) => {
                 nom_fr: "",
                 gender: gender_conj,
                 num_act: num_act_conj,
-                date_n: date_n_conj,
+                date_n: convertDateFormat(date_n_conj,"S").date,
+                type_date_n: convertDateFormat(date_n_conj,"S").type,
                 lieu_n: lieu_n_conj,
                 lieu_n_fr: "",
                 wil_n: "",

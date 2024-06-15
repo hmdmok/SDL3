@@ -90,7 +90,9 @@ export const listDossiersAction =
     birthDate,
     fromDate,
     toDate,
-    situationFamiliale
+    situationFamiliale,
+    dateEtude,
+    plusMoin35Value
   ) =>
   async (dispatch, getState) => {
     try {
@@ -118,6 +120,8 @@ export const listDossiersAction =
         fromDate,
         toDate,
         situationFamiliale,
+        dateEtude,
+        plusMoin35Value,
       };
 
       const { data } = await axios.post(

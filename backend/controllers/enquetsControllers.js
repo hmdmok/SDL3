@@ -158,31 +158,294 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
   });
 
   var newData = dossierEnq.map(function (record, i) {
-    // modify value in D4
-    worksheet[`A${i + 11}`].s = {
-      // set the style for target cell
-      font: {
-        name: "Times New Roman",
-        sz: 14,
-      },
-    };
-    // modify value if D4 is undefined / does not exists
+    // modify value in A
     XLSX.utils.sheet_add_aoa(worksheet, [[i + 1]], {
       origin: `A${i + 10}`,
     });
-    console.log(record.demandeur.nom_fr);
-    // modify value in other
-    worksheet[`B${i + 11}`].s = {
-      // set the style for target cell
+
+    // set the style in A
+    worksheet[`A${i + 11}`].s = {
       font: {
         name: "Times New Roman",
         sz: 14,
       },
     };
-    // modify value if other is undefined / does not exists
-    XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.nom_fr]], {
-      origin: `B${i + 10}`,
-    });
+
+    if (record.demandeur) {
+      // modify value in B
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.nom_fr]], {
+        origin: `B${i + 10}`,
+      });
+      // set the style in B
+      worksheet[`B${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in C
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.prenom_fr]], {
+        origin: `C${i + 10}`,
+      });
+      // set the style in C
+      worksheet[`C${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in D
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.gender]], {
+        origin: `D${i + 10}`,
+      });
+      // set the style in D
+      worksheet[`D${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in E
+      XLSX.utils.sheet_add_aoa(
+        worksheet,
+        [[convertDateFormat(record.demandeur.date_n, "S").date]],
+        {
+          origin: `E${i + 10}`,
+        }
+      );
+      // set the style in E
+      worksheet[`E${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in F
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.type_date_n]], {
+        origin: `F${i + 10}`,
+      });
+      // set the style in F
+      worksheet[`F${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in G
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.com_n]], {
+        origin: `G${i + 10}`,
+      });
+      // set the style in G
+      worksheet[`G${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in H
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.wil_n]], {
+        origin: `H${i + 10}`,
+      });
+      // set the style in H
+      worksheet[`H${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in I
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.num_act]], {
+        origin: `I${i + 10}`,
+      });
+      // set the style in I
+      worksheet[`I${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in J
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.stuation_f]], {
+        origin: `J${i + 10}`,
+      });
+      // set the style in J
+      worksheet[`J${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in K
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.prenom_p_fr]], {
+        origin: `K${i + 10}`,
+      });
+      // set the style in K
+      worksheet[`K${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in L
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.nom_m_fr]], {
+        origin: `L${i + 10}`,
+      });
+      // set the style in L
+      worksheet[`L${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in M
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.prenom_m_fr]], {
+        origin: `M${i + 10}`,
+      });
+      // set the style in M
+      worksheet[`M${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+    }
+
+    if (record.conjoin) {
+      // modify value in N
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.conjoin.nom_fr]], {
+        origin: `N${i + 10}`,
+      });
+      // set the style in N
+      worksheet[`N${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in O
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.conjoin.prenom_fr]], {
+        origin: `O${i + 10}`,
+      });
+      // set the style in O
+      worksheet[`O${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in P
+      XLSX.utils.sheet_add_aoa(
+        worksheet,
+        [[convertDateFormat(record.conjoin.date_n, "S").date]],
+        {
+          origin: `P${i + 10}`,
+        }
+      );
+      // set the style in P
+      worksheet[`P${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in Q
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.conjoin.type_date_n]], {
+        origin: `Q${i + 10}`,
+      });
+      // set the style in Q
+      worksheet[`Q${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in R
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.conjoin.com_n]], {
+        origin: `R${i + 10}`,
+      });
+      // set the style in R
+      worksheet[`R${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in S
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.conjoin.wil_n]], {
+        origin: `S${i + 10}`,
+      });
+      // set the style in S
+      worksheet[`S${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in T
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.conjoin.num_act]], {
+        origin: `T${i + 10}`,
+      });
+      // set the style in T
+      worksheet[`T${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in U
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.conjoin.prenom_p_fr]], {
+        origin: `U${i + 10}`,
+      });
+      // set the style in U
+      worksheet[`U${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in V
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.conjoin.nom_m_fr]], {
+        origin: `V${i + 10}`,
+      });
+      // set the style in V
+      worksheet[`V${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+
+      // modify value in W
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.conjoin.prenom_m_fr]], {
+        origin: `W${i + 10}`,
+      });
+      // set the style in W
+      worksheet[`W${i + 11}`].s = {
+        font: {
+          name: "Times New Roman",
+          sz: 14,
+        },
+      };
+    }
 
     var newRecord = {
       Ordre: i + 1,
@@ -251,7 +514,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
 
   const newDoss = await dossiersList.map(
     asyncHandler(async function (record, i) {
-      if (type.includes("f"))
+      if (type.includes("f")) {
         await worksheet.addRow(
           [
             i + 1,
@@ -276,10 +539,29 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             record.conjoin?.prenom_p_fr,
             record.conjoin?.nom_m_fr,
             record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
           ],
           "i+"
         );
-      else
+        if (record.demandeur?.photo_link)
+          console.log("photo " + i + ":", record.demandeur?.photo_link);
+        if (record.demandeur?.photo_link) {
+          const image = workbook.addImage({
+            filename: record.demandeur?.photo_link,
+            extension: "png",
+          });
+          worksheet.addImage(image, {
+            tl: { col: 29, row: 6 + i },
+            ext: { width: 200, height: 250 },
+          });
+        }
+      } else {
         await worksheet.insertRow(
           8 + i,
           [
@@ -291,21 +573,42 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
           ],
           "i+"
         );
+        if (record.demandeur?.photo_link) {
+          const image = workbook.addImage({
+            filename: record.demandeur?.photo_link,
+            extension: "png",
+          });
+          worksheet.addImage(image, {
+            tl: { col: 29, row: 7 + i },
+            ext: { width: 200, height: 150 },
+          });
+        }
+      }
     })
   );
   // worksheet.spliceRows(7, 1);
-  const newFileName = `List Benifisiers ${new Date()
-    .toISOString()
-    .split("T")}.xlsx`;
-  return Promise.all(newDoss).then(
-    asyncHandler(async () => {
-      await worksheet.spliceRows(7, 1);
-      await workbook.xlsx.writeFile(newFileName);
-
-      const file = newFileName;
-      res.download(file);
-    })
-  );
+  const newFileName = `List Benifisiers ${
+    new Date().toISOString().split("T")[0]
+  }.xlsx`;
+  console.log(newFileName);
+  return Promise.all(newDoss)
+    .then(
+      asyncHandler(async () => {
+        await worksheet.spliceRows(7, 1);
+        try {
+          await workbook.xlsx.writeFile(newFileName);
+        } catch (error) {
+          // console.log(workbook);
+          console.log("writeFile(newFileName): ", error);
+        }
+      })
+    )
+    .then(
+      asyncHandler(async () => {
+        const file = newFileName;
+        res.download(file);
+      })
+    );
 });
 
 const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
@@ -436,7 +739,7 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
         const insert = `INSERT INTO  Table1 (NOM_P, PRENOM_P, DDN_P, NUM_ACT_P, PP, NPM, LIB_SEXE, NC, WILAYA)
         VALUES ("${record.demandeur?.nom_fr}",  
         "${record.demandeur?.prenom_fr}",
-         "${convertDateFormat(record.demandeur?.date_n)}",
+         "${convertDateFormat(record.demandeur?.date_n, "S").date}",
         "${record.demandeur?.num_act || ""}",
         "${record.demandeur?.prenom_p_fr}", 
         "${record.demandeur?.nom_m_fr}",
@@ -454,7 +757,7 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
         const sql = `INSERT INTO Table1 (NOM_P, PRENOM_P, DDN_P, NUM_ACT_P, PP, NPM, LIB_SEXE, NC, WILAYA) VALUES ("${
           record.conjoin?.nom_fr
         }", "${record.conjoin?.prenom_fr}",
-        "${convertDateFormat(record.conjoin?.date_n)}", 
+        "${convertDateFormat(record.conjoin?.date_n, "S").date}", 
         "${record.conjoin?.num_act || ""}",
         "${record.conjoin?.prenom_p_fr}", 
         "${record.conjoin?.nom_m_fr}",
@@ -826,41 +1129,37 @@ const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
 
   var newData = await dossierEnq.map(
     asyncHandler(async function (record) {
-      if (record.demandeur.length > 0) {
+      if (record.demandeur) {
         var demandeur = {
           CODE_P: "",
-          NOM_P: record.demandeur?.nom_fr || "",
-          PRENOM_P: record.demandeur?.prenom_fr || "",
-          DNN_P: record.demandeur?.date_n || "1800-01-01",
+          NOM_P: record.demandeur?.nom_fr,
+          PRENOM_P: record.demandeur?.prenom_fr,
+          DNN_P: convertDateFormat(record.demandeur?.date_n, "S").date,
           ADR_P: "",
           NUM_ACT_P: record.demandeur?.num_act || "",
-          PRENP: record.demandeur?.prenom_p_fr || "",
-          NPM: `${record.demandeur?.nom_m_fr || ""} ${
-            record.demandeur?.prenom_m_fr || ""
-          }`,
-          LIB_SEXE: record.demandeur?.gender || "",
+          PRENP: record.demandeur?.prenom_p_fr,
+          NPM: `${record.demandeur?.nom_m_fr} ${record.demandeur?.prenom_m_fr}`,
+          LIB_SEXE: record.demandeur?.gender,
           CC: "",
-          NC: record.demandeur?.com_n || "",
-          WILAYA: record.demandeur?.wil_n || "",
+          NC: record.demandeur?.com_n,
+          WILAYA: record.demandeur?.wil_n,
         };
         records.push(demandeur);
       }
-      if (record.conjoin.length > 0) {
+      if (record.conjoin) {
         var conjoin = {
           CODE_P: "",
-          NOM_P: record.conjoin?.nom_fr || "",
-          PRENOM_P: record.conjoin?.prenom_fr || "",
-          DNN_P: record.conjoin?.date_n || "1800-01-01",
+          NOM_P: record.conjoin?.nom_fr,
+          PRENOM_P: record.conjoin?.prenom_fr,
+          DNN_P: convertDateFormat(record.conjoin?.date_n, "S").date,
           ADR_P: "",
           NUM_ACT_P: record.conjoin?.num_act || "",
-          PRENP: record.conjoin?.prenom_p_fr || "",
-          NPM: `${record.conjoin?.nom_m_fr || ""} ${
-            record.conjoin?.prenom_m_fr || ""
-          }`,
-          LIB_SEXE: record.conjoin?.gender || "",
+          PRENP: record.conjoin?.prenom_p_fr,
+          NPM: `${record.conjoin?.nom_m_fr} ${record.conjoin?.prenom_m_fr}`,
+          LIB_SEXE: record.conjoin?.gender,
           CC: "",
-          NC: record.conjoin?.com_n || "",
-          WILAYA: record.conjoin?.wil_n || "",
+          NC: record.conjoin?.com_n,
+          WILAYA: record.conjoin?.wil_n,
         };
         records.push(conjoin);
       }
