@@ -9,6 +9,12 @@ import {
   userUpdateReducer,
 } from "./reducers/userReducers";
 import {
+  quotaAddReducer,
+  quotaDeleteReducer,
+  quotaListReducer,
+  quotaUpdateReducer,
+} from "./reducers/quotaReducers";
+import {
   systemAddReducer,
   systemCheckReducer,
   systemUpdateReducer,
@@ -75,6 +81,11 @@ const reducer = combineReducers({
   userList: userListReducer,
   userUpdate: userUpdateReducer,
   userDelete: userDeleteReducer,
+ 
+  quotaAdd: quotaAddReducer,
+  quotaList: quotaListReducer,
+  quotaUpdate: quotaUpdateReducer,
+  quotaDelete: quotaDeleteReducer,
 
   filesToCheck: filesReducer,
 

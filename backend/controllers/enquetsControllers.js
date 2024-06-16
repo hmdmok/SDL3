@@ -18,6 +18,7 @@ const {
   getGenderName,
 } = require("../config/functions");
 const ExcelJS = require("exceljs");
+const System = require("../models/systemModel");
 
 const getDossierByDates = asyncHandler(async (req, res) => {
   const { fromDate, toDate } = req.body;
@@ -468,39 +469,31 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
   var { dossiersList, type } = req.body;
   const workbook = new ExcelJS.Workbook();
 
+  // get system information
+  const systemInfo = await System.find();
+
+  console.log(systemInfo);
+
   let worksheet;
   switch (type) {
     case "pa": {
       await workbook.xlsx.readFile("ListBenefisiersAr.xlsx");
       worksheet = workbook.worksheets;
     }
-    case "ma": {
-      await workbook.xlsx.readFile("ListBenefisiersAr.xlsx");
-      worksheet = workbook.worksheets[1];
-    }
+
     case "paa": {
       await workbook.xlsx.readFile("ListBenefisiersAr.xlsx");
       worksheet = workbook.worksheets[2];
     }
-    case "maa": {
-      await workbook.xlsx.readFile("ListBenefisiersAr.xlsx");
-      worksheet = workbook.worksheets[3];
-    }
+
     case "pf": {
       await workbook.xlsx.readFile("ListBenefisiersFr.xlsx");
       worksheet = workbook.worksheets;
     }
-    case "mf": {
-      await workbook.xlsx.readFile("ListBenefisiersFr.xlsx");
-      worksheet = workbook.worksheets[1];
-    }
+
     case "pfa": {
       await workbook.xlsx.readFile("ListBenefisiersFr.xlsx");
       worksheet = workbook.worksheets[2];
-    }
-    case "mfa": {
-      await workbook.xlsx.readFile("ListBenefisiersFr.xlsx");
-      worksheet = workbook.worksheets[3];
     }
   }
 
@@ -549,8 +542,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
           ],
           "i+"
         );
-        if (record.demandeur?.photo_link)
-          console.log("photo " + i + ":", record.demandeur?.photo_link);
+
         if (record.demandeur?.photo_link) {
           const image = workbook.addImage({
             filename: record.demandeur?.photo_link,
@@ -590,7 +582,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
   const newFileName = `List Benifisiers ${
     new Date().toISOString().split("T")[0]
   }.xlsx`;
-  console.log(newFileName);
+
   return Promise.all(newDoss)
     .then(
       asyncHandler(async () => {

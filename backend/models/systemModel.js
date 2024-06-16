@@ -25,6 +25,36 @@ const systemSchema = mongoose.Schema(
     administrationName: {
       type: String,
     },
+    
+    // code of administration
+    administrationCode: {
+      type: String,
+    },
+
+    // name of commune
+    communeName: {
+      type: String,
+    },
+    
+    // code of commune
+    communeCode: {
+      type: String,
+    },
+   
+    // date of quota
+    quotaDate: {
+      type: String,
+    },
+    
+    // name of quota
+    quotaTitle: {
+      type: String,
+    },
+    
+    // numbre of quota to be delivred
+    quotaQuant: {
+      type: String,
+    },
 
     // Generated code for the machine
     machineCode: {

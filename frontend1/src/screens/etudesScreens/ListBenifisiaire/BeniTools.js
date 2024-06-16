@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { deleteBenefisierList } from "../../../actions/benifisierActions";
 import { listBenefisiersAction } from "../../../actions/listBenefisiersActions";
 import fileDownload from "js-file-download";
-import { Badge, Button } from "react-bootstrap";
+import { Badge, Button, Dropdown, DropdownButton } from "react-bootstrap";
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
 
@@ -41,6 +41,16 @@ const BeniTools = () => {
       <Badge>{`يوجد ${benefisiers?.length.toString()}  ملف للاستفادة`}</Badge>
 
       <hr />
+      <DropdownButton
+        id="dropdown-basic-button"
+        variant="info"
+        className="flex m-1 "
+        title="اختار حصة الاستفادة"
+      >
+        <Dropdown.Item>{"الحصة 22/2023"}</Dropdown.Item>
+        <Dropdown.Item>{"الحصة 14/2022"}</Dropdown.Item>
+        <Dropdown.Item>{"الحصة 10/2022"}</Dropdown.Item>
+      </DropdownButton>
       <Button
         variant="success"
         className="m-1 "
@@ -48,7 +58,7 @@ const BeniTools = () => {
           onGetBenefisiersList(benefisiers, "pf");
         }}
       >
-        انشاء ملف المستفيدين اكبر من 35 بالفرنسية
+        انشاء ملف المستفيدين بالفرنسية
       </Button>
 
       <Button
@@ -58,27 +68,7 @@ const BeniTools = () => {
           onGetBenefisiersList(benefisiers, "pfa");
         }}
       >
-        انشاء ملف الاحتياطيين اكبر من 35 بالفرنسية
-      </Button>
-
-      <Button
-        variant="success"
-        className="m-1 "
-        onClick={() => {
-          onGetBenefisiersList(benefisiers, "mf");
-        }}
-      >
-        انشاء ملف المستفيدين اقل من 35 بالفرنسية
-      </Button>
-
-      <Button
-        variant="success"
-        className="m-1 "
-        onClick={() => {
-          onGetBenefisiersList(benefisiers, "mfa");
-        }}
-      >
-        انشاء ملف الاحتياطيين اقل من 35 بالفرنسية
+        انشاء ملف الاحتياطيين بالفرنسية
       </Button>
 
       <Button
@@ -88,9 +78,9 @@ const BeniTools = () => {
           onGetBenefisiersList(benefisiers, "pa");
         }}
       >
-        انشاء ملف المستفيدين اكبر من 35
+        انشاء ملف المستفيدين 
       </Button>
-      
+
       <Button
         variant="success"
         className="m-1 "
@@ -98,27 +88,7 @@ const BeniTools = () => {
           onGetBenefisiersList(benefisiers, "paa");
         }}
       >
-        انشاء ملف الاحتياطيين اكبر من 35
-      </Button>
-
-      <Button
-        variant="success"
-        className="m-1 "
-        onClick={() => {
-          onGetBenefisiersList(benefisiers, "ma");
-        }}
-      >
-        انشاء ملف المستفيدين اقل من 35
-      </Button>
-      
-      <Button
-        variant="success"
-        className="m-1 "
-        onClick={() => {
-          onGetBenefisiersList(benefisiers, "maa");
-        }}
-      >
-        انشاء ملف الاحتياطيين اقل من 35
+        انشاء ملف الاحتياطيين
       </Button>
 
       <Button

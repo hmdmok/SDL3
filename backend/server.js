@@ -3,6 +3,7 @@ const dossiers = require("./DataBase/dossiers");
 const dotenv = require("dotenv");
 const { connectDB } = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
+const quotaRoutes = require("./routes/quotaRoutes");
 const enquetsRoutes = require("./routes/enquetsRoutes");
 const systemRoutes = require("./routes/systemRoutes");
 const dossiersRoutes = require("./routes/dossiersRoutes");
@@ -28,6 +29,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/users", userRoutes);
+app.use("/api/quotas", quotaRoutes);
 app.use("/api/system", systemRoutes);
 app.use("/api/dossiers", dossiersRoutes);
 app.use("/api/scandossiers", scanDossiersRoutes);
@@ -41,6 +43,7 @@ app.use("/api/enquets", enquetsRoutes);
 app.use("/api/templates", templatesRoutes);
 
 app.use("/usersPicUpload", express.static("usersPicUpload"));
+app.use("/quotaScanUpload", express.static("quotaScanUpload"));
 app.use("/personsPicUpload", express.static("personsPicUpload"));
 app.use("/dossiersScanUpload", express.static("dossiersScanUpload"));
 app.use("/dossiersEnqUpload", express.static("dossiersEnqUpload"));
