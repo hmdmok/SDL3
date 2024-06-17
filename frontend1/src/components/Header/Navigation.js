@@ -92,6 +92,18 @@ const Navigation = () => {
                         تسجيل خروج
                       </NavDropdown.Item>
                     </NavDropdown>
+                    <NavDropdown
+                      title="تسيير الحصص"
+                      id="basic-nav-dropdown"
+                    >
+                      <NavDropdown.Item href="/quotas">
+                        قائمة الحصص
+                      </NavDropdown.Item>
+                      <NavDropdown.Item href="/addquota">
+                        اظافة حصة
+                      </NavDropdown.Item>
+                      <NavDropdown.Divider />
+                    </NavDropdown>
                     <NavDropdown title="تسيير الدراسة" id="basic-nav-dropdown">
                       <NavDropdown.Item href="/enquetCNL">
                         قائمة تحقيق

@@ -81,7 +81,7 @@ const reducer = combineReducers({
   userList: userListReducer,
   userUpdate: userUpdateReducer,
   userDelete: userDeleteReducer,
- 
+
   quotaAdd: quotaAddReducer,
   quotaList: quotaListReducer,
   quotaUpdate: quotaUpdateReducer,

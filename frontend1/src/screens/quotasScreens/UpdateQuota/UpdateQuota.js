@@ -5,72 +5,62 @@ import Loading from "../../../components/Loading";
 import MainScreen from "../../../components/MainScreen/MainScreen";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteUserAction, update } from "../../../actions/userActions";
+import { deleteQuotaAction, update } from "../../../actions/quotaActions";
 import axios from "axios";
 
-function UpdateUser() {
-  const [firstname, setFirstname] = useState("");
-  const [lastname, setLastname] = useState("");
-  const [birthday, setBirthday] = useState("");
-  const [phone, setPhone] = useState("");
-  const [usertype, setUsertype] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [repassword, setRepassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [photo_link, setPhoto_link] = useState("usersPicUpload/default.png");
+function UpdateQuota() {
+  const [quotadate, setQuotaDate] = useState("");
+  const [quotaquant, setQuotaquant] = useState("");
+  const [quotaname, setQuotaname] = useState("");
+  const [quotanameFr, setQuotanameFr] = useState("");
+  const [quotascan, setQuotascan] = useState("quotasPicUpload/default.png");
   const [photo_file, setPhoto_file] = useState(null);
   const [remark, setRemark] = useState("");
-  const [message, setMessage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [creator, setCreator] = useState("");
 
   const dispatch = useDispatch();
 
-  const userUpdate = useSelector((state) => state.userUpdate);
-  const { loading, error, success } = userUpdate;
+  const quotaUpdate = useSelector((state) => state.quotaUpdate);
+  const { loading, error, success } = quotaUpdate;
 
-  const userDelete = useSelector((state) => state.userDelete);
+  const quotaDelete = useSelector((state) => state.quotaDelete);
   const {
     loading: loadingDelete,
     error: errorDelete,
     success: successDelete,
-  } = userDelete;
+  } = quotaDelete;
 
   const creatorData = localStorage.getItem("userInfo");
   const creatorInfo = JSON.parse(creatorData);
-  const creatorUsername = creatorInfo.username;
+  const creatorQuotaname = creatorInfo.username;
 
   let navigate = useNavigate();
   let { id } = useParams();
 
   useEffect(() => {
     const fetching = async () => {
-      const { data } = await axios.get(`/api/users/${id}`);
-
-      setFirstname(data.firstname);
-      setLastname(data.lastname);
-      setBirthday(data.birthday);
-      setPhone(data.phone);
-      setUsertype(data.usertype);
-      setUsername(data.username);
-      setEmail(data.email);
-      setPhoto_link(data.photo_link);
+      const { data } = await axios.get(`/api/quotas/${id}`);
+      setQuotaDate(data.quotadate);
+      setQuotaquant(data.quotaquant);
+      setQuotaname(data.quotaname);
+      setQuotanameFr(data.quotanameFr);
+      setQuotascan(data.quotascan);
       setRemark(data.remark);
     };
     fetching();
   }, [id]);
 
   useEffect(() => {
-    setCreator(creatorUsername);
-  }, [creatorUsername]);
+    setCreator(creatorQuotaname);
+  }, [creatorQuotaname]);
 
   useEffect(() => {
     if (success) {
-      navigate("/users");
+      navigate("/quotas");
     }
     if (successDelete) {
-      navigate("/users");
+      navigate("/quotas");
     }
   }, [navigate, success, successDelete]);
 
@@ -89,38 +79,28 @@ function UpdateUser() {
   const onSubmitUtilisateur = async (event) => {
     event.preventDefault();
 
-    if (password !== repassword) {
-      setMessage("خطء في تاكيد كلمة السر");
-    } else {
-      dispatch(
-        update(
-          id,
-          firstname,
-          username,
-          lastname,
-          usertype,
-          password,
-          birthday,
-          creator,
-          remark,
-          email,
-          phone,
-          photo_link,
-          photo_file
-        )
-      );
-    }
+    dispatch(
+      update(
+        id,
+        quotaname,
+        quotanameFr,
+        quotadate,
+        quotaquant,
+        quotascan,
+        creator,
+        remark
+      )
+    );
   };
 
   const deleteHandler = (idToDel) => {
     if (window.confirm("هل انت متاكد من هذه العملية")) {
-      dispatch(deleteUserAction(idToDel));
+      dispatch(deleteQuotaAction(idToDel));
     }
   };
 
   return (
-    <MainScreen title="اضافة مستخدم جديد">
-      {message && <ErrorMessage variant="danger">{message}</ErrorMessage>}
+    <MainScreen title="تعديل حصة">
 
       {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
       {loading && <Loading />}
@@ -129,146 +109,65 @@ function UpdateUser() {
       {loadingDelete && <Loading />}
 
       <Form onSubmit={onSubmitUtilisateur}>
-        <Form.Group className="row text-right">
-          <Form.Group className="col order-last">
-            <Form.Label htmlFor="Form.ControlFirstName" className="text-right">
-              الاسم
-            </Form.Label>
-            <Form.Control
-              value={firstname}
-              name="firstname"
-              onChange={(e) => setFirstname(e.target.value)}
-              type="text"
-              id="Form.ControlFirstName"
-              className="form-control text-right"
-              placeholder="الاسم "
-              autoFocus
-            />
-          </Form.Group>
-          <Form.Group className="col order-first">
-            <Form.Label htmlFor="Form.ControlLastName" className="text-right">
-              اللقب
-            </Form.Label>
-            <Form.Control
-              value={lastname}
-              name="lastname"
-              onChange={(e) => setLastname(e.target.value)}
-              type="name"
-              id="Form.ControlLastName"
-              className="form-control text-right"
-              placeholder="اللقب"
-            />
-          </Form.Group>
-        </Form.Group>
+        
         <Form.Group className="row text-right">
           <Form.Group className="col">
-            <Form.Label htmlFor="Form.ControlBirthday" className="">
-              تاريخ الميلاد
+            <Form.Label htmlFor="Form.ControlQsetQuotaDate" className="">
+              تاريخ الحصة
             </Form.Label>
             <Form.Control
-              value={birthday}
-              name="birthday"
-              onChange={(e) => setBirthday(e.target.value)}
+              value={quotadate}
+              name="quotadate"
+              onChange={(e) => setQuotaDate(e.target.value)}
               type="date"
-              id="Form.ControlBirthday"
+              id="Form.ControlQsetQuotaDate"
               className="form-control text-right"
-              placeholder="تاريخ الميلاد"
+              placeholder="تاريخ الحصة"
             />
           </Form.Group>
           <Form.Group className="col order-first">
-            <Form.Label htmlFor="Form.ControlTelephone" className="">
-              رقم الهاتف
+            <Form.Label htmlFor="Form.ControlTelequotaquant" className="">
+             عدد سكنات الحصة
             </Form.Label>
             <Form.Control
-              value={phone}
-              name="phone"
-              onChange={(e) => setPhone(e.target.value)}
-              type="tel"
-              id="Form.ControlTelephone"
+              value={quotaquant}
+              name="quotaquant"
+              onChange={(e) => setQuotaquant(e.target.value)}
+              type="number"
+              id="Form.ControlTelequotaquant"
               className="form-control text-right"
-              placeholder="رقم الهاتف"
+              placeholder="عدد سكنات الحصة"
             />
           </Form.Group>
         </Form.Group>
         <Form.Group className="row text-right">
+       
           <Form.Group className="col">
-            <Form.Label htmlFor="Form.ControlUsertype" className="">
-              وظيفة المستخدم
-            </Form.Label>
-            <select
-              value={usertype}
-              name="usertype"
-              onChange={(e) => setUsertype(e.target.value)}
-              id="Form.ControlUsertype"
-              className="form-control text-right"
-              placeholder="وظيفة المستخدم"
-            >
-              <option value="-1" disabled hidden>
-                وظيفة المستخدم
-              </option>
-              <option value="super">مطور</option>
-              <option value="admin">مسير</option>
-              <option value="agent">عون حجز</option>
-            </select>
-          </Form.Group>
-          <Form.Group className="col">
-            <Form.Label htmlFor="Form.ControlUsername" className="">
-              اسم المستخدم
+            <Form.Label htmlFor="Form.ControlQuotaname" className="">
+              اسم الحصة
             </Form.Label>
             <Form.Control
-              value={username}
-              name="username"
-              onChange={(e) => setUsername(e.target.value)}
+              value={quotaname}
+              name="quotaname"
+              onChange={(e) => setQuotaname(e.target.value)}
               type="text"
-              id="Form.ControlUsername"
+              id="Form.ControlQuotaname"
               className="form-control text-right"
-              placeholder="اسم المستخدم"
-            />
-          </Form.Group>
-        </Form.Group>
-        <Form.Group className="row text-right">
-          <Form.Group className="col order-last">
-            <Form.Label htmlFor="Form.ControlPassword" className="">
-              كلمة السر
-            </Form.Label>
-            <Form.Control
-              value={password}
-              name="password"
-              onChange={(e) => setPassword(e.target.value)}
-              type="password"
-              id="Form.ControlPassword"
-              className="form-control text-right"
-              placeholder="كلمة السر"
+              placeholder="اسم الحصة"
             />
           </Form.Group>
           <Form.Group className="col">
-            <Form.Label htmlFor="Form.ControlRepassword" className="">
-              تاكيد كلمة السر
+            <Form.Label htmlFor="Form.ControlQuotanameFr" className="">
+              اسم الحصة بالفرنسية
             </Form.Label>
             <Form.Control
-              value={repassword}
-              name="repassword"
-              onChange={(e) => setRepassword(e.target.value)}
-              type="password"
-              id="Form.ControlRepassword"
+              value={quotanameFr}
+              name="quotanameFr"
+              onChange={(e) => setQuotanameFr(e.target.value)}
+              type="text"
+              id="Form.ControlQuotanameFr"
               className="form-control text-right"
-              placeholder="تاكيد كلمة السر"
-            />
-          </Form.Group>
-        </Form.Group>
-        <Form.Group className="row text-right">
-          <Form.Group className="col">
-            <Form.Label htmlFor="Form.ControlEmail" className="">
-              ادخل البريد الالكتروني
-            </Form.Label>
-            <Form.Control
-              value={email}
-              name="email"
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              id="Form.ControlEmail"
-              className="form-control text-right"
-              placeholder="البريد الالكتروني"
+              placeholder="اسم الحصة بالفرنسية"
             />
           </Form.Group>
         </Form.Group>
@@ -276,13 +175,13 @@ function UpdateUser() {
         <Form.Group className="row">
           <Form.Group className="col">
             <Card.Body>
-              <Card.Text>صورة المستخدم</Card.Text>
+              <Card.Text>صورة مقرر الحصة</Card.Text>
             </Card.Body>
             {preview ? (
               <Card.Img src={preview} width="300px" alt="pic" />
             ) : (
               <Card.Img
-                src={`http://localhost:4000/${photo_link}`}
+                src={`http://localhost:4000/${quotascan}`}
                 width="300px"
                 alt="pic"
               />
@@ -290,14 +189,14 @@ function UpdateUser() {
           </Form.Group>
           <Form.Group className="d-flex align-items-center col-9">
             <Form.Group controlId="formFile" className="mb-3">
-              <Form.Label> صورة المستخدم</Form.Label>
+              <Form.Label> صورة مقرر الحصة</Form.Label>
               <Form.Control
                 type="file"
-                name="photo_link"
-                placeholder="ادخل صورة المستخدم"
+                name="quotascan"
+                placeholder="ادخل صورة مقرر الحصة"
                 onChange={(e) => {
                   setPhoto_file(e.target.files[0]);
-                  setPhoto_link("usersPicUpload/default.png");
+                  setQuotascan("quotasPicUpload/default.png");
                 }}
               />
             </Form.Group>
@@ -325,7 +224,7 @@ function UpdateUser() {
             <Form.Control
               className="btn btn-lg btn-success btn-block"
               type="submit"
-              value="تعديل المستخدم"
+              value="تعديل الحصة"
             />
           </Form.Group>
           <Form.Group className="col">
@@ -333,12 +232,12 @@ function UpdateUser() {
               onClick={() => deleteHandler(id)}
               className="btn btn-lg btn-danger btn-block"
               type="submit"
-              value="حذف المستخدم"
+              value="حذف الحصة"
             />
           </Form.Group>
           <Form.Group className="col order-first">
             <Form.Control
-              onClick={() => navigate("/users")}
+              onClick={() => navigate("/quotas")}
               className="btn btn-lg btn-primary btn-block"
               type="reset"
               value="تراجع"
@@ -350,4 +249,4 @@ function UpdateUser() {
   );
 }
 
-export default UpdateUser;
+export default UpdateQuota;

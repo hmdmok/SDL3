@@ -2,23 +2,23 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Button, Card, Form } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { update } from "../../../actions/userActions";
+import { update } from "../../../actions/quotaActions";
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
 import MainScreen from "../../../components/MainScreen/MainScreen";
 import { useSelector, useDispatch } from "react-redux";
 
-function UserProfile() {
+function QuotaProfile() {
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [birthday, setBirthday] = useState("");
   const [phone, setPhone] = useState("");
-  const [usertype, setUsertype] = useState("");
-  const [username, setUsername] = useState("");
+  const [quotatype, setQuotatype] = useState("");
+  const [quotaname, setQuotaname] = useState("");
   const [password, setPassword] = useState("");
   const [repassword, setRepassword] = useState("");
   const [email, setEmail] = useState("");
-  const [photo_link, setPhoto_link] = useState("usersPicUpload/default.png");
+  const [photo_link, setPhoto_link] = useState("quotasPicUpload/default.png");
   const photo_file = null;
   const [remark, setRemark] = useState("");
   const [message, setMessage] = useState(null);
@@ -27,23 +27,23 @@ function UserProfile() {
 
   const dispatch = useDispatch();
 
-  const userUpdate = useSelector((state) => state.userUpdate);
-  const { loading, error } = userUpdate;
+  const quotaUpdate = useSelector((state) => state.quotaUpdate);
+  const { loading, error } = quotaUpdate;
 
   let navigate = useNavigate();
   let { id } = useParams();
 
   useEffect(() => {
     const fetching = async () => {
-      const { data } = await axios.get(`/api/users/${id}`);
+      const { data } = await axios.get(`/api/quotas/${id}`);
 
       setCreator(data.creator);
       setFirstname(data.firstname);
       setLastname(data.lastname);
       setBirthday(data.birthday);
       setPhone(data.phone);
-      setUsertype(data.usertype);
-      setUsername(data.username);
+      setQuotatype(data.quotatype);
+      setQuotaname(data.quotaname);
       setEmail(data.email);
       setPhoto_link(data.photo_link);
       setRemark(data.remark);
@@ -60,9 +60,9 @@ function UserProfile() {
         update(
           id,
           firstname,
-          username,
+          quotaname,
           lastname,
-          usertype,
+          quotatype,
           password,
           birthday,
           creator,
@@ -149,28 +149,28 @@ function UserProfile() {
         </Form.Group>
         <Form.Group className="row text-right">
           <Form.Group className="col">
-            <Form.Label htmlFor="Form.ControlUsertype" className="">
+            <Form.Label htmlFor="Form.ControlQuotatype" className="">
               وظيفة المستخدم
             </Form.Label>
             <Form.Control
               disabled
-              defaultValue={usertype}
-              name="usertype"
-              id="Form.ControlUsertype"
+              defaultValue={quotatype}
+              name="quotatype"
+              id="Form.ControlQuotatype"
               className="form-control text-right"
               placeholder="وظيفة المستخدم"
             />
           </Form.Group>
           <Form.Group className="col">
-            <Form.Label htmlFor="Form.ControlUsername" className="">
+            <Form.Label htmlFor="Form.ControlQuotaname" className="">
               اسم المستخدم
             </Form.Label>
             <Form.Control
               disabled
-              defaultValue={username}
-              name="username"
+              defaultValue={quotaname}
+              name="quotaname"
               type="text"
-              id="Form.ControlUsername"
+              id="Form.ControlQuotaname"
               className="form-control text-right"
               placeholder="اسم المستخدم"
             />
@@ -298,4 +298,4 @@ function UserProfile() {
   );
 }
 
-export default UserProfile;
+export default QuotaProfile;

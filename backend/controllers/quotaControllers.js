@@ -5,8 +5,10 @@ const generateToken = require("../utils/generateToken");
 const { initiateDB } = require("../config/db");
 
 const addNewQuota = asyncHandler(async (req, res) => {
-  const { quotaname, quotadate, quotaquant, creator, remark } = req.body;
+  const { quotaname, quotanameFr, quotadate, quotaquant, creator, remark } =
+    req.body;
 
+    console.log(req.file?.path)
   const quotascan = req.file?.path;
 
   const quotaExists = await Quota.findOne({ quotadate });
@@ -18,6 +20,7 @@ const addNewQuota = asyncHandler(async (req, res) => {
 
   const quota = await Quota.create({
     quotaname,
+    quotanameFr,
     quotadate,
     quotaquant,
     quotascan,
@@ -29,11 +32,10 @@ const addNewQuota = asyncHandler(async (req, res) => {
     res.status(201).json({
       _id: quota._id,
       quotaname: quota.quotaname,
-      firstname: quota.firstname,
-      lastname: quota.lastname,
-      birthday: quota.birthday,
-      quotatype: quota.quotatype,
-      photo_link: quota.photo_link,
+      quotanameFr: quota.quotanameFr,
+      quotadate: quota.quotadate,
+      quotaquant: quota.quotaquant,
+      quotascan: quota.quotascan,
       token: generateToken(quota._id),
     });
   } else {
@@ -42,46 +44,7 @@ const addNewQuota = asyncHandler(async (req, res) => {
   }
 });
 
-const authQuota = asyncHandler(async (req, res) => {
-  const { quotaname, password } = req.body;
-  var noQuotas = false;
-  const quotasList = await Quota.find();
-  const systemsList = await System.find();
-
-  if (systemsList.length > 0) {
-    if (quotasList.length > 0) {
-      const quota = await Quota.findOne({ quotaname });
-      if (quota && (await quota.matchPassword(password))) {
-        res.json({
-          _id: quota._id,
-          quotaname: quota.quotaname,
-          firstname: quota.firstname,
-          lastname: quota.lastname,
-          quotatype: quota.quotatype,
-          photo_link: quota.photo_link,
-          token: generateToken(quota._id),
-        });
-      } else {
-        res.status(400);
-        throw new Error("Error authontificating Quota !");
-      }
-    } else {
-      initiateDB();
-      res.status(400);
-      throw new Error("No quota found please try test connection!");
-    }
-  } else {
-    initiateDB();
-    res.status(400);
-    throw new Error("Initiate system file!!!");
-  }
-});
-
 const getQuotas = asyncHandler(async (req, res) => {
-  if (req.quota.quotatype !== "super" && req.quota.quotatype !== "admin") {
-    res.status(400);
-    throw new Error("المستخدم غير مرخص");
-  }
   const allQuota = await Quota.find();
   res.json(allQuota);
 });
@@ -98,49 +61,28 @@ const getQuotaById = asyncHandler(async (req, res) => {
 
 const editQuota = asyncHandler(async (req, res) => {
   const quotaId = req.params.id;
-  if (req.quota.quotatype !== "super" && req.quota._id.toString() !== quotaId) {
-    res.status(400);
-    throw new Error("المستخدم غير مرخص");
-  }
-  const {
-    firstname,
-    quotaname,
-    lastname,
-    quotatype,
-    password,
-    birthday,
-    creator,
-    remark,
-    email,
-    phone,
-  } = req.body;
 
-  let photo_link = req.file?.path || req.body.photo_link;
+  const { quotaname, quotanameFr, quotadate, quotaquant, creator, remark } =
+    req.body;
+
+  let quotascan = req.file?.path || req.body.quotascan;
 
   const quotaData = await Quota.findById(quotaId);
   if (!quotaData) {
     res.status(400);
     throw new Error("هذا المستخدم غير موجود");
   } else {
-    quotaData.firstname = firstname;
+   
     if (quotaname) quotaData.quotaname = quotaname;
-    quotaData.lastname = lastname;
-    quotaData.quotatype = quotatype;
-    if (password) quotaData.password = password;
-    quotaData.birthday = birthday;
+    if (quotanameFr) quotaData.quotanameFr = quotanameFr;
+    if (quotadate) quotaData.quotadate = quotadate;
+    if (quotadate) quotaData.quotadate = quotadate;
+    if (quotaquant) quotaData.quotaquant = quotaquant;
     quotaData.creator = creator;
     quotaData.remark = remark;
-    if (email) quotaData.email = email;
-    quotaData.phone = phone;
-    quotaData.photo_link = photo_link;
+    if (quotascan) quotaData.quotascan = quotascan;
     const updatedQuota = await quotaData.save();
     res.status(201).json(updatedQuota);
-  }
-
-  const editorId = req.quota._id;
-  if (quotaId !== editorId) {
-    res.status(400);
-    throw new Error("عملية غير مرخصة");
   }
 });
 
@@ -165,7 +107,6 @@ const deleteQuota = asyncHandler(async (req, res) => {
 
 module.exports = {
   addNewQuota,
-  authQuota,
   getQuotas,
   getQuotaById,
   editQuota,

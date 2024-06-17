@@ -43,7 +43,7 @@ app.use("/api/enquets", enquetsRoutes);
 app.use("/api/templates", templatesRoutes);
 
 app.use("/usersPicUpload", express.static("usersPicUpload"));
-app.use("/quotaScanUpload", express.static("quotaScanUpload"));
+app.use("/quotasPicUpload", express.static("quotasPicUpload"));
 app.use("/personsPicUpload", express.static("personsPicUpload"));
 app.use("/dossiersScanUpload", express.static("dossiersScanUpload"));
 app.use("/dossiersEnqUpload", express.static("dossiersEnqUpload"));

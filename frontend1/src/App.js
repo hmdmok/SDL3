@@ -29,6 +29,10 @@ import UpdateDemandeur from "./screens/dossiersScreens/UpdateDemandeur/UpdateDem
 import AddConjoin from "./screens/dossiersScreens/AddConjoin/AddConjoin";
 import System from "./screens/setingsScreens/System/System";
 import ImportationDemPhoto from "./screens/setingsScreens/ImportationDemPhoto/ImportationDemPhoto";
+import AddQuota from "./screens/quotasScreens/AddQuota/AddQuota";
+import Quotas from "./screens/quotasScreens/Quotas/Quotas";
+import UpdateQuota from "./screens/quotasScreens/UpdateQuota/UpdateQuota";
+import QuotaProfile from "./screens/quotasScreens/QuotaProfile/QuotaProfile";
 
 const App = () => (
   <BrowserRouter>
@@ -49,6 +53,10 @@ const App = () => (
       <Route path="/addUser" element={<AddUser />} />
       <Route path="/updateUser/:id" element={<UpdateUser />} />
       <Route path="/userProfile/:id" element={<UserProfile />} />
+      <Route path="/quotas" element={<Quotas />} />
+      <Route path="/addQuota" element={<AddQuota />} />
+      <Route path="/updateQuota/:id" element={<UpdateQuota />} />
+      <Route path="/quotaProfile/:id" element={<QuotaProfile />} />
       <Route path="/enquetCNL" element={<EnquetCNL />} />
 
       <Route path="/listBenifisiaire" element={<ListBenifisiaire />} />

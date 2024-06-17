@@ -28,6 +28,8 @@ function HomeScreen() {
           <Logo root={"/dossiers"} title={"قائمة الملفات"} pic={file} />
           <Logo root={"/adddossiers"} title={"تحرير ملف"} pic={update} />
           <Logo root={"/tableNotes"} title={"جدول النقاط"} pic={update} />
+          <Logo root={"/quotas"} title={"قائمة الحصص"} pic={file} />
+          <Logo root={"/addQuota"} title={"اظافة حصة"} pic={update} />
 
           {logedUserType === "super" && (
             <>

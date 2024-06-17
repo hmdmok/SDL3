@@ -20,6 +20,7 @@ import {
 
 export const login = (username, password) => async (dispatch) => {
   try {
+   
     dispatch({ type: USER_LOGIN_REQUEST });
 
     const config = {
@@ -48,6 +49,7 @@ export const login = (username, password) => async (dispatch) => {
 
 export const logout = () => async (dispatch) => {
   localStorage.removeItem("userInfo");
+  localStorage.removeItem("systemInfo");
   dispatch({ type: USER_LOGOUT });
 };
 

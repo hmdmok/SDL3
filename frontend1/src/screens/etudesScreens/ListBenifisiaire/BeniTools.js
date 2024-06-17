@@ -6,6 +6,9 @@ import fileDownload from "js-file-download";
 import { Badge, Button, Dropdown, DropdownButton } from "react-bootstrap";
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
+import { listQuotas } from "../../../actions/quotaActions";
+import { checkSystem, updateSystem } from "../../../actions/systemActions";
+import { useState } from "react";
 
 const BeniTools = () => {
   const dispatch = useDispatch();
@@ -13,6 +16,9 @@ const BeniTools = () => {
   const filesToBenifits = useSelector((state) => state.filesToBenifits);
   const { benefisiersInfo } = filesToBenifits;
   const { benefisiers } = benefisiersInfo;
+
+  const listQuotasGet = useSelector((state) => state.quotaList);
+  const { loading: loadingQuotas, quotas, error: errorQuotas } = listQuotasGet;
 
   const listBenefisiersGet = useSelector((state) => state.listBenefisiersGet);
   const { loading, listBenefisiers, error, success } = listBenefisiersGet;
@@ -22,7 +28,13 @@ const BeniTools = () => {
   };
 
   const onGetBenefisiersList = (listDossierBenefisiers, type) => {
-    dispatch(listBenefisiersAction(listDossierBenefisiers, type));
+    dispatch(
+      listBenefisiersAction(
+        listDossierBenefisiers,
+        type,
+        systemInfo[0].quotaDate
+      )
+    );
   };
 
   useEffect(() => {
@@ -34,6 +46,22 @@ const BeniTools = () => {
     }
   }, [dispatch, listBenefisiers, success]);
 
+  useEffect(() => {
+    dispatch(listQuotas());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(checkSystem());
+  }, [dispatch]);
+
+  const systemData = localStorage.getItem("systemInfo");
+  const systemInfo = JSON.parse(systemData);
+
+  const [title, setTitle] = useState(systemInfo[0]?.quotaTitle);
+
+  useEffect(() => {
+    setTitle(systemInfo[0]?.quotaTitle);
+  }, [systemInfo]);
   return (
     <div className="tools">
       <h4> اعدادات ملفات المستفيدين</h4>
@@ -45,17 +73,42 @@ const BeniTools = () => {
         id="dropdown-basic-button"
         variant="info"
         className="flex m-1 "
-        title="اختار حصة الاستفادة"
+        title={title}
       >
-        <Dropdown.Item>{"الحصة 22/2023"}</Dropdown.Item>
-        <Dropdown.Item>{"الحصة 14/2022"}</Dropdown.Item>
-        <Dropdown.Item>{"الحصة 10/2022"}</Dropdown.Item>
+        {quotas?.map((quota) => (
+          <Dropdown.Item
+            key={quota._id}
+            onClick={() => {
+              dispatch(
+                updateSystem(
+                  systemInfo[0]._id,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  quota.quotadate,
+                  quota.quotanameFr,
+                  quota.quotaquant,
+                  null,
+                  null,
+                  null
+                )
+              );
+              dispatch(checkSystem());
+            }}
+          >
+            {quota.quotaname}
+          </Dropdown.Item>
+        ))}
       </DropdownButton>
       <Button
         variant="success"
         className="m-1 "
         onClick={() => {
-          onGetBenefisiersList(benefisiers, "pf");
+          onGetBenefisiersList(benefisiers, "french",systemInfo[0].quotaDate);
         }}
       >
         انشاء ملف المستفيدين بالفرنسية
@@ -65,7 +118,7 @@ const BeniTools = () => {
         variant="success"
         className="m-1 "
         onClick={() => {
-          onGetBenefisiersList(benefisiers, "pfa");
+          onGetBenefisiersList(benefisiers, "frenchr");
         }}
       >
         انشاء ملف الاحتياطيين بالفرنسية
@@ -75,17 +128,17 @@ const BeniTools = () => {
         variant="success"
         className="m-1 "
         onClick={() => {
-          onGetBenefisiersList(benefisiers, "pa");
+          onGetBenefisiersList(benefisiers, "arabic");
         }}
       >
-        انشاء ملف المستفيدين 
+        انشاء ملف المستفيدين
       </Button>
 
       <Button
         variant="success"
         className="m-1 "
         onClick={() => {
-          onGetBenefisiersList(benefisiers, "paa");
+          onGetBenefisiersList(benefisiers, "arabicr");
         }}
       >
         انشاء ملف الاحتياطيين
@@ -103,6 +156,10 @@ const BeniTools = () => {
       <div className="alerts">
         {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
         {loading && <Loading />}
+        {errorQuotas && (
+          <ErrorMessage variant="danger">{errorQuotas}</ErrorMessage>
+        )}
+        {loadingQuotas && <Loading />}
       </div>
     </div>
   );

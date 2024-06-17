@@ -15,20 +15,30 @@ import {
 } from "../constants/quotaConstants";
 
 export const add =
-  (quotaname, quotadate, quotaquant, quotascan, creator, remark) =>
+  (quotaname, quotanameFr, quotadate, quotaquant, quotascan, creator, remark) =>
   async (dispatch, getState) => {
     try {
       dispatch({ type: QUOTA_ADD_REQUEST });
+      const {
+        userLogin: { userInfo },
+      } = getState();
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
 
       const formData = new FormData();
       formData.append("quotaname", quotaname);
+      formData.append("quotanameFr", quotanameFr);
       formData.append("quotadate", quotadate);
       formData.append("quotaquant", quotaquant);
       formData.append("creator", creator);
       formData.append("remark", remark);
       formData.append("quotascan", quotascan);
 
-      const { data } = await axios.post("/api/quotas", formData);
+      const { data } = await axios.post("/api/quotas", formData, config);
 
       dispatch({ type: QUOTA_ADD_SUCCESS, payload: data });
     } catch (error) {
@@ -66,7 +76,16 @@ export const listQuotas = () => async (dispatch, getState) => {
 };
 
 export const update =
-  (id, quotaname, quotadate, quotaquant, quotascan, creator, remark) =>
+  (
+    id,
+    quotaname,
+    quotanameFr,
+    quotadate,
+    quotaquant,
+    quotascan,
+    creator,
+    remark
+  ) =>
   async (dispatch, getState) => {
     try {
       dispatch({ type: QUOTA_UPDATE_REQUEST });
@@ -74,6 +93,7 @@ export const update =
       if (quotascan) {
         const formData = new FormData();
         formData.append("quotaname", quotaname);
+        formData.append("quotanameFr", quotanameFr);
         formData.append("quotadate", quotadate);
         formData.append("quotaquant", quotaquant);
         formData.append("creator", creator);
@@ -91,6 +111,7 @@ export const update =
           `/api/quotas/${id}`,
           {
             quotaname: quotaname,
+            quotanameFr: quotanameFr,
             quotadate: quotadate,
             quotaquant: quotaquant,
             creator: creator,

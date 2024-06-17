@@ -7,10 +7,10 @@ const quotaPhotoStorage = multer.diskStorage({
     cb(null, `./quotasPicUpload/`);
   },
   filename: function (req, file, cb) {
-    cb(null, `${req.body.quotaname}_Profile_Picture.png`);
+    cb(null, `${req.body.quotanameFr}_Picture.png`);
   },
 });
-const uploadUserPhoto = multer({
+const uploadQuotaPhoto = multer({
   storage: quotaPhotoStorage,
   limits: {
     fileSize: 1024 * 1024 * 10,
@@ -22,16 +22,14 @@ const router = express.Router();
 router
   .route("/")
   .post(
-    protect,
-    uploadUserPhoto.single("photo_link"),
+    uploadQuotaPhoto.single("quotascan"),
     quotaControllers.addNewQuota
   );
-router.route("/").get(protect, quotaControllers.getQuotas);
-router.route("/login").post(quotaControllers.authQuota);
+router.route("/").get(quotaControllers.getQuotas);
 router
   .route("/:id")
   .get(quotaControllers.getQuotaById)
-  .put(protect, uploadUserPhoto.single("photo_link"), quotaControllers.editQuota)
-  .delete(protect, quotaControllers.deleteQuota);
+  .put(uploadQuotaPhoto.single("quotascan"), quotaControllers.editQuota)
+  .delete(quotaControllers.deleteQuota);
 
 module.exports = router;

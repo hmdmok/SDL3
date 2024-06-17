@@ -15,7 +15,7 @@ export const checkSystem = () => async (dispatch) => {
   try {
     dispatch({ type: SYSTEM_CHECK_REQUEST });
 
-    const { data } = await axios.get("/api/system/check");
+    const { data } = await axios.get("/api/system");
     dispatch({ type: SYSTEM_CHECK_SUCCESS, payload: data });
     localStorage.setItem("systemInfo", JSON.stringify(data));
   } catch (error) {
@@ -60,7 +60,14 @@ export const updateSystem =
     installType,
     administrationType,
     administrationName,
+    administrationCode,
+    communeName,
+    communeCode,
+    quotaDate,
+    quotaTitle,
+    quotaQuant,
     machineCode,
+    onlineID,
     onlineCheckDate
   ) =>
   async (dispatch, getState) => {
@@ -85,6 +92,13 @@ export const updateSystem =
           administrationName: administrationName,
           machineCode: machineCode,
           onlineCheckDate: onlineCheckDate,
+          administrationCode: administrationCode,
+          communeName: communeName,
+          communeCode: communeCode,
+          quotaDate: quotaDate,
+          quotaTitle: quotaTitle,
+          quotaQuant: quotaQuant,
+          onlineID: onlineID,
         },
         config
       );

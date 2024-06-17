@@ -6,6 +6,10 @@ const quotaSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    quotanameFr: {
+      type: String,
+      required: true,
+    },
     quotadate: {
       type: String,
       required: true,

@@ -3,18 +3,17 @@ import { Card, Form } from "react-bootstrap";
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
 import MainScreen from "../../../components/MainScreen/MainScreen";
-import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { add } from "../../../actions/quotaActions";
 
 function AddQuota() {
   const [quotaname, setQuotaname] = useState("");
-  const [quotaDate, setQuotaDate] = useState("");
+  const [quotanameFr, setQuotanameFr] = useState("");
+  const [quotadate, setQuotaDate] = useState("");
   const [quotaquant, setQuotaquant] = useState("");
   const [quotascan, setQuotascan] = useState(null);
   const [remark, setRemark] = useState("");
   const [creator, setCreator] = useState("");
-  const [message, setMessage] = useState(null);
   const [preview, setPreview] = useState(null);
 
   const creatorData = localStorage.getItem("userInfo");
@@ -45,23 +44,31 @@ function AddQuota() {
   const onSubmitQuota = async (event) => {
     event.preventDefault();
 
-    dispatch(add(quotaname, quotaDate, quotaquant, creator, remark, quotascan));
+    dispatch(
+      add(
+        quotaname,
+        quotanameFr,
+        quotadate,
+        quotaquant,
+        quotascan,
+        creator,
+        remark
+      )
+    );
   };
 
   return (
-    <MainScreen title="اضافة مستخدم جديد">
+    <MainScreen title="اضافة حصة جديد">
       {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
-      {message && <ErrorMessage variant="info">{message}</ErrorMessage>}
       {loading && <Loading />}
       <Form onSubmit={onSubmitQuota}>
-      
         <Form.Group className="row text-right">
           <Form.Group className="col">
             <Form.Label htmlFor="Form.ControlQuotadate" className="">
-              تاريخ الميلاد
+              {"تاريخ الحصة"}
             </Form.Label>
             <Form.Control
-              value={quotaDate}
+              value={quotadate}
               name="quotaDate"
               onChange={(e) => {
                 setQuotaDate(e.target.value);
@@ -74,46 +81,25 @@ function AddQuota() {
             />
           </Form.Group>
           <Form.Group className="col order-first">
-            <Form.Label htmlFor="Form.ControlTelephone" className="">
-              رقم الهاتف
+            <Form.Label htmlFor="Form.ControlQuotaquant" className="">
+              {"عدد السكنات في الحصة"}
             </Form.Label>
             <Form.Control
-              value={phone}
-              name="phone"
-              onChange={(e) => setPhone(e.target.value)}
-              type="tel"
-              id="Form.ControlTelephone"
+              value={quotaquant}
+              name="quotaquant"
+              onChange={(e) => setQuotaquant(e.target.value)}
+              type="number"
+              id="Form.ControlQuotaquant"
               className="form-control text-right"
-              placeholder="رقم الهاتف"
+              placeholder="عدد السكنات في الحصة"
               required
             />
           </Form.Group>
         </Form.Group>
         <Form.Group className="row text-right">
           <Form.Group className="col">
-            <Form.Label htmlFor="Form.ControlQuotaquant" className="">
-              وظيفة المستخدم
-            </Form.Label>
-            <select
-              value={quotaquant}
-              name="quotaquant"
-              onChange={(e) => setQuotaquant(e.target.value)}
-              id="Form.ControlQuotaquant"
-              className="form-control text-right"
-              placeholder="عدد السكنات في الحصة"
-              required
-            >
-              <option value="-1" disabled hidden>
-                وظيفة المستخدم
-              </option>
-              <option value="super">مطور</option>
-              <option value="admin">مسير</option>
-              <option value="agent">عون حجز</option>
-            </select>
-          </Form.Group>
-          <Form.Group className="col">
             <Form.Label htmlFor="Form.ControlQuotaname" className="">
-              اسم المستخدم
+              {"اسم الحصة"}
             </Form.Label>
             <Form.Control
               value={quotaname}
@@ -122,56 +108,24 @@ function AddQuota() {
               type="text"
               id="Form.ControlQuotaname"
               className="form-control text-right"
-              placeholder="اسم المستخدم"
-              required
-            />
-          </Form.Group>
-        </Form.Group>
-        <Form.Group className="row text-right">
-          <Form.Group className="col order-last">
-            <Form.Label htmlFor="Form.ControlPassword" className="">
-              كلمة السر
-            </Form.Label>
-            <Form.Control
-              value={password}
-              name="password"
-              onChange={(e) => setPassword(e.target.value)}
-              type="password"
-              id="Form.ControlPassword"
-              className="form-control text-right"
-              placeholder="كلمة السر"
-              required
-            />
-          </Form.Group>
-          <Form.Group className="col">
-            <Form.Label htmlFor="Form.ControlRepassword" className="">
-              تاكيد كلمة السر
-            </Form.Label>
-            <Form.Control
-              value={repassword}
-              name="repassword"
-              onChange={(e) => setRepassword(e.target.value)}
-              type="password"
-              id="Form.ControlRepassword"
-              className="form-control text-right"
-              placeholder="تاكيد كلمة السر"
+              placeholder="اسم الحصة"
               required
             />
           </Form.Group>
         </Form.Group>
         <Form.Group className="row text-right">
           <Form.Group className="col">
-            <Form.Label htmlFor="Form.ControlEmail" className="">
-              ادخل البريد الالكتروني
+            <Form.Label htmlFor="Form.ControlQuotaname" className="">
+              {"اسم الحصة بالفرنسية"}
             </Form.Label>
             <Form.Control
-              value={email}
-              name="email"
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              id="Form.ControlEmail"
+              value={quotanameFr}
+              name="quotanameFr"
+              onChange={(e) => setQuotanameFr(e.target.value)}
+              type="text"
+              id="Form.ControlQuotaname"
               className="form-control text-right"
-              placeholder="البريد الالكتروني"
+              placeholder="اسم الحصة بالفرنسية"
               required
             />
           </Form.Group>
@@ -180,13 +134,13 @@ function AddQuota() {
         <Form.Group className="row">
           <Form.Group className="col">
             <Card.Body>
-              <Card.Text>صورة المستخدم</Card.Text>
+              <Card.Text>{"صورة مقرر الحصة"}</Card.Text>
             </Card.Body>
             {preview ? (
               <Card.Img src={preview} width="300px" alt="pic" />
             ) : (
               <Card.Img
-                src={`http://localhost:4000/${photo_link}`}
+                src={`http://localhost:4000/${quotascan}`}
                 width="300px"
                 alt="pic"
               />
@@ -194,12 +148,12 @@ function AddQuota() {
           </Form.Group>
           <Form.Group className="d-flex align-items-center col-9">
             <Form.Group controlId="formFile" className="mb-3">
-              <Form.Label> صورة المستخدم</Form.Label>
+              <Form.Label> {"صورة مقرر الحصة"}</Form.Label>
               <Form.Control
                 type="file"
                 name="photo_link"
-                placeholder="ادخل صورة المستخدم"
-                onChange={(e) => setPhoto_file(e.target.files[0])}
+                placeholder="ادخل صورة مقرر الحصة"
+                onChange={(e) => setQuotascan(e.target.files[0])}
               />
             </Form.Group>
           </Form.Group>
@@ -226,7 +180,7 @@ function AddQuota() {
             <Form.Control
               className="btn btn-lg btn-primary btn-block"
               type="submit"
-              value="  تسجيل الدخول"
+              value="  تسجيل الحصة"
             />
           </Form.Group>
           <Form.Group className="col">

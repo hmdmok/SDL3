@@ -2,37 +2,37 @@ import React, { useEffect, useState } from "react";
 import { Accordion, Button, Card, Container, Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import MainScreen from "../../../components/MainScreen/MainScreen";
-import { deleteUserAction, listUsers } from "../../../actions/userActions";
+import { deleteQuotaAction, listQuotas } from "../../../actions/quotaActions";
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
 
-function Users() {
+function Quotas() {
   const [search, setSearch] = useState("");
 
   const dispatch = useDispatch();
 
-  const userList = useSelector((state) => state.userList);
-  const { loading, users, error } = userList;
+  const quotaList = useSelector((state) => state.quotaList);
+  const { loading, quotas, error } = quotaList;
 
-  const userDelete = useSelector((state) => state.userDelete);
+  const quotaDelete = useSelector((state) => state.quotaDelete);
   const {
     loading: loadingDelete,
     error: errorDelete,
     success: successDelete,
-  } = userDelete;
+  } = quotaDelete;
 
   useEffect(() => {
-    dispatch(listUsers());
+    dispatch(listQuotas());
   }, [dispatch, successDelete]);
 
   const deleteHandler = (id) => {
     if (window.confirm("هل انت متاكد من هذه العملية")) {
-      dispatch(deleteUserAction(id));
+      dispatch(deleteQuotaAction(id));
     }
   };
 
   return (
-    <MainScreen title="عرض كل المستخدمين">
+    <MainScreen title="عرض كل الحصص">
       <div>
         {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
         {loading && <Loading />}
@@ -43,8 +43,8 @@ function Users() {
         {loadingDelete && <Loading />}
         <Container fluid>
           <Form className="d-flex">
-            <Button className="w-50 m-2" href="/addUser">
-              اضافة مستخدم جديد
+            <Button className="w-50 m-2" href="/addQuota">
+              اضافة حصة جديد
             </Button>
             <hr />
             <Form.Control
@@ -57,10 +57,10 @@ function Users() {
           </Form>
         </Container>
 
-        {users
+        {quotas
           ?.reverse()
-          .filter((filtredUsers) =>
-            filtredUsers.username.toLowerCase().includes(search.toLowerCase())
+          .filter((filtredQuotas) =>
+            filtredQuotas.quotaname.toLowerCase().includes(search.toLowerCase())
           )
           .map((dossierMap) => (
             <Accordion key={dossierMap?._id}>
@@ -76,12 +76,12 @@ function Users() {
                       fontSize: 18,
                     }}
                   >
-                    المستخدم : {dossierMap?.username}
+                    الحصة : {dossierMap?.quotaname}
                   </Accordion.Header>
 
                   <div>
                     <Button
-                      href={`/updateUser/${dossierMap?._id}`}
+                      href={`/updateQuota/${dossierMap?._id}`}
                       variant="success"
                       className="mx-2"
                     >
@@ -102,40 +102,27 @@ function Users() {
                     <table className="table table-hover">
                       <tbody>
                         <tr>
-                          <th scope="col">اسم المستخدم</th>
-                          <th className={dossierMap?.username} scope="row">
-                            {dossierMap?.username}
+                          <th scope="col">اسم الحصة</th>
+                          <th className={dossierMap?.quotaname} scope="row">
+                            {dossierMap?.quotaname}
                           </th>
                         </tr>
                         <tr>
-                          <th scope="col">الاسم</th>
-                          <td className={dossierMap?.firstname}>
-                            {dossierMap?.firstname}
+                          <th scope="col">اسم الحصة بالفرنسية</th>
+                          <td className={dossierMap?.quotanameFr}>
+                            {dossierMap?.quotanameFr}
                           </td>
                         </tr>
                         <tr>
-                          <th scope="col">اللقب</th>
-                          <td className={dossierMap?.lastname}>
-                            {dossierMap?.lastname}
+                          <th scope="col">تاريخ الحصة</th>
+                          <td className={dossierMap?.quotadate}>
+                            {dossierMap?.quotadate?.substring(0, 10)}
                           </td>
                         </tr>
                         <tr>
-                          <th scope="col">تاريخ الميلاد</th>
-                          <td className={dossierMap?.birtday}>
-                            {dossierMap?.birthday?.substring(0, 10)}
-                          </td>
-                        </tr>
-
-                        <tr>
-                          <th scope="col">البريد الالكتروني</th>
-                          <td className={dossierMap?.email}>
-                            {dossierMap?.email}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th scope="col">الهاتف</th>
-                          <td className={dossierMap?.phone}>
-                            {dossierMap?.phone}
+                          <th scope="col">عدد السكنات للحصة</th>
+                          <td className={dossierMap?.quotaquant}>
+                            {dossierMap?.quotaquant}
                           </td>
                         </tr>
                       </tbody>
@@ -150,4 +137,4 @@ function Users() {
   );
 }
 
-export default Users;
+export default Quotas;

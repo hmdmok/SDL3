@@ -466,36 +466,52 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
 });
 
 const getListBenefisiersFile = asyncHandler(async (req, res) => {
-  var { dossiersList, type } = req.body;
+  var { dossiersList, type, quotaDate } = req.body;
+  console.log(type);
   const workbook = new ExcelJS.Workbook();
+  let pi = 1,
+    mi = 1;
+  let worksheetPlus;
+  let worksheetMoin;
 
-  // get system information
-  const systemInfo = await System.find();
-
-  console.log(systemInfo);
-
-  let worksheet;
   switch (type) {
-    case "pa": {
-      await workbook.xlsx.readFile("ListBenefisiersAr.xlsx");
-      worksheet = workbook.worksheets;
+    case "arabic": {
+      try {
+        await workbook.xlsx.readFile("ListBenefisiersAr.xlsx");
+      } catch (error) {
+        console.log(error);
+      }
+
+      worksheetPlus = workbook.worksheets[0];
+
+      worksheetMoin = workbook.worksheets[1];
+      break;
     }
 
-    case "paa": {
-      await workbook.xlsx.readFile("ListBenefisiersAr.xlsx");
-      worksheet = workbook.worksheets[2];
+    case "arabicr": {
+      await workbook.xlsx.readFile("ListReserveBenefisiersAr.xlsx");
+      worksheetPlus = workbook.worksheets[0];
+      worksheetMoin = workbook.worksheets[1];
+      break;
     }
 
-    case "pf": {
+    case "french": {
       await workbook.xlsx.readFile("ListBenefisiersFr.xlsx");
-      worksheet = workbook.worksheets;
+      worksheetPlus = workbook.worksheets[1];
+      worksheetMoin = workbook.worksheets[0];
+      break;
     }
 
-    case "pfa": {
+    case "frenchr": {
       await workbook.xlsx.readFile("ListBenefisiersFr.xlsx");
-      worksheet = workbook.worksheets[2];
+      worksheetPlus = workbook.worksheets[0];
+      worksheetMoin = workbook.worksheets[1];
+      break;
     }
   }
+
+  console.log("plus:", worksheetPlus.name);
+  console.log("moin:", worksheetMoin.name);
 
   const imageId1 = workbook.addImage({
     filename: "HMDMOK logo.PNG",
@@ -503,12 +519,21 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
   });
 
   // insert an image over B2:D6
-  worksheet.addImage(imageId1, "AA2:AB3");
+  worksheetPlus.addImage(imageId1, "AA2:AB3");
+  worksheetMoin.addImage(imageId1, "AA2:AB3");
 
   const newDoss = await dossiersList.map(
     asyncHandler(async function (record, i) {
-      if (type.includes("f")) {
-        await worksheet.addRow(
+      if (
+        type.includes("f") &&
+        new Date(convertDateFormat(record.demandeur?.date_n).jsDate) <=
+          new Date(
+            new Date(quotaDate).getFullYear() - 35,
+            new Date(quotaDate).getMonth(),
+            new Date(quotaDate).getDate()
+          )
+      ) {
+        await worksheetPlus.addRow(
           [
             i + 1,
             record.num_dos,
@@ -548,20 +573,87 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             filename: record.demandeur?.photo_link,
             extension: "png",
           });
-          worksheet.addImage(image, {
-            tl: { col: 29, row: 6 + i },
+          worksheetPlus.addImage(image, {
+            tl: { col: 29, row: i + 6 },
             ext: { width: 200, height: 250 },
           });
         }
-      } else {
-        await worksheet.insertRow(
-          8 + i,
+        pi = pi + 1;
+      } else if (
+        type.includes("f") &&
+        new Date(convertDateFormat(record.demandeur?.date_n).jsDate) >=
+          new Date(
+            new Date(quotaDate).getFullYear() - 35,
+            new Date(quotaDate).getMonth(),
+            new Date(quotaDate).getDate()
+          )
+      ) {
+        await worksheetMoin.addRow(
           [
             i + 1,
             record.num_dos,
             record.date_depo,
+            record.demandeur.nom_fr,
+            record.demandeur.prenom_fr,
+            getGenderName(record.demandeur.gender, "f"),
+            record.demandeur.date_n,
+            record.demandeur.num_act,
+            record.demandeur.lieu_n_fr,
+            getCivility(record.demandeur.stuation_f, "f"),
+            record.demandeur.prenom_p_fr,
+            record.demandeur.nom_m_fr,
+            record.demandeur.prenom_m_fr,
+            record.adress,
+            record.conjoin?.nom_fr,
+            record.conjoin?.prenom_fr,
+            record.conjoin?.date_n,
+            record.conjoin?.num_act,
+            record.conjoin?.lieu_n_fr,
+            record.conjoin?.prenom_p_fr,
+            record.conjoin?.nom_m_fr,
+            record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
+            record.conjoin?.prenom_m_fr,
+          ],
+          "i+"
+        );
+
+        if (record.demandeur?.photo_link) {
+          const image = workbook.addImage({
+            filename: record.demandeur?.photo_link,
+            extension: "png",
+          });
+          worksheetMoin.addImage(image, {
+            tl: { col: 29, row: i + 6 },
+            ext: { width: 200, height: 250 },
+          });
+        }
+        mi++;
+      } else if (
+        type.includes("a") &&
+        new Date(convertDateFormat(record.demandeur?.date_n).jsDate) >=
+          new Date(
+            new Date(quotaDate).getFullYear() - 35,
+            new Date(quotaDate).getMonth(),
+            new Date(quotaDate).getDate()
+          )
+      ) {
+        await worksheetPlus.addRow(
+          [
+            worksheetPlus._rows.length - 6,
             record.demandeur.nom,
             record.demandeur.prenom,
+            record.demandeur.date_n,
+            record.demandeur.lieu_n,
+            getCivility(record.demandeur.stuation_f, "a"),
+            record.demandeur.prenom_p,
+            record.demandeur.nom_m,
+            record.demandeur.prenom_m,
           ],
           "i+"
         );
@@ -570,11 +662,46 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             filename: record.demandeur?.photo_link,
             extension: "png",
           });
-          worksheet.addImage(image, {
-            tl: { col: 29, row: 7 + i },
+          worksheetPlus.addImage(image, {
+            tl: { col: 9, row: worksheetPlus._rows.length - 2 },
             ext: { width: 200, height: 150 },
           });
         }
+        pi++;
+      } else if (
+        type.includes("a") &&
+        new Date(convertDateFormat(record.demandeur?.date_n).jsDate) <=
+          new Date(
+            new Date(quotaDate).getFullYear() - 35,
+            new Date(quotaDate).getMonth(),
+            new Date(quotaDate).getDate()
+          )
+      ) {
+        await worksheetMoin.addRow(
+          [
+            worksheetMoin._rows.length - 6,
+            record.demandeur.nom,
+            record.demandeur.prenom,
+            record.demandeur.date_n,
+            record.demandeur.lieu_n,
+            getCivility(record.demandeur.stuation_f, "a"),
+            record.demandeur.prenom_p,
+            record.demandeur.nom_m,
+            record.demandeur.prenom_m,
+          ],
+          "i+"
+        );
+        if (record.demandeur?.photo_link) {
+          const image = workbook.addImage({
+            filename: record.demandeur?.photo_link,
+            extension: "png",
+          });
+          worksheetMoin.addImage(image, {
+            tl: { col: 9, row: worksheetMoin._rows.length - 2 },
+            ext: { width: 200, height: 150 },
+          });
+        }
+        mi++;
       }
     })
   );
@@ -586,7 +713,8 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
   return Promise.all(newDoss)
     .then(
       asyncHandler(async () => {
-        await worksheet.spliceRows(7, 1);
+        await worksheetPlus.spliceRows(7, 1);
+        await worksheetMoin.spliceRows(7, 1);
         try {
           await workbook.xlsx.writeFile(newFileName);
         } catch (error) {

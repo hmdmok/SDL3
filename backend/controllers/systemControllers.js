@@ -120,23 +120,46 @@ const createSystem = asyncHandler(async (req, res) => {
 });
 
 const updateSystem = asyncHandler(async (req, res) => {
-  const { system, code, nom } = req.body;
-
-  if (req.user.usertype !== "super") {
-    res.status(400);
-    throw new Error("المستخدم غير مرخص");
-  }
+  const {
+    installDate,
+    installType,
+    administrationType,
+    administrationName,
+    administrationCode,
+    communeName,
+    communeCode,
+    quotaDate,
+    quotaTitle,
+    quotaQuant,
+    machineCode,
+    onlineID,
+    onlineCheckDate,
+  } = req.body;
 
   const id = req.params.id;
   const systemToUpdate = await System.findById(id);
 
   if (!systemToUpdate) {
     res.status(400);
-    throw new Error("هذا التنقيط غير موجود");
+    throw new Error("  غير موجود");
   } else {
-    systemToUpdate.system = system || systemToUpdate.system;
-    systemToUpdate.code = code || systemToUpdate.code;
-    systemToUpdate.nom = nom || systemToUpdate.nom;
+    systemToUpdate.installDate = installDate || systemToUpdate.installDate;
+    systemToUpdate.installType = installType || systemToUpdate.installType;
+    systemToUpdate.administrationType =
+      administrationType || systemToUpdate.administrationType;
+    systemToUpdate.administrationName =
+      administrationName || systemToUpdate.administrationName;
+    systemToUpdate.administrationCode =
+      administrationCode || systemToUpdate.administrationCode;
+    systemToUpdate.communeName = communeName || systemToUpdate.communeName;
+    systemToUpdate.communeCode = communeCode || systemToUpdate.communeCode;
+    systemToUpdate.quotaDate = quotaDate || systemToUpdate.quotaDate;
+    systemToUpdate.quotaTitle = quotaTitle || systemToUpdate.quotaTitle;
+    systemToUpdate.quotaQuant = quotaQuant || systemToUpdate.quotaQuant;
+    systemToUpdate.machineCode = machineCode || systemToUpdate.machineCode;
+    systemToUpdate.onlineID = onlineID || systemToUpdate.onlineID;
+    systemToUpdate.onlineCheckDate =
+      onlineCheckDate || systemToUpdate.onlineCheckDate;
 
     const updatedSystem = await systemToUpdate.save();
     res.status(201).json(updatedSystem);
