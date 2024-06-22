@@ -21,7 +21,11 @@ const router = express.Router();
 
 router
   .route("/")
-  .post(uploadUserPhoto.single("photo_link"), userControllers.addNewUser);
+  .post(
+    protect,
+    uploadUserPhoto.single("photo_link"),
+    userControllers.addNewUser
+  );
 router.route("/").get(protect, userControllers.getUsers);
 router.route("/login").post(userControllers.authUser);
 router

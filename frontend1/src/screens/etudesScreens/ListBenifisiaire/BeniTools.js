@@ -57,10 +57,14 @@ const BeniTools = () => {
   const systemData = localStorage.getItem("systemInfo");
   const systemInfo = JSON.parse(systemData);
 
-  const [title, setTitle] = useState(systemInfo[0]?.quotaTitle);
+  const [title, setTitle] = useState("لا يوجد حصة");
 
   useEffect(() => {
-    setTitle(systemInfo[0]?.quotaTitle);
+    if (systemInfo[0]?.quotaTitle) {
+      setTitle(systemInfo[0]?.quotaTitle);
+    } else {
+      setTitle("لا يوجد حصة");
+    }
   }, [systemInfo]);
   return (
     <div className="tools">
@@ -108,7 +112,7 @@ const BeniTools = () => {
         variant="success"
         className="m-1 "
         onClick={() => {
-          onGetBenefisiersList(benefisiers, "french",systemInfo[0].quotaDate);
+          onGetBenefisiersList(benefisiers, "french", systemInfo[0].quotaDate);
         }}
       >
         انشاء ملف المستفيدين بالفرنسية

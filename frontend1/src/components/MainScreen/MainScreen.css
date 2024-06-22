@@ -20,7 +20,7 @@ tr {
 .rigthPanel {
   display: flex;
   flex-direction: column;
-  width: 15%;
+  width: 25%;
 }
 
 .filters {

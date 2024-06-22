@@ -19,6 +19,7 @@ const {
 } = require("../config/functions");
 const ExcelJS = require("exceljs");
 const System = require("../models/systemModel");
+const { Console } = require("console");
 
 const getDossierByDates = asyncHandler(async (req, res) => {
   const { fromDate, toDate } = req.body;
@@ -535,7 +536,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
       ) {
         await worksheetPlus.addRow(
           [
-            i + 1,
+            worksheetPlus._rows.length - 6,
             record.num_dos,
             record.date_depo,
             record.demandeur.nom_fr,
@@ -567,17 +568,23 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
           ],
           "i+"
         );
-
+        let image;
         if (record.demandeur?.photo_link) {
-          const image = workbook.addImage({
+          image = workbook.addImage({
             filename: record.demandeur?.photo_link,
             extension: "png",
           });
-          worksheetPlus.addImage(image, {
-            tl: { col: 29, row: i + 6 },
-            ext: { width: 200, height: 250 },
+        } else {
+          image = workbook.addImage({
+            filename: "usersPicUpload/default.png",
+            extension: "png",
           });
         }
+        worksheetPlus.addImage(image, {
+          tl: { col: 29, row: worksheetPlus._media.length + 5 },
+          ext: { width: 200, height: 250 },
+        });
+
         pi = pi + 1;
       } else if (
         type.includes("f") &&
@@ -590,7 +597,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
       ) {
         await worksheetMoin.addRow(
           [
-            i + 1,
+            worksheetMoin._rows.length - 6,
             record.num_dos,
             record.date_depo,
             record.demandeur.nom_fr,
@@ -622,14 +629,14 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
           ],
           "i+"
         );
-
+        console.log(record.demandeur);
         if (record.demandeur?.photo_link) {
           const image = workbook.addImage({
             filename: record.demandeur?.photo_link,
             extension: "png",
           });
           worksheetMoin.addImage(image, {
-            tl: { col: 29, row: i + 6 },
+            tl: { col: 29, row: worksheetMoin._media.length + 5 },
             ext: { width: 200, height: 250 },
           });
         }
@@ -663,7 +670,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             extension: "png",
           });
           worksheetPlus.addImage(image, {
-            tl: { col: 9, row: worksheetPlus._rows.length - 2 },
+            tl: { col: 9, row: worksheetPlus._media.length + 5 },
             ext: { width: 200, height: 150 },
           });
         }
@@ -691,13 +698,14 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
           ],
           "i+"
         );
+
         if (record.demandeur?.photo_link) {
           const image = workbook.addImage({
             filename: record.demandeur?.photo_link,
             extension: "png",
           });
           worksheetMoin.addImage(image, {
-            tl: { col: 9, row: worksheetMoin._rows.length - 2 },
+            tl: { col: 9, row: worksheetMoin._media.length + 5 },
             ext: { width: 200, height: 150 },
           });
         }

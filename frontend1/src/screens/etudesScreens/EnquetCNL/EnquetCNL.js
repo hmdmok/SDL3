@@ -13,12 +13,14 @@ function EnquetCNL() {
 
   return (
     <MainScreen title={"التحقيق"}>
+      <div className="rigthPanel">
+        <EnqTools />
+      </div>
       <ListGroup>
         {files?.map((dossierMap) => (
           <SingleDossier dossierMap={dossierMap} key={dossierMap._id} />
         ))}
       </ListGroup>
-      <EnqTools />
     </MainScreen>
   );
 }

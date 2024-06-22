@@ -21,8 +21,13 @@ const ImportPhotoTools = ({ photo_files }) => {
       const num_dos_from_photo1 = photo.name?.split(".")[0];
       const num_dos_from_photo3 = num_dos_from_photo1.split(" ")[0];
       const num_dos_from_photo2 = num_dos_from_photo3.split("-");
-      const num_dos_from_photo =
-        num_dos_from_photo2[0] + "-" + num_dos_from_photo2[1];
+      console.log(num_dos_from_photo2);
+      let num_dos_from_photo;
+      if (num_dos_from_photo2[1])
+        num_dos_from_photo =
+          num_dos_from_photo2[0] + "-" + num_dos_from_photo2[1];
+      else num_dos_from_photo = num_dos_from_photo2[0];
+
       // try to get the dossier id
       console.log(num_dos_from_photo);
       dispatch(getDossierByNumAction(num_dos_from_photo, photo));
