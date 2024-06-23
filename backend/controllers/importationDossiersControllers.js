@@ -252,7 +252,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
       const dossiersMaped = excel_file?.map(
         asyncHandler(async (dossier) => {
           // // extract demandeur
-          console.log(dossier);
+          // console.log(dossier);
           const {
             "رقـــم \nالملــــــف": num_dos,
             "تاريــــخ \nالايـــداع": date_depo,
