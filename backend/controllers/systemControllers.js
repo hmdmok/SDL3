@@ -29,7 +29,7 @@ const createSystem = asyncHandler(async (req, res) => {
     machineCode = serial;
     console.log("machine code: " + machineCode);
   });
-
+  await new Promise((res) => setTimeout(res, 15000));
   mongoose.connection.close().then();
   connectSystemDB().then(async (x) => {
     if (x) {
@@ -71,15 +71,17 @@ const createSystem = asyncHandler(async (req, res) => {
         });
         mongoose.connection.close();
         connectDB().then(async () => {
-          const systemToAdd = await System.create({
-            installDate,
-            installType,
-            administrationType,
-            administrationName,
-            machineCode,
-            onlineID: onlineSystemToAdd._id,
-            onlineCheckDate,
-          });
+          let systemToAdd;
+          if (machineCode)
+            systemToAdd = await System.create({
+              installDate,
+              installType,
+              administrationType,
+              administrationName,
+              machineCode,
+              onlineID: onlineSystemToAdd._id,
+              onlineCheckDate,
+            });
           if (systemToAdd) {
             res.status(201).json({
               _id: systemToAdd._id,
@@ -95,24 +97,27 @@ const createSystem = asyncHandler(async (req, res) => {
     } else {
       console.log("not able to connect to the web server");
       connectDB().then(async () => {
-        const systemToAdd = await System.create({
-          installDate,
-          installType,
-          administrationType,
-          administrationName,
-          machineCode: machineCode,
-          onlineID: "not able to connect to the web server",
-          onlineCheckDate,
-        });
-        if (systemToAdd) {
-          res.status(201).json({
-            _id: systemToAdd._id,
-            installType: systemToAdd.installType,
-            onlineID: systemToAdd.onlineID,
+        console.log("machine code: " + machineCode);
+        try {
+          const systemToAdd = await System.create({
+            installDate,
+            installType,
+            administrationType,
+            administrationName,
+            machineCode: machineCode,
+            onlineID: "not able to connect to the web server",
+            onlineCheckDate,
           });
-        } else {
+          if (systemToAdd) {
+            res.status(201).json({
+              _id: systemToAdd._id,
+              installType: systemToAdd.installType,
+              onlineID: systemToAdd.onlineID,
+            });
+          }
+        } catch (error) {
+          console.log("error add system:" + error);
           res.status(400);
-          throw new Error("Error add System File");
         }
       });
     }

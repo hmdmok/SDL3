@@ -60,7 +60,7 @@ const BeniTools = () => {
   const [title, setTitle] = useState("لا يوجد حصة");
 
   useEffect(() => {
-    if (systemInfo[0]?.quotaTitle) {
+    if (systemInfo && systemInfo[0]?.quotaTitle) {
       setTitle(systemInfo[0]?.quotaTitle);
     } else {
       setTitle("لا يوجد حصة");
@@ -146,6 +146,15 @@ const BeniTools = () => {
         }}
       >
         انشاء ملف الاحتياطيين
+      </Button>
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() => {
+          onGetBenefisiersList(benefisiers, "export");
+        }}
+      >
+        استخراج  الملف الكامل
       </Button>
 
       <Button

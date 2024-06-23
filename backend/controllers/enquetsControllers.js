@@ -9,6 +9,8 @@ const { calculate } = require("./CalculeNotesDossier");
 const XLSX = require("sheetjs-style");
 const ADODB = require("node-adodb");
 const { convertDateFormat } = require("../config/functions");
+const dossier = require("../models/dossierModel");
+const person = require("../models/personModel");
 
 const fs = require("fs");
 const { DBFFile } = require("dbffile");
@@ -468,7 +470,7 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
 
 const getListBenefisiersFile = asyncHandler(async (req, res) => {
   var { dossiersList, type, quotaDate } = req.body;
-  console.log(type);
+  const dossiers = await dossier.find();
   const workbook = new ExcelJS.Workbook();
   let pi = 1,
     mi = 1;
@@ -509,12 +511,15 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
       worksheetMoin = workbook.worksheets[1];
       break;
     }
+    case "export": {
+      await workbook.xlsx.readFile("Export-Ar.xlsx");
+      worksheetPlus = workbook.worksheets[0];
+      worksheetMoin = workbook.worksheets[1];
+      break;
+    }
   }
 
-  console.log("plus:", worksheetPlus.name);
-  console.log("moin:", worksheetMoin.name);
-
-  const imageId1 = workbook.addImage({
+   const imageId1 = workbook.addImage({
     filename: "HMDMOK logo.PNG",
     extension: "png",
   });
@@ -523,196 +528,284 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
   worksheetPlus.addImage(imageId1, "AA2:AB3");
   worksheetMoin.addImage(imageId1, "AA2:AB3");
 
-  const newDoss = await dossiersList.map(
-    asyncHandler(async function (record, i) {
-      if (
-        type.includes("f") &&
-        new Date(convertDateFormat(record.demandeur?.date_n).jsDate) <=
+  let newDoss;
+  if (type === "export") {
+    newDoss = await dossiers.map(
+      asyncHandler(async function (record, i) {
+        const demandeur = await person.findById(record.id_demandeur);
+        const conjoin = await person.findById(record.id_conjoin);
+        if (
+          new Date(convertDateFormat(demandeur?.date_n).jsDate) <=
           new Date(
             new Date(quotaDate).getFullYear() - 35,
             new Date(quotaDate).getMonth(),
             new Date(quotaDate).getDate()
           )
-      ) {
-        await worksheetPlus.addRow(
-          [
-            worksheetPlus._rows.length - 6,
-            record.num_dos,
-            record.date_depo,
-            record.demandeur.nom_fr,
-            record.demandeur.prenom_fr,
-            getGenderName(record.demandeur.gender, "f"),
-            record.demandeur.date_n,
-            record.demandeur.num_act,
-            record.demandeur.lieu_n_fr,
-            getCivility(record.demandeur.stuation_f, "f"),
-            record.demandeur.prenom_p_fr,
-            record.demandeur.nom_m_fr,
-            record.demandeur.prenom_m_fr,
-            record.adress,
-            record.conjoin?.nom_fr,
-            record.conjoin?.prenom_fr,
-            record.conjoin?.date_n,
-            record.conjoin?.num_act,
-            record.conjoin?.lieu_n_fr,
-            record.conjoin?.prenom_p_fr,
-            record.conjoin?.nom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-          ],
-          "i+"
-        );
-        let image;
-        if (record.demandeur?.photo_link) {
-          image = workbook.addImage({
-            filename: record.demandeur?.photo_link,
-            extension: "png",
-          });
+        ) {
+          await worksheetPlus.addRow(
+            [
+              worksheetPlus._rows.length - 3,
+              record.num_dos,
+              record.date_depo,
+              demandeur?.nom,
+              demandeur?.prenom,
+              getGenderName(demandeur?.gender, "a"),
+              demandeur?.date_n,
+              demandeur?.num_act,
+              demandeur?.lieu_n,
+              getCivility(demandeur?.stuation_f, "a"),
+              demandeur?.prenom_p,
+              demandeur?.nom_m,
+              demandeur?.prenom_m,
+              record.adress,
+              conjoin?.nom,
+              conjoin?.prenom,
+              conjoin?.date_n,
+              conjoin?.num_act,
+              conjoin?.lieu_n,
+              conjoin?.prenom_p,
+              conjoin?.nom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+            ],
+            "i+"
+          );
         } else {
-          image = workbook.addImage({
-            filename: "usersPicUpload/default.png",
-            extension: "png",
-          });
+          await worksheetMoin.addRow(
+            [
+              worksheetMoin._rows.length - 3,
+              record.num_dos,
+              record.date_depo,
+              demandeur?.nom,
+              demandeur?.prenom,
+              getGenderName(demandeur?.gender, "a"),
+              demandeur?.date_n,
+              demandeur?.num_act,
+              demandeur?.lieu_n,
+              getCivility(demandeur?.stuation_f, "a"),
+              demandeur?.prenom_p,
+              demandeur?.nom_m,
+              demandeur?.prenom_m,
+              record.adress,
+              conjoin?.nom,
+              conjoin?.prenom,
+              conjoin?.date_n,
+              conjoin?.num_act,
+              conjoin?.lieu_n,
+              conjoin?.prenom_p,
+              conjoin?.nom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+              conjoin?.prenom_m,
+            ],
+            "i+"
+          );
         }
-        worksheetPlus.addImage(image, {
-          tl: { col: 29, row: worksheetPlus._media.length + 5 },
-          ext: { width: 200, height: 250 },
-        });
-
-        pi = pi + 1;
-      } else if (
-        type.includes("f") &&
-        new Date(convertDateFormat(record.demandeur?.date_n).jsDate) >=
-          new Date(
-            new Date(quotaDate).getFullYear() - 35,
-            new Date(quotaDate).getMonth(),
-            new Date(quotaDate).getDate()
-          )
-      ) {
-        await worksheetMoin.addRow(
-          [
-            worksheetMoin._rows.length - 6,
-            record.num_dos,
-            record.date_depo,
-            record.demandeur.nom_fr,
-            record.demandeur.prenom_fr,
-            getGenderName(record.demandeur.gender, "f"),
-            record.demandeur.date_n,
-            record.demandeur.num_act,
-            record.demandeur.lieu_n_fr,
-            getCivility(record.demandeur.stuation_f, "f"),
-            record.demandeur.prenom_p_fr,
-            record.demandeur.nom_m_fr,
-            record.demandeur.prenom_m_fr,
-            record.adress,
-            record.conjoin?.nom_fr,
-            record.conjoin?.prenom_fr,
-            record.conjoin?.date_n,
-            record.conjoin?.num_act,
-            record.conjoin?.lieu_n_fr,
-            record.conjoin?.prenom_p_fr,
-            record.conjoin?.nom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-            record.conjoin?.prenom_m_fr,
-          ],
-          "i+"
-        );
-        console.log(record.demandeur);
-        if (record.demandeur?.photo_link) {
-          const image = workbook.addImage({
-            filename: record.demandeur?.photo_link,
-            extension: "png",
-          });
-          worksheetMoin.addImage(image, {
-            tl: { col: 29, row: worksheetMoin._media.length + 5 },
+      })
+    );
+  } else {
+    newDoss = await dossiersList.map(
+      asyncHandler(async function (record, i) {
+        if (
+          type.includes("f") &&
+          new Date(convertDateFormat(record.demandeur?.date_n).jsDate) <=
+            new Date(
+              new Date(quotaDate).getFullYear() - 35,
+              new Date(quotaDate).getMonth(),
+              new Date(quotaDate).getDate()
+            )
+        ) {
+          await worksheetPlus.addRow(
+            [
+              worksheetPlus._rows.length - 6,
+              record.num_dos,
+              record.date_depo,
+              record.demandeur.nom_fr,
+              record.demandeur.prenom_fr,
+              getGenderName(record.demandeur.gender, "f"),
+              record.demandeur.date_n,
+              record.demandeur.num_act,
+              record.demandeur.lieu_n_fr,
+              getCivility(record.demandeur.stuation_f, "f"),
+              record.demandeur.prenom_p_fr,
+              record.demandeur.nom_m_fr,
+              record.demandeur.prenom_m_fr,
+              record.adress,
+              record.conjoin?.nom_fr,
+              record.conjoin?.prenom_fr,
+              record.conjoin?.date_n,
+              record.conjoin?.num_act,
+              record.conjoin?.lieu_n_fr,
+              record.conjoin?.prenom_p_fr,
+              record.conjoin?.nom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+            ],
+            "i+"
+          );
+          let image;
+          if (record.demandeur?.photo_link) {
+            image = workbook.addImage({
+              filename: record.demandeur?.photo_link,
+              extension: "png",
+            });
+          } else {
+            image = workbook.addImage({
+              filename: "usersPicUpload/default.png",
+              extension: "png",
+            });
+          }
+          worksheetPlus.addImage(image, {
+            tl: { col: 29, row: worksheetPlus._media.length + 5 },
             ext: { width: 200, height: 250 },
           });
-        }
-        mi++;
-      } else if (
-        type.includes("a") &&
-        new Date(convertDateFormat(record.demandeur?.date_n).jsDate) >=
-          new Date(
-            new Date(quotaDate).getFullYear() - 35,
-            new Date(quotaDate).getMonth(),
-            new Date(quotaDate).getDate()
-          )
-      ) {
-        await worksheetPlus.addRow(
-          [
-            worksheetPlus._rows.length - 6,
-            record.demandeur.nom,
-            record.demandeur.prenom,
-            record.demandeur.date_n,
-            record.demandeur.lieu_n,
-            getCivility(record.demandeur.stuation_f, "a"),
-            record.demandeur.prenom_p,
-            record.demandeur.nom_m,
-            record.demandeur.prenom_m,
-          ],
-          "i+"
-        );
-        if (record.demandeur?.photo_link) {
-          const image = workbook.addImage({
-            filename: record.demandeur?.photo_link,
-            extension: "png",
-          });
-          worksheetPlus.addImage(image, {
-            tl: { col: 9, row: worksheetPlus._media.length + 5 },
-            ext: { width: 200, height: 150 },
-          });
-        }
-        pi++;
-      } else if (
-        type.includes("a") &&
-        new Date(convertDateFormat(record.demandeur?.date_n).jsDate) <=
-          new Date(
-            new Date(quotaDate).getFullYear() - 35,
-            new Date(quotaDate).getMonth(),
-            new Date(quotaDate).getDate()
-          )
-      ) {
-        await worksheetMoin.addRow(
-          [
-            worksheetMoin._rows.length - 6,
-            record.demandeur.nom,
-            record.demandeur.prenom,
-            record.demandeur.date_n,
-            record.demandeur.lieu_n,
-            getCivility(record.demandeur.stuation_f, "a"),
-            record.demandeur.prenom_p,
-            record.demandeur.nom_m,
-            record.demandeur.prenom_m,
-          ],
-          "i+"
-        );
 
-        if (record.demandeur?.photo_link) {
-          const image = workbook.addImage({
-            filename: record.demandeur?.photo_link,
-            extension: "png",
-          });
-          worksheetMoin.addImage(image, {
-            tl: { col: 9, row: worksheetMoin._media.length + 5 },
-            ext: { width: 200, height: 150 },
-          });
+          pi = pi + 1;
+        } else if (
+          type.includes("f") &&
+          new Date(convertDateFormat(record.demandeur?.date_n).jsDate) >=
+            new Date(
+              new Date(quotaDate).getFullYear() - 35,
+              new Date(quotaDate).getMonth(),
+              new Date(quotaDate).getDate()
+            )
+        ) {
+          await worksheetMoin.addRow(
+            [
+              worksheetMoin._rows.length - 6,
+              record.num_dos,
+              record.date_depo,
+              record.demandeur.nom_fr,
+              record.demandeur.prenom_fr,
+              getGenderName(record.demandeur.gender, "f"),
+              record.demandeur.date_n,
+              record.demandeur.num_act,
+              record.demandeur.lieu_n_fr,
+              getCivility(record.demandeur.stuation_f, "f"),
+              record.demandeur.prenom_p_fr,
+              record.demandeur.nom_m_fr,
+              record.demandeur.prenom_m_fr,
+              record.adress,
+              record.conjoin?.nom_fr,
+              record.conjoin?.prenom_fr,
+              record.conjoin?.date_n,
+              record.conjoin?.num_act,
+              record.conjoin?.lieu_n_fr,
+              record.conjoin?.prenom_p_fr,
+              record.conjoin?.nom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+              record.conjoin?.prenom_m_fr,
+            ],
+            "i+"
+          );
+          if (record.demandeur?.photo_link) {
+            const image = workbook.addImage({
+              filename: record.demandeur?.photo_link,
+              extension: "png",
+            });
+            worksheetMoin.addImage(image, {
+              tl: { col: 29, row: worksheetMoin._media.length + 5 },
+              ext: { width: 200, height: 250 },
+            });
+          }
+          mi++;
+        } else if (
+          type.includes("a") &&
+          new Date(convertDateFormat(record.demandeur?.date_n).jsDate) >=
+            new Date(
+              new Date(quotaDate).getFullYear() - 35,
+              new Date(quotaDate).getMonth(),
+              new Date(quotaDate).getDate()
+            )
+        ) {
+          await worksheetPlus.addRow(
+            [
+              worksheetPlus._rows.length - 6,
+              record.demandeur.nom,
+              record.demandeur.prenom,
+              record.demandeur.date_n,
+              record.demandeur.lieu_n,
+              getCivility(record.demandeur.stuation_f, "a"),
+              record.demandeur.prenom_p,
+              record.demandeur.nom_m,
+              record.demandeur.prenom_m,
+            ],
+            "i+"
+          );
+          if (record.demandeur?.photo_link) {
+            const image = workbook.addImage({
+              filename: record.demandeur?.photo_link,
+              extension: "png",
+            });
+            worksheetPlus.addImage(image, {
+              tl: { col: 9, row: worksheetPlus._media.length + 5 },
+              ext: { width: 200, height: 150 },
+            });
+          }
+          pi++;
+        } else if (
+          type.includes("a") &&
+          new Date(convertDateFormat(record.demandeur?.date_n).jsDate) <=
+            new Date(
+              new Date(quotaDate).getFullYear() - 35,
+              new Date(quotaDate).getMonth(),
+              new Date(quotaDate).getDate()
+            )
+        ) {
+          await worksheetMoin.addRow(
+            [
+              worksheetMoin._rows.length - 6,
+              record.demandeur.nom,
+              record.demandeur.prenom,
+              record.demandeur.date_n,
+              record.demandeur.lieu_n,
+              getCivility(record.demandeur.stuation_f, "a"),
+              record.demandeur.prenom_p,
+              record.demandeur.nom_m,
+              record.demandeur.prenom_m,
+            ],
+            "i+"
+          );
+
+          if (record.demandeur?.photo_link) {
+            const image = workbook.addImage({
+              filename: record.demandeur?.photo_link,
+              extension: "png",
+            });
+            worksheetMoin.addImage(image, {
+              tl: { col: 9, row: worksheetMoin._media.length + 5 },
+              ext: { width: 200, height: 150 },
+            });
+          }
+          mi++;
         }
-        mi++;
-      }
-    })
-  );
+      })
+    );
+  }
+
   // worksheet.spliceRows(7, 1);
   const newFileName = `List Benifisiers ${
     new Date().toISOString().split("T")[0]
@@ -721,8 +814,14 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
   return Promise.all(newDoss)
     .then(
       asyncHandler(async () => {
-        await worksheetPlus.spliceRows(7, 1);
-        await worksheetMoin.spliceRows(7, 1);
+        if (type === "export") {
+          await worksheetPlus.spliceRows(2, 3);
+          await worksheetMoin.spliceRows(2, 3);
+        } else {
+          await worksheetPlus.spliceRows(7, 1);
+          await worksheetMoin.spliceRows(7, 1);
+        }
+
         try {
           await workbook.xlsx.writeFile(newFileName);
         } catch (error) {
@@ -753,7 +852,6 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
 
   // var work_book = XLSX.read(file, { type: "array", dateNF: "dd/mm/yyyy" });
   var sheet_name = file.SheetNames;
-  console.log(sheet_name);
   var stream = XLSX.stream.to_json(file.Sheets[sheet_name], {
     raw: false,
   });

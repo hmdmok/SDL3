@@ -5,7 +5,6 @@ const generateToken = require("../utils/generateToken");
 const { initiateDB } = require("../config/db");
 
 const addNewUser = asyncHandler(async (req, res) => {
-  // console.log(req);
   if (req.user.usertype !== "super") {
     res.status(400);
     throw new Error("المستخدم غير مرخص");
@@ -22,6 +21,7 @@ const addNewUser = asyncHandler(async (req, res) => {
     email,
     phone,
   } = req.body;
+  console.log("usertype:", usertype);
 
   const photo_link = req.file?.path;
 
