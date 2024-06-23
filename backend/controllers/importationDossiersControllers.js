@@ -276,6 +276,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
             "تاريخ الميلاد": date_n_dem,
             "رقم عقد ميلاد الـــزوج(ة)": num_act_conj,
             "تاريـخ ميـــلاد\n الـــــــــزوج (ة)": date_n_conj,
+            
           } = dossier;
 
           // find dossier to update

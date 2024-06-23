@@ -91,8 +91,27 @@ const uploadDossierEnq = asyncHandler(async (req, res) => {
 });
 
 const getEnquetCNLFile = asyncHandler(async (req, res) => {
-  var { dossierEnq } = req.body;
+  var {} = req.body;
+  const people = await person.find();
+  const dossies = await Dossier.find();
+  // Create a map of person ID to person data
+  const personMap = people.reduce((map, person) => {
+    map[person._id] = person;
+    return map;
+  }, {});
 
+  // Combine dossier data with person data
+  const dossierEnq = dossies.map((dossier) => {
+    const demandeurInfo = personMap[dossier.id_demandeur] || null;
+    const conjoinInfo = personMap[dossier.id_conjoin] || null;
+    return {
+      ...dossier._doc,
+      demandeur: demandeurInfo,
+      conjoin: conjoinInfo,
+    };
+  });
+
+  console.log(dossierEnq);
   let workbook = XLSX.readFile("CNL.xlsx", { cellStyles: true });
   let first_sheet_name = workbook.SheetNames;
   let worksheet = workbook.Sheets[first_sheet_name];
@@ -241,7 +260,7 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
       };
 
       // modify value in G
-      XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.com_n]], {
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.lieu_n_fr]], {
         origin: `G${i + 10}`,
       });
       // set the style in G
@@ -379,7 +398,7 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
       };
 
       // modify value in R
-      XLSX.utils.sheet_add_aoa(worksheet, [[record.conjoin.com_n]], {
+      XLSX.utils.sheet_add_aoa(worksheet, [[record.conjoin.lieu_n_fr]], {
         origin: `R${i + 10}`,
       });
       // set the style in R
@@ -519,7 +538,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
     }
   }
 
-   const imageId1 = workbook.addImage({
+  const imageId1 = workbook.addImage({
     filename: "HMDMOK logo.PNG",
     extension: "png",
   });
@@ -944,7 +963,27 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
 });
 
 const getEnquetCNASFile = asyncHandler(async (req, res) => {
-  var { dossierEnq } = req.body;
+  var {} = req.body;
+
+  const people = await person.find();
+  const dossies = await Dossier.find();
+  // Create a map of person ID to person data
+  const personMap = people.reduce((map, person) => {
+    map[person._id] = person;
+    return map;
+  }, {});
+
+  // Combine dossier data with person data
+  const dossierEnq = dossies.map((dossier) => {
+    const demandeurInfo = personMap[dossier.id_demandeur] || null;
+    const conjoinInfo = personMap[dossier.id_conjoin] || null;
+    return {
+      ...dossier._doc,
+      demandeur: demandeurInfo,
+      conjoin: conjoinInfo,
+    };
+  });
+
   fs.copyFile(
     "./sourceEnq/enqueteCNAS.mdb",
     "./sourceEnq/enqCNAS.mdb",
@@ -1328,7 +1367,26 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
 });
 
 const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
-  var { dossierEnq } = req.body;
+  var {} = req.body;
+  const people = await person.find();
+  const dossies = await Dossier.find();
+  // Create a map of person ID to person data
+  const personMap = people.reduce((map, person) => {
+    map[person._id] = person;
+    return map;
+  }, {});
+
+  // Combine dossier data with person data
+  const dossierEnq = dossies.map((dossier) => {
+    const demandeurInfo = personMap[dossier.id_demandeur] || null;
+    const conjoinInfo = personMap[dossier.id_conjoin] || null;
+    return {
+      ...dossier._doc,
+      demandeur: demandeurInfo,
+      conjoin: conjoinInfo,
+    };
+  });
+
   fs.unlink("CASNOSENQ.dbf", (err) => {
     if (err) {
       console.log("Error Found:", err);

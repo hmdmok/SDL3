@@ -24,16 +24,16 @@ const dossierSchema = mongoose.Schema(
       type: Number,
     },
     stuation_s_avec_d: {
-      type: String,
+      type: Number,
     },
     stuation_s_andicap: {
       type: String,
     },
     stuation_d: {
-      type: String,
+      type: Number,
     },
     numb_p: {
-      type: String,
+      type: Number,
     },
     type: {
       type: String,
