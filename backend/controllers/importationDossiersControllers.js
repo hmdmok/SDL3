@@ -93,6 +93,12 @@ const updateDossiers = asyncHandler(async (req, res) => {
                   nom_m_dem || demandeurToUpdate.nom_m_fr;
                 demandeurToUpdate.num_act =
                   num_act_dem || demandeurToUpdate.num_act;
+                demandeurToUpdate.date_n =
+                  convertDateFormat(date_n_dem, "S").date ||
+                  demandeurToUpdate.date_n;
+                demandeurToUpdate.type_date_n =
+                  convertDateFormat(date_n_dem, "S").type ||
+                  demandeurToUpdate.type_date_n;
 
                 const updatedDemandeur = await demandeurToUpdate.save();
               }
@@ -125,6 +131,12 @@ const updateDossiers = asyncHandler(async (req, res) => {
                   nom_m_conj || conjoinToUpdate.nom_m_fr;
                 conjoinToUpdate.num_act =
                   num_act_conj || conjoinToUpdate.num_act;
+                conjoinToUpdate.date_n =
+                  convertDateFormat(date_n_conj, "S").date ||
+                  conjoinToUpdate.date_n;
+                conjoinToUpdate.type_date_n =
+                  convertDateFormat(date_n_conj, "S").type ||
+                  conjoinToUpdate.type_date_n;
 
                 const updatedConjoin = await conjoinToUpdate.save();
               }
