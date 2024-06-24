@@ -43,7 +43,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
             Prenom: prenom_dem,
             Nom: nom_dem,
             sexe: gender_dem,
-            "N°\r\nDE ACT": num_act_dem,
+            "N°\nDE ACT": num_act_dem,
             "Date de naissance": date_n_dem,
             "Lieu de naissance": lieu_n_dem,
             "Prénom du pére": prenom_p_dem,
@@ -61,7 +61,6 @@ const updateDossiers = asyncHandler(async (req, res) => {
             "Ref demande": num_dos,
             "Date demande": date_depo,
           } = dossier;
-
           // check if dossier exists in DB
           const dossierToUpdate = await Dossier.find({ num_dos: num_dos });
 
@@ -92,6 +91,9 @@ const updateDossiers = asyncHandler(async (req, res) => {
                   prenom_m_dem || demandeurToUpdate.prenom_m_fr;
                 demandeurToUpdate.nom_m_fr =
                   nom_m_dem || demandeurToUpdate.nom_m_fr;
+                demandeurToUpdate.num_act =
+                  num_act_dem || demandeurToUpdate.num_act;
+
                 const updatedDemandeur = await demandeurToUpdate.save();
               }
             }
@@ -121,6 +123,9 @@ const updateDossiers = asyncHandler(async (req, res) => {
                   prenom_m_conj || conjoinToUpdate.prenom_m_fr;
                 conjoinToUpdate.nom_m_fr =
                   nom_m_conj || conjoinToUpdate.nom_m_fr;
+                conjoinToUpdate.num_act =
+                  num_act_conj || conjoinToUpdate.num_act;
+
                 const updatedConjoin = await conjoinToUpdate.save();
               }
             }
@@ -276,7 +281,6 @@ const updateDossiers = asyncHandler(async (req, res) => {
             "تاريخ الميلاد": date_n_dem,
             "رقم عقد ميلاد الـــزوج(ة)": num_act_conj,
             "تاريـخ ميـــلاد\n الـــــــــزوج (ة)": date_n_conj,
-            
           } = dossier;
 
           // find dossier to update
