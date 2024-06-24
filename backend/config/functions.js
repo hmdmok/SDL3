@@ -140,8 +140,8 @@ function convertDateFormat(dateStr, outputType) {
       } else {
         // If day or month is 00
         if (day == 0 || month == 0) {
-          day = 1;
-          month = 1;
+          day = 31;
+          month = 12;
           type = "P";
         } else {
           type = "E"; // Still an error
@@ -164,8 +164,8 @@ function convertDateFormat(dateStr, outputType) {
     let yearMatch = /\b(\d{4})\b/.exec(dateStr);
     if (yearMatch) {
       year = parseInt(yearMatch[1], 10);
-      day = 1;
-      month = 1;
+      day = 31;
+      month = 12;
       type = "P"; // Presumed date
     } else {
       // If no valid year is found, return the fixed error date
@@ -190,6 +190,10 @@ function convertDateFormat(dateStr, outputType) {
   return { date: formattedDate, type: type, jsDate: jsFormattedDate };
 }
 
+function sanitizeInput(input) {
+  return input.replace(/[^a-zA-Z0-9 ]/g, ""); // Only allow alphanumeric characters and spaces
+}
+
 module.exports = {
   isValidDate,
   validateHeader,
@@ -199,4 +203,5 @@ module.exports = {
   getAlphabet,
   getGenderName,
   convertDateFormat,
+  sanitizeInput,
 };

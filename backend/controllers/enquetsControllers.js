@@ -8,7 +8,7 @@ const generateToken = require("../utils/generateToken");
 const { calculate } = require("./CalculeNotesDossier");
 const XLSX = require("sheetjs-style");
 const ADODB = require("node-adodb");
-const { convertDateFormat } = require("../config/functions");
+const { convertDateFormat, sanitizeInput } = require("../config/functions");
 const dossier = require("../models/dossierModel");
 const person = require("../models/personModel");
 
@@ -21,41 +21,138 @@ const {
 } = require("../config/functions");
 const ExcelJS = require("exceljs");
 const System = require("../models/systemModel");
-const { Console } = require("console");
+
+async function getFullDossier() {
+  const people = await person.find();
+  const dossies = await Dossier.find();
+  // Create a map of person ID to person data
+  const personMap = people.reduce((map, person) => {
+    map[person._id] = person;
+    return map;
+  }, {});
+
+  // Combine dossier data with person data
+  const dossierEnq = dossies.map((dossier) => {
+    const demandeurInfo = personMap[dossier.id_demandeur] || null;
+    const conjoinInfo = personMap[dossier.id_conjoin] || null;
+    return {
+      ...dossier._doc,
+      demandeur: demandeurInfo,
+      conjoin: conjoinInfo,
+    };
+  });
+
+  return dossierEnq;
+}
+
+function createRecord(dossier, newData, type) {
+  const demandeur = dossier.demandeur || {};
+  const conjoin = dossier.conjoin || {};
+
+  switch (type) {
+    case "CASNOS": {
+      if (dossier.id_demandeur) {
+        const newRecord = {
+          CODE_P: newData.length + 1,
+          NOM_P: sanitizeInput(demandeur.nom_fr || ""),
+          PRENOM_P: sanitizeInput(demandeur.prenom_fr || ""),
+          DDN_P: convertDateFormat(demandeur.date_n) || "",
+          ADR_P: sanitizeInput(dossier.adress || ""),
+          NUM_ACT_P: sanitizeInput(demandeur.num_act || ""),
+          PP: sanitizeInput(demandeur.prenom_p_fr || ""),
+          NPM: sanitizeInput(
+            `${demandeur.nom_m_fr || ""} ${demandeur.prenom_m_fr || ""}`
+          ),
+          LIB_SEXE: sanitizeInput(demandeur.gender || ""),
+          CC: "",
+          NC: sanitizeInput(demandeur.lieu_n_fr || ""),
+          WILAYA: sanitizeInput(demandeur.wil_n || ""),
+        };
+
+        newData.push(newRecord);
+      }
+      if (dossier.id_conjoin) {
+        const newRecord = {
+          CODE_P: newData.length + 1,
+          NOM_P: sanitizeInput(conjoin.nom_fr || ""),
+          PRENOM_P: sanitizeInput(conjoin.prenom_fr || ""),
+          DDN_P: convertDateFormat(conjoin.date_n) || "",
+          ADR_P: sanitizeInput(dossier.adress || ""),
+          NUM_ACT_P: sanitizeInput(conjoin.num_act || ""),
+          PP: sanitizeInput(conjoin.prenom_p_fr || ""),
+          NPM: sanitizeInput(
+            `${conjoin.nom_m_fr || ""} ${conjoin.prenom_m_fr || ""}`
+          ),
+          LIB_SEXE: sanitizeInput(conjoin.gender || ""),
+          CC: "",
+          NC: sanitizeInput(conjoin.lieu_n_fr || ""),
+          WILAYA: sanitizeInput(conjoin.wil_n || ""),
+        };
+
+        newData.push(newRecord);
+      }
+      break;
+    }
+
+    case "CNAS": {
+      if (dossier.id_demandeur) {
+        const newRecord = {
+          "N°": newData.length + 1,
+          NUM_DOSS: dossier.num_dos,
+          CODE_P: "",
+          NOM_P: sanitizeInput(demandeur.nom_fr || ""),
+          PRENOM_P: sanitizeInput(demandeur.prenom_fr || ""),
+          DDN_P: convertDateFormat(demandeur.date_n) || "",
+          ADR_P: sanitizeInput(dossier.adress || ""),
+          NUM_ACT_P: sanitizeInput(demandeur.num_act || ""),
+          PP: sanitizeInput(demandeur.prenom_p_fr || ""),
+          NPM: sanitizeInput(
+            `${demandeur.nom_m_fr || ""} ${demandeur.prenom_m_fr || ""}`
+          ),
+          LIB_SEXE: sanitizeInput(demandeur.gender || ""),
+          CC: "",
+          NC: sanitizeInput(demandeur.lieu_n_fr || ""),
+          WILAYA: sanitizeInput(demandeur.wil_n || ""),
+        };
+
+        newData.push(newRecord);
+      }
+      if (dossier.id_conjoin) {
+        const newRecord = {
+          "N°": newData.length + 1,
+          NUM_DOSS: dossier.num_dos,
+          CODE_P: "",
+          NOM_P: sanitizeInput(conjoin.nom_fr || ""),
+          PRENOM_P: sanitizeInput(conjoin.prenom_fr || ""),
+          DDN_P: convertDateFormat(conjoin.date_n) || "",
+          ADR_P: sanitizeInput(dossier.adress || ""),
+          NUM_ACT_P: sanitizeInput(conjoin.num_act || ""),
+          PP: sanitizeInput(conjoin.prenom_p_fr || ""),
+          NPM: sanitizeInput(
+            `${conjoin.nom_m_fr || ""} ${conjoin.prenom_m_fr || ""}`
+          ),
+          LIB_SEXE: sanitizeInput(conjoin.gender || ""),
+          CC: "",
+          NC: sanitizeInput(conjoin.lieu_n_fr || ""),
+          WILAYA: sanitizeInput(conjoin.wil_n || ""),
+        };
+
+        newData.push(newRecord);
+      }
+      break;
+    }
+  }
+}
 
 const getDossierByDates = asyncHandler(async (req, res) => {
   const { fromDate, toDate } = req.body;
-  const persons = await Person.aggregate([
-    {
-      $addFields: { personId: { $toString: "$_id" } },
-    },
-  ]);
-  const dossierByDates = await Dossier.aggregate([
-    {
-      $match: {
-        date_depo: {
-          $gte: fromDate,
-          $lt: toDate,
-        },
-      },
-    },
-    {
-      $lookup: {
-        localField: "id_demandeur",
-        foreignField: "personId",
-        as: "demandeur",
-        pipeline: [{ $documents: persons }],
-      },
-    },
-    {
-      $lookup: {
-        localField: "id_conjoin",
-        foreignField: "personId",
-        as: "conjoin",
-        pipeline: [{ $documents: persons }],
-      },
-    },
-  ]);
+  const dossiers = await getFullDossier();
+
+  const dossierByDates = dossiers.filter(
+    (dossier) =>
+      new Date(dossier.date_depo) >= new Date(fromDate) &&
+      new Date(dossier.date_depo) <= new Date(toDate)
+  );
 
   if (dossierByDates) {
     res.json(dossierByDates);
@@ -92,24 +189,8 @@ const uploadDossierEnq = asyncHandler(async (req, res) => {
 
 const getEnquetCNLFile = asyncHandler(async (req, res) => {
   var {} = req.body;
-  const people = await person.find();
-  const dossies = await Dossier.find();
-  // Create a map of person ID to person data
-  const personMap = people.reduce((map, person) => {
-    map[person._id] = person;
-    return map;
-  }, {});
 
-  // Combine dossier data with person data
-  const dossierEnq = dossies.map((dossier) => {
-    const demandeurInfo = personMap[dossier.id_demandeur] || null;
-    const conjoinInfo = personMap[dossier.id_conjoin] || null;
-    return {
-      ...dossier._doc,
-      demandeur: demandeurInfo,
-      conjoin: conjoinInfo,
-    };
-  });
+  const dossierEnq = await getFullDossier();
 
   // console.log(dossierEnq);
   let workbook = XLSX.readFile("CNL.xlsx", { cellStyles: true });
@@ -965,24 +1046,7 @@ const getEnquetCNLFileTest = asyncHandler(async (req, res) => {
 const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
   var {} = req.body;
 
-  const people = await person.find();
-  const dossies = await Dossier.find();
-  // Create a map of person ID to person data
-  const personMap = people.reduce((map, person) => {
-    map[person._id] = person;
-    return map;
-  }, {});
-
-  // Combine dossier data with person data
-  const dossierEnq = dossies.map((dossier) => {
-    const demandeurInfo = personMap[dossier.id_demandeur] || null;
-    const conjoinInfo = personMap[dossier.id_conjoin] || null;
-    return {
-      ...dossier._doc,
-      demandeur: demandeurInfo,
-      conjoin: conjoinInfo,
-    };
-  });
+  const dossierEnq = await getFullDossier();
 
   fs.copyFile(
     "./sourceEnq/enqueteCNAS.mdb",
@@ -1060,75 +1124,14 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
 
 const getEnquetCNASFile = asyncHandler(async (req, res) => {
   const {} = req.body;
-  const people = await person.find();
-  const dossies = await Dossier.find();
-  // Create a map of person ID to person data
-  const personMap = people.reduce((map, person) => {
-    map[person._id] = person;
-    return map;
-  }, {});
 
-  // Combine dossier data with person data
-  const dossierEnq = dossies.map((dossier, i) => {
-    const demandeurInfo = personMap[dossier.id_demandeur] || null;
-    const conjoinInfo = personMap[dossier.id_conjoin] || null;
-    return {
-      ...dossier._doc,
-      demandeur: demandeurInfo,
-      conjoin: conjoinInfo,
-    };
-  });
+  const dossierEnq = await getFullDossier();
 
   var newData = [];
   var numOrdre = 1;
   const dossiersMaped = dossierEnq?.map(
     asyncHandler(async (dossier) => {
-      // // extract demandeur
-
-      if (dossier.demandeur._id) {
-        var newRecord = {
-          "N°": numOrdre,
-          NUM_DOSS: dossier.num_dos,
-          CODE_P: "",
-          NOM_P: dossier.demandeur?.nom_fr || "",
-          PRENOM_P: dossier.demandeur?.prenom_fr || "",
-          DDN_P: dossier.demandeur?.date_n || "",
-          ADR_P: "",
-          NUM_ACT_P: dossier.demandeur?.num_act || "",
-          PP: dossier.demandeur?.prenom_p_fr || "",
-          NPM:
-            `${dossier.demandeur?.nom_m_fr} ${dossier.demandeur?.prenom_m_fr}` ||
-            "",
-          LIB_SEXE: dossier.demandeur?.gender || "",
-          CC: "",
-          NC: dossier.demandeur?.lieu_n_fr || "",
-          WILAYA: dossier.demandeur?.wil_n || "",
-        };
-        newData.push(newRecord);
-        numOrdre++;
-      }
-      if (dossier.conjoin?._id) {
-        var newRecord2 = {
-          "N°": numOrdre,
-          NUM_DOSS: dossier.num_dos,
-          CODE_P: "",
-          NOM_P: dossier.conjoin?.nom_fr || "",
-          PRENOM_P: dossier.conjoin?.prenom_fr || "",
-          DDN_P: dossier.conjoin?.date_n || "",
-          ADR_P: "",
-          NUM_ACT_P: dossier.conjoin?.num_act || "",
-          PP: dossier.conjoin?.prenom_p_fr || "",
-          NPM:
-            `${dossier.conjoin?.nom_m_fr} ${dossier.conjoin?.prenom_m_fr}` ||
-            "",
-          LIB_SEXE: dossier.conjoin?.gender || "",
-          CC: "",
-          NC: dossier.conjoin?.lieu_n_fr || "",
-          WILAYA: dossier.conjoin?.wil_n || "",
-        };
-        newData.push(newRecord2);
-        numOrdre++;
-      }
+      createRecord(dossier, newData, "CNAS");
 
       var newWB = XLSX.utils.book_new();
       var newWS = XLSX.utils.json_to_sheet(newData);
@@ -1146,6 +1149,35 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
     .catch((err) => {
       console.log(err);
       res.json("error creating enqCNAS");
+    });
+});
+
+const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
+  const {} = req.body;
+
+  const dossierEnq = await getFullDossier();
+
+  var newData = [];
+  const dossiersMaped = dossierEnq?.map(
+    asyncHandler(async (dossier) => {
+      createRecord(dossier, newData, "CASNOS");
+
+      var newWB = XLSX.utils.book_new();
+      var newWS = XLSX.utils.json_to_sheet(newData);
+      XLSX.utils.book_append_sheet(newWB, newWS, "Table1");
+      XLSX.writeFile(newWB, "new_EnquetCASNOS.xlsx");
+    })
+  );
+
+  return Promise.all(dossiersMaped)
+    .then(async () => {
+      const fileCASNOS = `new_EnquetCASNOS.xlsx`;
+
+      res.download(fileCASNOS);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json("error creating enqCASNOS");
     });
 });
 
@@ -1302,26 +1334,10 @@ const getEnquetCASNOSFileTest = asyncHandler(async (req, res) => {
   );
 });
 
-const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
+const getEnquetCASNOSFiletest2 = asyncHandler(async (req, res) => {
   var {} = req.body;
-  const people = await person.find();
-  const dossies = await Dossier.find();
-  // Create a map of person ID to person data
-  const personMap = people.reduce((map, person) => {
-    map[person._id] = person;
-    return map;
-  }, {});
 
-  // Combine dossier data with person data
-  const dossierEnq = dossies.map((dossier) => {
-    const demandeurInfo = personMap[dossier.id_demandeur] || null;
-    const conjoinInfo = personMap[dossier.id_conjoin] || null;
-    return {
-      ...dossier._doc,
-      demandeur: demandeurInfo,
-      conjoin: conjoinInfo,
-    };
-  });
+  const dossierEnq = await getFullDossier();
 
   fs.unlink("CASNOSENQ.dbf", (err) => {
     if (err) {
