@@ -52,11 +52,12 @@ function createRecord(dossier, newData, type) {
   switch (type) {
     case "CASNOS": {
       if (dossier.id_demandeur) {
+        console.log(demandeur);
         const newRecord = {
           CODE_P: newData.length + 1,
           NOM_P: sanitizeInput(demandeur.nom_fr || ""),
           PRENOM_P: sanitizeInput(demandeur.prenom_fr || ""),
-          DDN_P: convertDateFormat(demandeur.date_n) || "",
+          DDN_P: convertDateFormat(demandeur.date_n, "S").date || "",
           ADR_P: sanitizeInput(dossier.adress || ""),
           NUM_ACT_P: sanitizeInput(demandeur.num_act || ""),
           PP: sanitizeInput(demandeur.prenom_p_fr || ""),
@@ -76,7 +77,7 @@ function createRecord(dossier, newData, type) {
           CODE_P: newData.length + 1,
           NOM_P: sanitizeInput(conjoin.nom_fr || ""),
           PRENOM_P: sanitizeInput(conjoin.prenom_fr || ""),
-          DDN_P: convertDateFormat(conjoin.date_n) || "",
+          DDN_P: convertDateFormat(conjoin.date_n, "S").date || "",
           ADR_P: sanitizeInput(dossier.adress || ""),
           NUM_ACT_P: sanitizeInput(conjoin.num_act || ""),
           PP: sanitizeInput(conjoin.prenom_p_fr || ""),
@@ -102,7 +103,7 @@ function createRecord(dossier, newData, type) {
           CODE_P: "",
           NOM_P: sanitizeInput(demandeur.nom_fr || ""),
           PRENOM_P: sanitizeInput(demandeur.prenom_fr || ""),
-          DDN_P: convertDateFormat(demandeur.date_n) || "",
+          DDN_P: convertDateFormat(demandeur.date_n, "S").date || "",
           ADR_P: sanitizeInput(dossier.adress || ""),
           NUM_ACT_P: sanitizeInput(demandeur.num_act || ""),
           PP: sanitizeInput(demandeur.prenom_p_fr || ""),
@@ -124,7 +125,7 @@ function createRecord(dossier, newData, type) {
           CODE_P: "",
           NOM_P: sanitizeInput(conjoin.nom_fr || ""),
           PRENOM_P: sanitizeInput(conjoin.prenom_fr || ""),
-          DDN_P: convertDateFormat(conjoin.date_n) || "",
+          DDN_P: convertDateFormat(conjoin.date_n, "S").date || "",
           ADR_P: sanitizeInput(dossier.adress || ""),
           NUM_ACT_P: sanitizeInput(conjoin.num_act || ""),
           PP: sanitizeInput(conjoin.prenom_p_fr || ""),
