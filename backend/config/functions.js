@@ -1,4 +1,6 @@
 const XLSX = require("xlsx");
+const fs = require("fs");
+const archiver = require("archiver");
 
 function validateHeader(file, expectedHeader) {
   return new Promise((resolve, reject) => {
@@ -194,6 +196,37 @@ function sanitizeInput(input) {
   return input.replace(/[^a-zA-Z0-9 ]/g, ""); // Only allow alphanumeric characters and spaces
 }
 
+// Function to get the current date and time as a string
+function getCurrentDateTimeString() {
+  const now = new Date();
+  const date = now.toISOString().split("T")[0]; // YYYY-MM-DD
+  const time = now.toTimeString().split(" ")[0].replace(/:/g, "-"); // HH-MM-SS
+  return `${date}_${time}`;
+}
+
+// Function to compress the folder into a ZIP file
+function compressFolderToZip(folderPath) {
+  return new Promise((resolve, reject) => {
+    const output = fs.createWriteStream(`${folderPath}.zip`);
+    const archive = archiver("zip", { zlib: { level: 9 } });
+
+    output.on("close", function () {
+      resolve();
+    });
+
+    archive.on("error", function (err) {
+      reject(err);
+    });
+
+    archive.pipe(output);
+
+    // Append the folder to the archive
+    archive.directory(folderPath, false);
+
+    archive.finalize();
+  });
+}
+
 module.exports = {
   isValidDate,
   validateHeader,
@@ -204,4 +237,6 @@ module.exports = {
   getGenderName,
   convertDateFormat,
   sanitizeInput,
+  getCurrentDateTimeString,
+  compressFolderToZip,
 };

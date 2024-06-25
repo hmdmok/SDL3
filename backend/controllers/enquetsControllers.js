@@ -8,7 +8,12 @@ const generateToken = require("../utils/generateToken");
 const { calculate } = require("./CalculeNotesDossier");
 const XLSX = require("sheetjs-style");
 const ADODB = require("node-adodb");
-const { convertDateFormat, sanitizeInput } = require("../config/functions");
+const {
+  convertDateFormat,
+  sanitizeInput,
+  getCurrentDateTimeString,
+  compressFolderToZip,
+} = require("../config/functions");
 const dossier = require("../models/dossierModel");
 const person = require("../models/personModel");
 
@@ -21,6 +26,7 @@ const {
 } = require("../config/functions");
 const ExcelJS = require("exceljs");
 const System = require("../models/systemModel");
+const path = require("path");
 
 async function getFullDossier() {
   const people = await person.find();
@@ -52,7 +58,6 @@ function createRecord(dossier, newData, type) {
   switch (type) {
     case "CASNOS": {
       if (dossier.id_demandeur) {
-        console.log(demandeur);
         const newRecord = {
           CODE_P: newData.length + 1,
           NOM_P: sanitizeInput(demandeur.nom_fr || ""),
@@ -1158,21 +1163,39 @@ const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
 
   const dossierEnq = await getFullDossier();
 
+  const dateTimeString = getCurrentDateTimeString();
+  const folderPath = path.join(__dirname, `CASNOS_${dateTimeString}`);
+
+  // Create the folder
+  fs.mkdirSync(folderPath);
+
   var newData = [];
+  let fileCounter = 1;
+
   const dossiersMaped = dossierEnq?.map(
-    asyncHandler(async (dossier) => {
+    asyncHandler(async (dossier, index) => {
       createRecord(dossier, newData, "CASNOS");
 
-      var newWB = XLSX.utils.book_new();
-      var newWS = XLSX.utils.json_to_sheet(newData);
-      XLSX.utils.book_append_sheet(newWB, newWS, "Table1");
-      XLSX.writeFile(newWB, "new_EnquetCASNOS.xlsx");
+      if ((index + 1) % 200 === 0 || index === dossierEnq.length - 1) {
+        const fileName = path.join(
+          folderPath,
+          `new_EnquetCASNOS_${fileCounter}.xlsx`
+        );
+        const newWB = XLSX.utils.book_new();
+        const newWS = XLSX.utils.json_to_sheet(newData);
+        XLSX.utils.book_append_sheet(newWB, newWS, "Table1");
+        XLSX.writeFile(newWB, fileName);
+
+        newData = []; // Reset the newData array for the next batch of 200 records
+        fileCounter++; // Increment the file counter
+      }
     })
   );
 
   return Promise.all(dossiersMaped)
     .then(async () => {
-      const fileCASNOS = `new_EnquetCASNOS.xlsx`;
+      await  compressFolderToZip(folderPath);
+      const fileCASNOS = `${folderPath}.zip`;
 
       res.download(fileCASNOS);
     })
