@@ -4,7 +4,7 @@ const { protect } = require("../middlewares/authMiddleware");
 const {
   getDossiers,
   getDossierById,
-  getDossierByDates,
+
   createDossier,
   updateDossier,
   deleteDossier,
@@ -19,6 +19,7 @@ const {
   getEnquetCNASFileTest,
   getEnquetCASNOSFileTest,
   getListBenefisiersFile,
+  getDossierByDates,
 } = require("../controllers/enquetsControllers");
 const personPhotoStorage = multer.diskStorage({
   destination: function (req, file, cb) {

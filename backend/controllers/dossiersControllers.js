@@ -1,11 +1,10 @@
 const asyncHandler = require("express-async-handler");
 const dossier = require("../models/dossierModel");
-const Person = require("../models/personModel");
+const person = require("../models/personModel");
 const Notes = require("../models/notesModel");
 const generateToken = require("../utils/generateToken");
 const { calculate } = require("./CalculeNotesDossier");
-const { convertDateFormat } = require("../config/functions");
-const person = require("../models/personModel");
+const { convertDateFormat, getFullDossier } = require("../config/functions");
 
 const getDossiers = asyncHandler(async (req, res) => {
   const dossiers = await dossier.find();
@@ -26,15 +25,14 @@ const getDossierByNumDoss = asyncHandler(async (req, res) => {
 
   if (dossierById) {
     const personToUpdate = await person.findById(dossierById.id_demandeur);
-    
 
     if (!personToUpdate) {
       res.status(400);
       throw new Error("هذا الشخص غير موجود");
     } else {
       personToUpdate.photo_link = photo_link;
-      const updatedPerson = await personToUpdate.save();
-      res.status(201).json(updatedPerson);
+      const updatedperson = await personToUpdate.save();
+      res.status(201).json(updatedperson);
     }
   } else {
     res.status(400);
@@ -52,165 +50,202 @@ const getDossierById = asyncHandler(async (req, res) => {
   }
 });
 
-const getDossierByDates = asyncHandler(async (req, res) => {
-  const { fromDate, toDate } = req.body;
-  const persons = await Person.aggregate([
-    {
-      $addFields: { personId: { $toString: "$_id" } },
-    },
-  ]);
-  const dossierByDates = await dossier.aggregate([
-    {
-      $match: {
-        date_depo: {
-          $gte: fromDate,
-          $lt: toDate,
-        },
-      },
-    },
-    {
-      $lookup: {
-        localField: "id_demandeur",
-        foreignField: "personId",
-        as: "demandeur",
-        pipeline: [{ $documents: persons }],
-      },
-    },
-    {
-      $lookup: {
-        localField: "id_conjoin",
-        foreignField: "personId",
-        as: "conjoin",
-        pipeline: [{ $documents: persons }],
-      },
-    },
-  ]);
-
-  if (dossierByDates) {
-    res.json(dossierByDates);
-  } else {
-    res.status(400);
-    throw new Error("لا توجد ملفات");
-  }
-});
-
 const getDossierByFilters = asyncHandler(async (req, res) => {
-  const {
-    dossiersCount,
-    numDoss,
-    nomFr,
-    prenomFr,
-    birthDate,
-    fromDate,
-    toDate,
-    situationFamiliale,
-    dateEtude,
-    plusMoin35Value,
-  } = req.body;
+  try {
+    const page = Number(req.query.page) - 1 || 0;
+    const limit = Number(req.query.limit) || 20;
+    const search = req.query.search || "";
+    let sort = req.query.sort || "notes";
+    let filter = req.query.filter || "";
 
-  const persons = await Person.find();
+    const {
+      dossiersCount,
+      numDoss,
+      nomFr,
+      prenomFr,
+      birthDate,
+      fromDate,
+      toDate,
+      situationFamiliale,
+      dateEtude,
+      plusMoin35Value,
+    } = req.body;
 
-  const dossiers = await dossier.find().sort({ notes: -1 });
+    const dossierByNotes = await getFullDossier();
 
-  const dossierByNotes = dossiers.map((dossierFound) => {
-    let newdossier = dossierFound;
-    persons.map((personMaped) => {
-      if (dossierFound.id_demandeur === personMaped._id.toString()) {
-        newdossier = { ...newdossier._doc, demandeur: personMaped };
-      }
-      if (dossierFound.id_conjoin === personMaped._id.toString()) {
-        newdossier = { ...newdossier, conjoin: personMaped };
+    var keyArray1 = dossierByNotes.map(function (item) {
+      return {
+        _id: item._id,
+        num_dos: item.num_dos,
+        date_depo: item.date_depo,
+        notes: item.notes,
+        demandeur: {
+          nom_fr: item["demandeur"].nom_fr,
+          prenom_fr: item["demandeur"].prenom_fr,
+          date_n: item["demandeur"].date_n,
+          stuation_f: item["demandeur"].stuation_f,
+        },
+      };
+    });
+
+    const filterBySearch = keyArray1.filter(function (item) {
+      return (
+        item.num_dos.toLowerCase().includes(search.toLowerCase()) ||
+        item.demandeur.nom_fr.toLowerCase().includes(search.toLowerCase()) ||
+        item.demandeur.prenom_fr.toLowerCase().includes(search.toLowerCase()) ||
+        item.demandeur.date_n.toLowerCase().includes(search.toLowerCase()) ||
+        item.date_depo.toLowerCase().includes(search.toLowerCase()) ||
+        item.notes.toLowerCase().includes(search.toLowerCase())
+      );
+    });
+    // Sort by methode
+    switch (sort) {
+      case "nom":
+        filterBySearch.sort(function (a, b) {
+          let x = a.demandeur.nom_fr.toLowerCase();
+          let y = b.demandeur.nom_fr.toLowerCase();
+          if (x < y) {
+            return -1;
+          }
+          if (x > y) {
+            return 1;
+          }
+          return 0;
+        });
+        break;
+
+      case "prenom":
+        filterBySearch.sort(function (a, b) {
+          let x = a.demandeur.prenom_fr.toLowerCase();
+          let y = b.demandeur.prenom_fr.toLowerCase();
+          if (x < y) {
+            return -1;
+          }
+          if (x > y) {
+            return 1;
+          }
+          return 0;
+        });
+        break;
+
+      case "date_n":
+        filterBySearch.sort(function (a, b) {
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
+          return new Date(b.demandeur.date_n) - new Date(a.demandeur.date_n);
+        });
+        break;
+
+      case "date_depo":
+        filterBySearch.sort(function (a, b) {
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
+          return new Date(b.date_depo) - new Date(a.date_depo);
+        });
+        break;
+
+      case "notes":
+        filterBySearch.sort(function (a, b) {
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
+          return b.notes - a.notes;
+        });
+        break;
+    }
+    // Skip page * limit
+    filterBySearch.filter((x, i) => {
+      if (i > page * limit - 1) {
+        return true;
       }
     });
-    return newdossier;
-  });
-  // await dossier.aggregate([
-  //   {
-  //     $match: {
-  //       date_depo: {
-  //         $gte: fromDate,
-  //         $lt: toDate,
-  //       },
-  //     },
-  //   },
-  //   {
-  //     $lookup: {
-  //       localField: "id_demandeur",
-  //       foreignField: "personId",
-  //       as: "demandeur",
-  //       pipeline: [{ $documents: persons }],
-  //     },
-  //   },
-  //   { $sort: { notes: -1 } },
-  // ]);
 
-  const filtredByNumDoss = dossierByNotes.filter((filtredDossiers) => {
-    return filtredDossiers?.num_dos
-      ?.toLowerCase()
-      .includes(numDoss?.toLowerCase());
-  });
-
-  const filtredByNames = filtredByNumDoss?.filter((filtredDemand) => {
-    return (
-      filtredDemand.demandeur?.nom_fr
+    const filtredByNumDoss = dossierByNotes.filter((filtredDossiers) => {
+      return filtredDossiers?.num_dos
         ?.toLowerCase()
-        .includes(nomFr?.toLowerCase()) &&
-      filtredDemand.demandeur?.prenom_fr
-        ?.toLowerCase()
-        .includes(prenomFr?.toLowerCase())
-      //   &&
-      // filtredDemand.demandeur?.date_n.includes(birthDate) &&
-      // new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
-      // new Date(filtredDemand.date_depo) <= new Date(toDate)
-    );
-  });
+        .includes(numDoss?.toLowerCase());
+    });
 
-  const filtredByBirthday = filtredByNames?.filter((filtredDemand) => {
-    if (birthDate === "") return true;
-    else {
-      return filtredDemand.demandeur?.date_n.includes(birthDate);
-      // &&
-      // new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
-      // new Date(filtredDemand.date_depo) <= new Date(toDate)
+    const filtredByNames = filtredByNumDoss?.filter((filtredDemand) => {
+      return (
+        filtredDemand.demandeur?.nom_fr
+          ?.toLowerCase()
+          .includes(nomFr?.toLowerCase()) &&
+        filtredDemand.demandeur?.prenom_fr
+          ?.toLowerCase()
+          .includes(prenomFr?.toLowerCase())
+        //   &&
+        // filtredDemand.demandeur?.date_n.includes(birthDate) &&
+        // new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
+        // new Date(filtredDemand.date_depo) <= new Date(toDate)
+      );
+    });
+
+    const filtredByBirthday = filtredByNames?.filter((filtredDemand) => {
+      if (birthDate === "") return true;
+      else {
+        return filtredDemand.demandeur?.date_n.includes(birthDate);
+        // &&
+        // new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
+        // new Date(filtredDemand.date_depo) <= new Date(toDate)
+      }
+    });
+
+    const filtredByDateDepo = filtredByBirthday?.filter((filtredDemand) => {
+      if (plusMoin35Value === "m") {
+        return (
+          new Date(convertDateFormat(filtredDemand.demandeur?.date_n).jsDate) >=
+          new Date(
+            new Date(dateEtude).getFullYear() - 35,
+            new Date(dateEtude).getMonth(),
+            new Date(dateEtude).getDate()
+          )
+        );
+      } else if (plusMoin35Value === "p")
+        return (
+          new Date(convertDateFormat(filtredDemand.demandeur?.date_n).jsDate) <=
+          new Date(
+            new Date(dateEtude).getFullYear() - 35,
+            new Date(dateEtude).getMonth(),
+            new Date(dateEtude).getDate()
+          )
+        );
+      else return true;
+    });
+
+    const filtredBySituation = filtredByDateDepo.filter((filtredDossiers) => {
+      if (situationFamiliale === "all") return true;
+      else return filtredDossiers.demandeur?.stuation_f === situationFamiliale;
+    });
+
+    const FinalList = filtredBySituation
+      ?.sort((a, b) => b.notes - a.notes)
+      .slice(0, dossiersCount - 0);
+
+    var keyArray = FinalList.map(function (item) {
+      return {
+        _id: item._id,
+        num_dos: item.num_dos,
+        date_depo: item.date_depo,
+        notes: item.notes,
+        demandeur: {
+          nom_fr: item["demandeur"].nom_fr,
+          prenom_fr: item["demandeur"].prenom_fr,
+          date_n: item["demandeur"].date_n,
+          stuation_f: item["demandeur"].stuation_f,
+        },
+      };
+    });
+
+    if (dossierByNotes) {
+      res.json(keyArray);
+    } else {
+      res.status(400);
+      throw new Error("لا توجد ملفات");
     }
-  });
-
-  const filtredByDateDepo = filtredByBirthday?.filter((filtredDemand) => {
-    if (plusMoin35Value === "m") {
-      return (
-        new Date(convertDateFormat(filtredDemand.demandeur?.date_n).jsDate) >=
-        new Date(
-          new Date(dateEtude).getFullYear() - 35,
-          new Date(dateEtude).getMonth(),
-          new Date(dateEtude).getDate()
-        )
-      );
-    } else if (plusMoin35Value === "p")
-      return (
-        new Date(convertDateFormat(filtredDemand.demandeur?.date_n).jsDate) <=
-        new Date(
-          new Date(dateEtude).getFullYear() - 35,
-          new Date(dateEtude).getMonth(),
-          new Date(dateEtude).getDate()
-        )
-      );
-    else return true;
-  });
-
-  const filtredBySituation = filtredByDateDepo.filter((filtredDossiers) => {
-    if (situationFamiliale === "all") return true;
-    else return filtredDossiers.demandeur?.stuation_f === situationFamiliale;
-  });
-
-  const FinalList = filtredBySituation
-    ?.sort((a, b) => b.notes - a.notes)
-    .slice(0, dossiersCount - 0);
-
-  if (dossierByNotes) {
-    res.json(FinalList);
-  } else {
-    res.status(400);
-    throw new Error("لا توجد ملفات");
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: true, message: "Internal Server Error" });
+    throw new Error(error.message);
   }
 });
 
@@ -265,7 +300,7 @@ const createDossier = asyncHandler(async (req, res) => {
     situationFamiliale = "";
   const tableNotes = await Notes.find();
 
-  const demandeurData = await Person.findById(id_demandeur);
+  const demandeurData = await person.findById(id_demandeur);
   if (!demandeurData) {
     res.status(400);
     throw new Error("يرجى ادخال معلومات صحيحة لطالب السكن");
@@ -276,7 +311,7 @@ const createDossier = asyncHandler(async (req, res) => {
 
   let conjoinData;
   id_conjoin && id_conjoin !== ""
-    ? (conjoinData = await Person.findById(id_conjoin))
+    ? (conjoinData = await person.findById(id_conjoin))
     : (conjoinData = null);
   if (!conjoinData) {
     salairConjoin = 0;
@@ -348,9 +383,9 @@ const updateDossier = asyncHandler(async (req, res) => {
 
   let conjoinData, salairConjoin;
   const tableNotes = await Notes.find();
-  const demandeurData = await Person.findById(id_demandeur);
+  const demandeurData = await person.findById(id_demandeur);
   if (id_conjoin && id_conjoin !== "") {
-    conjoinData = await Person.findById(id_conjoin);
+    conjoinData = await person.findById(id_conjoin);
     salairConjoin = conjoinData.salaire || 0;
   } else salairConjoin = 0;
   const salairDemandeur = demandeurData?.salaire || 0;
@@ -418,7 +453,6 @@ module.exports = {
   getDossierById,
   updateDossier,
   deleteDossier,
-  getDossierByDates,
   getDossierByFilters,
   getDossierByNumDoss,
 };

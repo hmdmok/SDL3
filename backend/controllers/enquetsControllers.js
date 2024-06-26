@@ -13,6 +13,7 @@ const {
   sanitizeInput,
   getCurrentDateTimeString,
   compressFolderToZip,
+  getFullDossier,
 } = require("../config/functions");
 const dossier = require("../models/dossierModel");
 const person = require("../models/personModel");
@@ -28,28 +29,6 @@ const ExcelJS = require("exceljs");
 const System = require("../models/systemModel");
 const path = require("path");
 
-async function getFullDossier() {
-  const people = await person.find();
-  const dossies = await Dossier.find();
-  // Create a map of person ID to person data
-  const personMap = people.reduce((map, person) => {
-    map[person._id] = person;
-    return map;
-  }, {});
-
-  // Combine dossier data with person data
-  const dossierEnq = dossies.map((dossier) => {
-    const demandeurInfo = personMap[dossier.id_demandeur] || null;
-    const conjoinInfo = personMap[dossier.id_conjoin] || null;
-    return {
-      ...dossier._doc,
-      demandeur: demandeurInfo,
-      conjoin: conjoinInfo,
-    };
-  });
-
-  return dossierEnq;
-}
 
 function createRecord(dossier, newData, type) {
   const demandeur = dossier.demandeur || {};
@@ -1176,7 +1155,7 @@ const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
     asyncHandler(async (dossier, index) => {
       createRecord(dossier, newData, "CASNOS");
 
-      if ((index + 1) % 200 === 0 || index === dossierEnq.length - 1) {
+      if ((index + 1) % 100 === 0 || index === dossierEnq.length - 1) {
         const fileName = path.join(
           folderPath,
           `new_EnquetCASNOS_${fileCounter}.xlsx`
@@ -1189,12 +1168,13 @@ const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
         newData = []; // Reset the newData array for the next batch of 200 records
         fileCounter++; // Increment the file counter
       }
+      
     })
   );
 
   return Promise.all(dossiersMaped)
     .then(async () => {
-      await  compressFolderToZip(folderPath);
+      await compressFolderToZip(folderPath);
       const fileCASNOS = `${folderPath}.zip`;
 
       res.download(fileCASNOS);

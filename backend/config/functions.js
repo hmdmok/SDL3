@@ -1,6 +1,8 @@
 const XLSX = require("xlsx");
 const fs = require("fs");
 const archiver = require("archiver");
+const dossier = require("../models/dossierModel");
+const person = require("../models/personModel");
 
 function validateHeader(file, expectedHeader) {
   return new Promise((resolve, reject) => {
@@ -227,6 +229,29 @@ function compressFolderToZip(folderPath) {
   });
 }
 
+async function getFullDossier() {
+  const people = await person.find();
+  const dossies = await dossier.find();
+  // Create a map of person ID to person data
+  const personMap = people.reduce((map, person) => {
+    map[person._id] = person;
+    return map;
+  }, {});
+
+  // Combine dossier data with person data
+  const dossierEnq = dossies.map((dossier) => {
+    const demandeurInfo = personMap[dossier.id_demandeur] || null;
+    const conjoinInfo = personMap[dossier.id_conjoin] || null;
+    return {
+      ...dossier._doc,
+      demandeur: demandeurInfo,
+      conjoin: conjoinInfo,
+    };
+  });
+
+  return dossierEnq;
+}
+
 module.exports = {
   isValidDate,
   validateHeader,
@@ -239,4 +264,5 @@ module.exports = {
   sanitizeInput,
   getCurrentDateTimeString,
   compressFolderToZip,
+  getFullDossier,
 };
