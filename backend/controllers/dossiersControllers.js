@@ -4,7 +4,11 @@ const person = require("../models/personModel");
 const Notes = require("../models/notesModel");
 const generateToken = require("../utils/generateToken");
 const { calculate } = require("./CalculeNotesDossier");
-const { convertDateFormat, getFullDossier } = require("../config/functions");
+const {
+  getFullDossier,
+  sortByName,
+  convertDateFormat,
+} = require("../config/functions");
 
 const getDossiers = asyncHandler(async (req, res) => {
   const dossiers = await dossier.find();
@@ -55,8 +59,9 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
     const page = Number(req.query.page) - 1 || 0;
     const limit = Number(req.query.limit) || 20;
     const search = req.query.search || "";
-    let sort = req.query.sort || "notes";
-    let filter = req.query.filter || "";
+    let Sort = req.query.sort || "notes";
+    let fromDate = req.query.fromDate || "";
+    let toDate = req.query.toDate || "";
 
     const {
       dossiersCount,
@@ -64,8 +69,7 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
       nomFr,
       prenomFr,
       birthDate,
-      fromDate,
-      toDate,
+
       situationFamiliale,
       dateEtude,
       plusMoin35Value,
@@ -79,85 +83,139 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
         num_dos: item.num_dos,
         date_depo: item.date_depo,
         notes: item.notes,
-        demandeur: {
-          nom_fr: item["demandeur"].nom_fr,
-          prenom_fr: item["demandeur"].prenom_fr,
-          date_n: item["demandeur"].date_n,
-          stuation_f: item["demandeur"].stuation_f,
-        },
+        demandeur: item["demandeur"],
       };
     });
 
-    const filterBySearch = keyArray1.filter(function (item) {
+    var filterBySearch = keyArray1.filter(function (item) {
       return (
-        item.num_dos.toLowerCase().includes(search.toLowerCase()) ||
-        item.demandeur.nom_fr.toLowerCase().includes(search.toLowerCase()) ||
-        item.demandeur.prenom_fr.toLowerCase().includes(search.toLowerCase()) ||
-        item.demandeur.date_n.toLowerCase().includes(search.toLowerCase()) ||
-        item.date_depo.toLowerCase().includes(search.toLowerCase()) ||
-        item.notes.toLowerCase().includes(search.toLowerCase())
+        item.num_dos?.toLowerCase().includes(search.toLowerCase()) ||
+        item.demandeur?.nom_fr.toLowerCase().includes(search.toLowerCase()) ||
+        item.demandeur?.prenom_fr
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        item.demandeur?.date_n.toLowerCase().includes(search.toLowerCase()) ||
+        item.notes === parseInt(search.toLowerCase())
       );
     });
+
+    //filter by fromDate and toDate
+    filterBySearch = filterBySearch.filter((dossier) => {
+      let fdCheck = true;
+      let tdCheck = true;
+
+      if (fromDate !== "") {
+        fdCheck = !(
+          new Date(convertDateFormat(dossier.date_depo)).getTime() <=
+          new Date(convertDateFormat(fromDate)).getTime()
+        );
+      }
+      if (toDate) {
+        tdCheck = !(
+          new Date(convertDateFormat(dossier.date_depo)).getTime() >=
+          new Date(convertDateFormat(toDate)).getTime()
+        );
+        console.log(
+          "check:" +
+            tdCheck +
+            " ,date depo:" +
+            new Date(convertDateFormat(dossier.date_depo)).getTime() +
+            " ,date to:" +
+            convertDateFormat(dossier.date_depo)
+        );
+      }
+      return fdCheck && tdCheck;
+    });
+
     // Sort by methode
-    switch (sort) {
+    let sort = {};
+    Sort = Sort.split(",");
+    if (Sort[1]) {
+      sort.name = Sort[0];
+      sort.type = Sort[1];
+    } else {
+      sort.name = Sort[0];
+      sort.type = "desc";
+    }
+    switch (sort.name) {
       case "nom":
-        filterBySearch.sort(function (a, b) {
-          let x = a.demandeur.nom_fr.toLowerCase();
-          let y = b.demandeur.nom_fr.toLowerCase();
-          if (x < y) {
-            return -1;
-          }
-          if (x > y) {
-            return 1;
-          }
-          return 0;
-        });
+        filterBySearch = filterBySearch.sort(
+          sortByName(a, b, "nom_fr", sort.type)
+        );
         break;
 
       case "prenom":
-        filterBySearch.sort(function (a, b) {
-          let x = a.demandeur.prenom_fr.toLowerCase();
-          let y = b.demandeur.prenom_fr.toLowerCase();
-          if (x < y) {
-            return -1;
-          }
-          if (x > y) {
-            return 1;
-          }
-          return 0;
-        });
+        filterBySearch = filterBySearch.sort(
+          sortByName(a, b, "prenom_fr", sort.type)
+        );
         break;
 
       case "date_n":
-        filterBySearch.sort(function (a, b) {
+        filterBySearch = filterBySearch.sort(function (a, b) {
           // Turn your strings into dates, and then subtract them
           // to get a value that is either negative, positive, or zero.
-          return new Date(b.demandeur.date_n) - new Date(a.demandeur.date_n);
+          if (sort.type === "asc") {
+            return (
+              new Date(
+                convertDateFormat(b.demandeur.date_n, "S").jsDate
+              ).getTime() -
+              new Date(
+                convertDateFormat(a.demandeur.date_n, "S").jsDate
+              ).getTime()
+            );
+          } else if (sort.type === "desc") {
+            return (
+              new Date(
+                convertDateFormat(a.demandeur.date_n, "S").jsDate
+              ).getTime() -
+              new Date(
+                convertDateFormat(b.demandeur.date_n, "S").jsDate
+              ).getTime()
+            );
+          }
         });
         break;
 
       case "date_depo":
-        filterBySearch.sort(function (a, b) {
+        filterBySearch = filterBySearch.sort(function (a, b) {
           // Turn your strings into dates, and then subtract them
           // to get a value that is either negative, positive, or zero.
-          return new Date(b.date_depo) - new Date(a.date_depo);
+          if (sort.type === "asc") {
+            console.log(convertDateFormat(b.date_depo, "S").jsDate);
+            return (
+              new Date(
+                convertDateFormat(a.date_depo, "S")?.jsDate
+              ).getTime() -
+              new Date(
+                convertDateFormat(b.date_depo, "S")?.jsDate
+              ).getTime()
+            );
+          } else if (sort.type === "desc") {
+            return (
+              new Date(
+                convertDateFormat(b.date_depo, "S")?.jsDate
+              ).getTime() -
+              new Date(
+                convertDateFormat(a.date_depo, "S")?.jsDate
+              ).getTime()
+            );
+          }
         });
         break;
 
       case "notes":
-        filterBySearch.sort(function (a, b) {
+        filterBySearch = filterBySearch.sort(function (a, b) {
           // Turn your strings into dates, and then subtract them
           // to get a value that is either negative, positive, or zero.
+          if (sort.type === "asc") {
+            return a.notes - b.notes;
+          } else if (sort.type === "desc") {
+            return b.notes - a.notes;
+          }
           return b.notes - a.notes;
         });
         break;
     }
-    // Skip page * limit
-    filterBySearch.filter((x, i) => {
-      if (i > page * limit - 1) {
-        return true;
-      }
-    });
 
     const filtredByNumDoss = dossierByNotes.filter((filtredDossiers) => {
       return filtredDossiers?.num_dos
@@ -221,7 +279,13 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
       ?.sort((a, b) => b.notes - a.notes)
       .slice(0, dossiersCount - 0);
 
-    var keyArray = FinalList.map(function (item) {
+    // Skip page * limit and limit
+    filterBySearch = filterBySearch.filter((x, i) => {
+      if (i > page * limit - 1 && i < page * limit + limit) {
+        return true;
+      }
+    });
+    var keyArray = filterBySearch.map(function (item) {
       return {
         _id: item._id,
         num_dos: item.num_dos,
@@ -236,7 +300,7 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
       };
     });
 
-    if (dossierByNotes) {
+    if (keyArray) {
       res.json(keyArray);
     } else {
       res.status(400);

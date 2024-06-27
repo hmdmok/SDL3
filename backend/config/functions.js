@@ -252,6 +252,36 @@ async function getFullDossier() {
   return dossierEnq;
 }
 
+function sortByName(a, b, attribut, type) {
+  let x = a.demandeur[attribut].toLowerCase();
+  let y = b.demandeur[attribut].toLowerCase();
+  if (type === "asc") {
+    if (x < y) {
+      return -1;
+    }
+    if (x > y) {
+      return 1;
+    }
+  }
+  if (type === "desc") {
+    if (x < y) {
+      return 1;
+    }
+    if (x > y) {
+      return -1;
+    }
+  }
+
+  return 0;
+}
+function reverseDayAndMonth(dateStr) {
+  if (dateStr) {
+    const [day, month, year] = dateStr.split("/");
+    return `${month}/${day}/${year}`;
+  } else {
+    return "";
+  }
+}
 module.exports = {
   isValidDate,
   validateHeader,
@@ -265,4 +295,6 @@ module.exports = {
   getCurrentDateTimeString,
   compressFolderToZip,
   getFullDossier,
+  sortByName,
+  reverseDayAndMonth,
 };

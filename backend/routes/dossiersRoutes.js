@@ -56,7 +56,7 @@ const uploadPersonPhoto = multer({
 const router = express.Router();
 
 router.route("/").get(getDossiers);
-router.route("/filtred").post(getDossierByFilters);
+router.route("/filtred").get(getDossierByFilters);
 router
   .route("/:id")
   .get(getDossierById)
