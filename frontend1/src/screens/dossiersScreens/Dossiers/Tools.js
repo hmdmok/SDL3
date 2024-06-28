@@ -1,12 +1,12 @@
 import React from "react";
-import { Badge, Button } from "react-bootstrap";
+import { Badge, Button, ButtonGroup, ButtonToolbar } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addList, deleteList } from "../../../actions/filesActions";
 import { addBenefisierList } from "../../../actions/benifisierActions";
 import styles from "./Tools.module.css";
 
-const Tools = ({total, limit, data, page, setPage}) => {
+const Tools = ({ total, limit, data, page, setPage }) => {
   const dispatch = useDispatch();
 
   const addListToCheck = (fileTo) => {
@@ -23,7 +23,7 @@ const Tools = ({total, limit, data, page, setPage}) => {
   const totalPages = Math.ceil(total / limit);
 
   const clickPage = (page) => {
-    setPage(page + 1);
+    setPage(page);
   };
   return (
     <div style={{ display: "flex", flexDirection: "row-reverse" }} className="">
@@ -73,20 +73,53 @@ const Tools = ({total, limit, data, page, setPage}) => {
         <Badge>ملف</Badge>
         <Badge>{total}</Badge>
       </Button>
-      {totalPages > 0 &&
-        [...Array(totalPages).keys()].map((val, index) => (
-          <button
-            className={
-              page === index + 1
-                ? `${styles.page_btn} ${styles.active}`
-                : `${styles.page_btn}`
-            }
-            key={index}
-            onClick={() => clickPage(index)}
+      {totalPages > 0 && (
+        <ButtonToolbar aria-label="Toolbar with button groups">
+          <ButtonGroup
+            style={{ display: "flex" }}
+            className="me-2"
+            aria-label="First group"
           >
-            {index + 1}
-          </button>
-        ))}
+            {page < totalPages && (
+              <Button key={"lastPage"} onClick={() => clickPage(totalPages)}>
+                {"اخر صفحة"}
+              </Button>
+            )}
+            {page < totalPages && (
+              <Button key={page + 1} onClick={() => clickPage(page + 1)}>
+                {page + 1}
+              </Button>
+            )}
+            <Button className={styles.active}>{page}</Button>
+            {page > 1 && (
+              <Button key={page - 1} onClick={() => clickPage(page - 1)}>
+                {page - 1}
+              </Button>
+            )}
+            {page > 1 && (
+              <Button key={"firstPage"} onClick={() => clickPage(1)}>
+                {"اول صفحة"}
+              </Button>
+            )}
+            {/* {[...Array(totalPages).keys()].map((val, index) => (
+              <Button
+                className={page === index + 1 ? ` ${styles.active}` : ``}
+                key={index}
+                onClick={() => clickPage(index)}
+              >
+                {index + 1}
+              </Button>
+            ))} */}
+          </ButtonGroup>
+          <ButtonGroup
+            style={{ display: "flex" }}
+            className="me-2"
+            aria-label="First group"
+          >
+            <Button >عدد الصفحات : {totalPages}</Button>
+          </ButtonGroup>
+        </ButtonToolbar>
+      )}
     </div>
   );
 };

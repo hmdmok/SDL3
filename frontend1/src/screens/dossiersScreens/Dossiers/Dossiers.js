@@ -31,8 +31,7 @@ function Dossiers() {
   const [p_m_35_de, setP_m_35_de] = useState({ dateEtude: "", type: "" });
   const [situationFamiliale, setSituationFamiliale] = useState("");
   const [dateEtude, setDateEtude] = useState("");
-  const [total, setTotal] = useState(0);
-  const [data, setData] = useState({});
+
 
   useEffect(() => {
     dispatch(

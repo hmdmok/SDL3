@@ -1,5 +1,4 @@
 import React from "react";
-import styles from "./Sort.module.css";
 import { Button, ButtonGroup, Dropdown, DropdownButton } from "react-bootstrap";
 
 const Sort = ({ sort, setSort }) => {
