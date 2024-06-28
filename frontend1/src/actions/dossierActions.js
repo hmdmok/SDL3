@@ -83,16 +83,15 @@ export const addDossierAction =
 
 export const listDossiersAction =
   (
-    dossiersCount,
-    numDoss,
-    nomFr,
-    prenomFr,
-    birthDate,
+    page,
+    limit,
+    search,
+    sort,
     fromDate,
     toDate,
-    situationFamiliale,
-    dateEtude,
-    plusMoin35Value
+    p_m_35_dd,
+    p_m_35_de,
+    situationFamiliale
   ) =>
   async (dispatch, getState) => {
     try {
@@ -111,25 +110,10 @@ export const listDossiersAction =
         },
       };
 
-      const formData = {
-        dossiersCount,
-        numDoss,
-        nomFr,
-        prenomFr,
-        birthDate,
-        fromDate,
-        toDate,
-        situationFamiliale,
-        dateEtude,
-        plusMoin35Value,
-      };
+      const url = `/api/dossiers/filtred?page=${page}&limit=${limit}&search=${search}&sort=${sort?.sort},${sort?.order}&fromDate=${fromDate}&toDate=${toDate}&p_m_35_de=${p_m_35_de?.dateEtude},${p_m_35_de?.type}&p_m_35_dd=${p_m_35_dd}&stuation_f=${situationFamiliale}`;
 
-      const { data } = await axios.post(
-        "/api/dossiers/filtred",
-        formData,
-        config
-      );
-
+      const { data } = await axios.get(url, config);
+      console.log(data);
       dispatch({
         type: DOSSIER_LIST_SUCCESS,
         payload: data,

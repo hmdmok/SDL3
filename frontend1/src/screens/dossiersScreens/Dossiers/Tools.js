@@ -4,12 +4,10 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addList, deleteList } from "../../../actions/filesActions";
 import { addBenefisierList } from "../../../actions/benifisierActions";
+import styles from "./Tools.module.css";
 
-const Tools = () => {
+const Tools = ({total, limit, data, page, setPage}) => {
   const dispatch = useDispatch();
-
-  const dossierList = useSelector((state) => state.dossierList);
-  const { dossiers } = dossierList;
 
   const addListToCheck = (fileTo) => {
     dispatch(addList(fileTo));
@@ -22,12 +20,13 @@ const Tools = () => {
   const addListToBenefisiers = (fileTo) => {
     dispatch(addBenefisierList(fileTo));
   };
+  const totalPages = Math.ceil(total / limit);
 
+  const clickPage = (page) => {
+    setPage(page + 1);
+  };
   return (
-    <div className="tools">
-      <h4> اعدادات عامة</h4>
-      <hr />
-
+    <div style={{ display: "flex", flexDirection: "row-reverse" }} className="">
       <Button className="m-1 ">
         <Link to="/demandeur">اضافة ملف جديد</Link>
       </Button>
@@ -36,7 +35,7 @@ const Tools = () => {
         variant="success"
         className="m-1 "
         onClick={() => {
-          addListToCheck(dossiers);
+          addListToCheck(data);
         }}
       >
         اظافة كل القائمة للتحقيق
@@ -55,7 +54,7 @@ const Tools = () => {
         variant="success"
         className="m-1"
         onClick={() => {
-          addListToBenefisiers(dossiers);
+          addListToBenefisiers(data);
         }}
       >
         اظافة كل القائمة للمسفيدين
@@ -72,8 +71,22 @@ const Tools = () => {
 
       <Button className="m-1 ">
         <Badge>ملف</Badge>
-        <Badge>{dossiers?.length}</Badge>
+        <Badge>{total}</Badge>
       </Button>
+      {totalPages > 0 &&
+        [...Array(totalPages).keys()].map((val, index) => (
+          <button
+            className={
+              page === index + 1
+                ? `${styles.page_btn} ${styles.active}`
+                : `${styles.page_btn}`
+            }
+            key={index}
+            onClick={() => clickPage(index)}
+          >
+            {index + 1}
+          </button>
+        ))}
     </div>
   );
 };

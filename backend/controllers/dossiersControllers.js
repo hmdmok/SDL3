@@ -62,6 +62,9 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
     let Sort = req.query.sort || "notes";
     let fromDate = req.query.fromDate || "";
     let toDate = req.query.toDate || "";
+    let p_m_35_dd = req.query.p_m_35_dd || "";
+    let p_m_35_de = req.query.p_m_35_de || "";
+    let stuation_f = req.query.stuation_f || "";
 
     const {
       dossiersCount,
@@ -87,6 +90,7 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
       };
     });
 
+    // filter by search
     var filterBySearch = keyArray1.filter(function (item) {
       return (
         item.num_dos?.toLowerCase().includes(search.toLowerCase()) ||
@@ -94,11 +98,100 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
         item.demandeur?.prenom_fr
           .toLowerCase()
           .includes(search.toLowerCase()) ||
+        item.demandeur?.nom.toLowerCase().includes(search.toLowerCase()) ||
+        item.demandeur?.prenom.toLowerCase().includes(search.toLowerCase()) ||
         item.demandeur?.date_n.toLowerCase().includes(search.toLowerCase()) ||
         item.notes === parseInt(search.toLowerCase())
       );
     });
 
+    //filter by plus or moins 35 from date etude
+    let p_m_35_de_value = {};
+    p_m_35_de = p_m_35_de.split(",");
+    p_m_35_de_value = {
+      date_etude: p_m_35_de[0],
+      type: p_m_35_de[1],
+    };
+
+    filterBySearch = filterBySearch.filter((dossier) => {
+      if (p_m_35_de_value.type === "m") {
+        return (
+          new Date(
+            convertDateFormat(dossier.demandeur?.date_n).jsDate
+          ).getTime() >
+          new Date(
+            new Date(
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+            ).getFullYear() - 35,
+            new Date(
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+            ).getMonth(),
+            new Date(
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+            ).getDate()
+          ).getTime()
+        );
+      } else if (p_m_35_de_value.type === "p") {
+        return (
+          new Date(
+            convertDateFormat(dossier.demandeur?.date_n).jsDate
+          ).getTime() <=
+          new Date(
+            new Date(
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+            ).getFullYear() - 35,
+            new Date(
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+            ).getMonth(),
+            new Date(
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+            ).getDate()
+          ).getTime()
+        );
+      } else {
+        return true;
+      }
+    });
+    //filter by plus or moins 35 from date depo
+    filterBySearch = filterBySearch.filter((dossier) => {
+      if (p_m_35_dd === "m") {
+        return (
+          new Date(
+            convertDateFormat(dossier.demandeur?.date_n).jsDate
+          ).getTime() >
+          new Date(
+            new Date(
+              convertDateFormat(dossier.date_depo).jsDate
+            ).getFullYear() - 35,
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getMonth(),
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate()
+          ).getTime()
+        );
+      } else if (p_m_35_dd === "p") {
+        return (
+          new Date(
+            convertDateFormat(dossier.demandeur?.date_n).jsDate
+          ).getTime() <=
+          new Date(
+            new Date(
+              convertDateFormat(dossier.date_depo).jsDate
+            ).getFullYear() - 35,
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getMonth(),
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate()
+          ).getTime()
+        );
+      } else {
+        return true;
+      }
+    });
+
+    //filter by situation familial
+
+    filterBySearch = filterBySearch.filter((dossier) => {
+      if (stuation_f !== "")
+        return dossier.demandeur?.stuation_f === stuation_f;
+      else return true;
+    });
     //filter by fromDate and toDate
     filterBySearch = filterBySearch.filter((dossier) => {
       let fdCheck = true;
@@ -139,15 +232,15 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
     }
     switch (sort.name) {
       case "nom":
-        filterBySearch = filterBySearch.sort(
-          sortByName(a, b, "nom_fr", sort.type)
-        );
+        filterBySearch = filterBySearch.sort(function (a, b) {
+          return sortByName(a, b, "nom_fr", sort.type);
+        });
         break;
 
       case "prenom":
-        filterBySearch = filterBySearch.sort(
-          sortByName(a, b, "prenom_fr", sort.type)
-        );
+        filterBySearch = filterBySearch.sort(function (a, b) {
+          return sortByName(a, b, "prenom_fr", sort.type);
+        });
         break;
 
       case "date_n":
@@ -183,21 +276,13 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
           if (sort.type === "asc") {
             console.log(convertDateFormat(b.date_depo, "S").jsDate);
             return (
-              new Date(
-                convertDateFormat(a.date_depo, "S")?.jsDate
-              ).getTime() -
-              new Date(
-                convertDateFormat(b.date_depo, "S")?.jsDate
-              ).getTime()
+              new Date(convertDateFormat(a.date_depo, "S")?.jsDate).getTime() -
+              new Date(convertDateFormat(b.date_depo, "S")?.jsDate).getTime()
             );
           } else if (sort.type === "desc") {
             return (
-              new Date(
-                convertDateFormat(b.date_depo, "S")?.jsDate
-              ).getTime() -
-              new Date(
-                convertDateFormat(a.date_depo, "S")?.jsDate
-              ).getTime()
+              new Date(convertDateFormat(b.date_depo, "S")?.jsDate).getTime() -
+              new Date(convertDateFormat(a.date_depo, "S")?.jsDate).getTime()
             );
           }
         });
@@ -217,67 +302,8 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
         break;
     }
 
-    const filtredByNumDoss = dossierByNotes.filter((filtredDossiers) => {
-      return filtredDossiers?.num_dos
-        ?.toLowerCase()
-        .includes(numDoss?.toLowerCase());
-    });
-
-    const filtredByNames = filtredByNumDoss?.filter((filtredDemand) => {
-      return (
-        filtredDemand.demandeur?.nom_fr
-          ?.toLowerCase()
-          .includes(nomFr?.toLowerCase()) &&
-        filtredDemand.demandeur?.prenom_fr
-          ?.toLowerCase()
-          .includes(prenomFr?.toLowerCase())
-        //   &&
-        // filtredDemand.demandeur?.date_n.includes(birthDate) &&
-        // new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
-        // new Date(filtredDemand.date_depo) <= new Date(toDate)
-      );
-    });
-
-    const filtredByBirthday = filtredByNames?.filter((filtredDemand) => {
-      if (birthDate === "") return true;
-      else {
-        return filtredDemand.demandeur?.date_n.includes(birthDate);
-        // &&
-        // new Date(filtredDemand.date_depo) >= new Date(fromDate) &&
-        // new Date(filtredDemand.date_depo) <= new Date(toDate)
-      }
-    });
-
-    const filtredByDateDepo = filtredByBirthday?.filter((filtredDemand) => {
-      if (plusMoin35Value === "m") {
-        return (
-          new Date(convertDateFormat(filtredDemand.demandeur?.date_n).jsDate) >=
-          new Date(
-            new Date(dateEtude).getFullYear() - 35,
-            new Date(dateEtude).getMonth(),
-            new Date(dateEtude).getDate()
-          )
-        );
-      } else if (plusMoin35Value === "p")
-        return (
-          new Date(convertDateFormat(filtredDemand.demandeur?.date_n).jsDate) <=
-          new Date(
-            new Date(dateEtude).getFullYear() - 35,
-            new Date(dateEtude).getMonth(),
-            new Date(dateEtude).getDate()
-          )
-        );
-      else return true;
-    });
-
-    const filtredBySituation = filtredByDateDepo.filter((filtredDossiers) => {
-      if (situationFamiliale === "all") return true;
-      else return filtredDossiers.demandeur?.stuation_f === situationFamiliale;
-    });
-
-    const FinalList = filtredBySituation
-      ?.sort((a, b) => b.notes - a.notes)
-      .slice(0, dossiersCount - 0);
+    // calculate total
+    const total = filterBySearch.length;
 
     // Skip page * limit and limit
     filterBySearch = filterBySearch.filter((x, i) => {
@@ -285,6 +311,7 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
         return true;
       }
     });
+
     var keyArray = filterBySearch.map(function (item) {
       return {
         _id: item._id,
@@ -300,12 +327,16 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
       };
     });
 
-    if (keyArray) {
-      res.json(keyArray);
-    } else {
-      res.status(400);
-      throw new Error("لا توجد ملفات");
-    }
+    // define the response
+    const response = {
+      error: false,
+      total,
+      page: page + 1,
+      limit,
+      data: keyArray,
+    };
+
+    res.status(200).json(response);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: true, message: "Internal Server Error" });

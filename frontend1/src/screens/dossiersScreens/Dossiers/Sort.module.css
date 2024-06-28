@@ -1,0 +1,47 @@
+.container {
+  height: 70px;
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  box-shadow: wheat;
+  background-color: white;
+}
+
+.sort_by {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.select {
+  width: 80px;
+  height: 30px;
+  margin-left: 5px;
+  border-radius: 5px;
+  border: 1px solid black;
+  outline: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.arrow_btn {
+  
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+  width: 30px;
+  outline: none;
+  border: 1px solid black;
+  margin-left: 5px;
+  border-radius: 5px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.up_arrow,
+.down_arrow {
+  font-size: 9px;
+  font-weight: bold;
+  color: black;
+}

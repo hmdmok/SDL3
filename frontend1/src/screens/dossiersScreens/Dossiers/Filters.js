@@ -1,61 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Form } from "react-bootstrap";
 import { isValidDate } from "../../../Functions/functions";
-import { useDispatch, useSelector } from "react-redux";
-import { listDossiersAction } from "../../../actions/dossierActions";
 import RadioGroup from "../../../Functions/RadioGroup";
+import Sort from "./Sort";
 
-const Filters = () => {
-  const dispatch = useDispatch();
-
+const Filters = ({
+  limit,
+  setLimit,
+  setSearch,
+  setDateEtude,
+  setP_m_35_de,
+  setP_m_35_dd,
+  setSituationFamiliale,
+  setFromDate,
+  setToDate,
+  fromDate,
+  toDate,
+  p_m_35_de,
+  p_m_35_dd,
+  dateEtude,
+  sort,
+  setSort,
+}) => {
   const PlusMoinRadioItems = [
-    { value: "p", label: "اكثر من 35 سنة" },
-    { value: "m", label: "اقل من 35 سنة" },
+    { value: "p", label: "اكثر من 35 سنة من تاريخ الدراسة" },
+    { value: "m", label: "اقل من 35 سنة من تاريخ الدراسة" },
   ];
 
-  const [plusMoin35Value, setPlusMoin35Value] = useState("");
-  const [dateEtude, setDateEtude] = useState("");
-  const [dossiersCount, setDossiersCount] = useState(50);
-  const [search, setSearch] = useState("");
-  const [nameSearch, setNameSearch] = useState("");
-  const [lastNameSearch, setLastNameSearch] = useState("");
-  const [birthDateSearch, setBirthDateSearch] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [situationFamiliale, setSituationFamiliale] = useState("all");
-  const dossierDelete = useSelector((state) => state.dossierDelete);
-  const { success: successDossierDelete } = dossierDelete;
-
-  useEffect(() => {
-    dispatch(
-      listDossiersAction(
-        dossiersCount,
-        search,
-        lastNameSearch,
-        nameSearch,
-        birthDateSearch,
-        fromDate,
-        toDate,
-        situationFamiliale,
-        dateEtude,
-        plusMoin35Value
-      )
-    );
-    console.log(plusMoin35Value);
-  }, [
-    dispatch,
-    successDossierDelete,
-    search,
-    lastNameSearch,
-    nameSearch,
-    birthDateSearch,
-    dossiersCount,
-    fromDate,
-    toDate,
-    situationFamiliale,
-    dateEtude,
-    plusMoin35Value,
-  ]);
+  const PlusMoinDDRadioItems = [
+    { value: "p", label: "اكثر من 35 سنة من تاريخ الايداع" },
+    { value: "m", label: "اقل من 35 سنة من تاريخ الايداع" },
+  ];
 
   return (
     <div className="filters">
@@ -64,13 +39,25 @@ const Filters = () => {
       <Form.Label>{"عدد الملفات للبحث"}</Form.Label>
       <Form.Control
         type="search"
-        defaultValue={dossiersCount}
+        defaultValue={limit}
         aria-label="Search"
         onChange={(e) => {
-          setDossiersCount(e.target.value);
+          setLimit(e.target.value);
         }}
         className="m-1  text-right"
       />
+
+      <Form.Label>{"للبحث"}</Form.Label>
+      <Form.Control
+        type="search"
+        placeholder="البحث"
+        className="m-1 text-right"
+        aria-label="Search"
+        onChange={(e) => {
+          setSearch(e.target.value);
+        }}
+      />
+
       <Form.Label>{"تاريخ الدراسة"}</Form.Label>
       <Form.Control
         type="date"
@@ -79,15 +66,29 @@ const Filters = () => {
           setDateEtude(e.target.value);
         }}
       />
+
       <RadioGroup
-        name="plusMoin35"
+        name="plusMoin35DE"
         items={PlusMoinRadioItems}
-        value={plusMoin35Value}
+        value={p_m_35_de}
         onChange={(e) => {
-          setPlusMoin35Value(e.target.value);
-          console.log(plusMoin35Value);
+          setP_m_35_de(e.target.value);
         }}
         desabled={dateEtude === ""}
+      />
+      <RadioGroup
+        name="plusMoin35DD"
+        items={PlusMoinDDRadioItems}
+        value={p_m_35_dd}
+        onChange={(e) => {
+          setP_m_35_dd(e.target.value);
+        }}
+      />
+      <Sort
+        sort={sort}
+        setSort={(sort) => {
+          setSort(sort);
+        }}
       />
       <Form.Check
         name="situation_f"
@@ -95,7 +96,7 @@ const Filters = () => {
         id={`situation_f-1`}
         className="d-flex flex-row-reverse p-1"
         onChange={() => {
-          setSituationFamiliale("all");
+          setSituationFamiliale("");
         }}
       />
       <Form.Label
@@ -188,48 +189,6 @@ const Filters = () => {
         id="inputToDate"
         className="m-1  text-right "
       />
-      {!nameSearch && !lastNameSearch && !birthDateSearch && (
-        <Form.Control
-          type="search"
-          placeholder="ادخل رقم الملف للبحث"
-          className="m-1 text-right"
-          aria-label="Search"
-          onChange={(e) => {
-            setSearch(e.target.value);
-          }}
-        />
-      )}
-      {!search && (
-        <>
-          <Form.Control
-            type="search"
-            placeholder="ادخل اسم الشخص للبحث"
-            className="m-1  text-right"
-            aria-label="NameSearch"
-            onChange={(e) => {
-              setNameSearch(e.target.value);
-            }}
-          />
-          <Form.Control
-            type="search"
-            placeholder="ادخل لقب الشخص للبحث"
-            className="m-1  text-right"
-            aria-label="lastNameSearch"
-            onChange={(e) => {
-              setLastNameSearch(e.target.value);
-            }}
-          />
-          <Form.Control
-            type="search"
-            placeholder="ادخل تاريخ ميلاد الشخص للبحث"
-            className="m-1  text-right"
-            aria-label="birthDateSearch"
-            onChange={(e) => {
-              setBirthDateSearch(e.target.value);
-            }}
-          />
-        </>
-      )}
     </div>
   );
 };
