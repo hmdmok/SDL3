@@ -38,6 +38,7 @@ const Filters = ({
       <hr />
       <Form.Label>{"عدد الملفات للبحث"}</Form.Label>
       <Form.Control
+        size="sm"
         type="search"
         defaultValue={limit}
         aria-label="Search"
@@ -49,6 +50,7 @@ const Filters = ({
 
       <Form.Label>{"للبحث"}</Form.Label>
       <Form.Control
+        size="sm"
         type="search"
         placeholder="البحث"
         className="m-1 text-right"
@@ -60,6 +62,7 @@ const Filters = ({
 
       <Form.Label>{"تاريخ الدراسة"}</Form.Label>
       <Form.Control
+        size="sm"
         type="date"
         className="m-1"
         onChange={(e) => {
@@ -92,6 +95,7 @@ const Filters = ({
       />
       <Form.Check
         name="situation_f"
+        size="sm"
         type="radio"
         id={`situation_f-1`}
         className="d-flex flex-row-reverse p-1"
@@ -107,6 +111,7 @@ const Filters = ({
       </Form.Label>
       <Form.Check
         name="situation_f"
+        size="sm"
         type="radio"
         id={`situation_f-2`}
         className="d-flex flex-row-reverse p-1"
@@ -122,6 +127,7 @@ const Filters = ({
       </Form.Label>
       <Form.Check
         name="situation_f"
+        size="sm"
         type="radio"
         id={`situation_f-3`}
         className="d-flex flex-row-reverse p-1"
@@ -137,6 +143,7 @@ const Filters = ({
       </Form.Label>
       <Form.Check
         name="situation_f"
+        size="sm"
         type="radio"
         id={`situation_f-4`}
         className="d-flex flex-row-reverse p-1"
@@ -152,6 +159,7 @@ const Filters = ({
       </Form.Label>
       <Form.Check
         name="situation_f"
+        size="sm"
         type="radio"
         id={`situation_f-5`}
         className="d-flex flex-row-reverse p-1"
@@ -173,6 +181,7 @@ const Filters = ({
           if (isValidDate(e.target.value))
             setFromDate(new Date(e.target.value).toLocaleDateString());
         }}
+        size="sm"
         type="date"
         id="inputFromDate"
         className="m-1  text-right"
@@ -185,6 +194,7 @@ const Filters = ({
           if (isValidDate(e.target.value))
             setToDate(new Date(e.target.value).toLocaleDateString());
         }}
+        size="sm"
         type="date"
         id="inputToDate"
         className="m-1  text-right "

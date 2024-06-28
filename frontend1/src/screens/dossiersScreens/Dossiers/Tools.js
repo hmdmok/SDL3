@@ -3,10 +3,10 @@ import { Badge, Button, ButtonGroup, ButtonToolbar } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addList, deleteList } from "../../../actions/filesActions";
-import { addBenefisierList } from "../../../actions/benifisierActions";
+import { addBenefisierList, deleteBenefisierList } from "../../../actions/benifisierActions";
 import styles from "./Tools.module.css";
 
-const Tools = ({ total, limit, data, page, setPage }) => {
+const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
   const dispatch = useDispatch();
 
   const addListToCheck = (fileTo) => {
@@ -20,6 +20,9 @@ const Tools = ({ total, limit, data, page, setPage }) => {
   const addListToBenefisiers = (fileTo) => {
     dispatch(addBenefisierList(fileTo));
   };
+  const dellAllDossiersFromBenefisiers = () => {
+    dispatch(deleteBenefisierList());
+  };
   const totalPages = Math.ceil(total / limit);
 
   const clickPage = (page) => {
@@ -27,49 +30,73 @@ const Tools = ({ total, limit, data, page, setPage }) => {
   };
   return (
     <div style={{ display: "flex", flexDirection: "row-reverse" }} className="">
-      <Button className="m-1 ">
+      <Button className="m-1 " size="sm">
         <Link to="/demandeur">اضافة ملف جديد</Link>
       </Button>
 
       <Button
         variant="success"
         className="m-1 "
+        size="sm"
         onClick={() => {
           addListToCheck(data);
         }}
       >
-        اظافة كل القائمة للتحقيق
+        اظافة كل الصفحة للتحقيق
+      </Button>
+      <Button
+        variant="success"
+        className="m-1 "
+        size="sm"
+        onClick={() => {
+          addListToCheck(totalArray);
+        }}
+      >
+        اظافة كل الملفات للتحقيق
       </Button>
       <Button
         variant="danger"
         className="m-1 "
+        size="sm"
         onClick={() => {
           dellAllDossiersFromCheck();
         }}
       >
-        حذف كل القائمة من التحقيق
+        حذف كل قائمة التحقيق
       </Button>
 
       <Button
         variant="success"
         className="m-1"
+        size="sm"
         onClick={() => {
           addListToBenefisiers(data);
         }}
       >
-        اظافة كل القائمة للمسفيدين
+        اظافة كل الصفحة للمسفيدين
+      </Button>
+      <Button
+        variant="success"
+        className="m-1"
+        size="sm"
+        onClick={() => {
+          addListToBenefisiers(totalArray);
+        }}
+      >
+        اظافة كل الملفات للمسفيدين
       </Button>
       <Button
         variant="danger"
         className="m-1"
+        size="sm"
         onClick={() => {
-          dellAllDossiersFromCheck();
+          dellAllDossiersFromBenefisiers();
         }}
       >
-        حذف كل القائمة من المستفيدين
+        حذف كل قائمة المستفيدين
       </Button>
 
-      <Button className="m-1 ">
+      <Button className="m-1 " size="sm">
         <Badge>ملف</Badge>
         <Badge>{total}</Badge>
       </Button>
@@ -101,22 +128,13 @@ const Tools = ({ total, limit, data, page, setPage }) => {
                 {"اول صفحة"}
               </Button>
             )}
-            {/* {[...Array(totalPages).keys()].map((val, index) => (
-              <Button
-                className={page === index + 1 ? ` ${styles.active}` : ``}
-                key={index}
-                onClick={() => clickPage(index)}
-              >
-                {index + 1}
-              </Button>
-            ))} */}
           </ButtonGroup>
           <ButtonGroup
             style={{ display: "flex" }}
             className="me-2"
             aria-label="First group"
           >
-            <Button >عدد الصفحات : {totalPages}</Button>
+            <Button>عدد الصفحات : {totalPages}</Button>
           </ButtonGroup>
         </ButtonToolbar>
       )}

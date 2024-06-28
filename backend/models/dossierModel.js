@@ -9,7 +9,7 @@ const dossierSchema = mongoose.Schema(
       type: String,
     },
     id_conjoin: {
-      type: String,
+      type: [String],
     },
     date_depo: {
       type: String,
@@ -20,20 +20,25 @@ const dossierSchema = mongoose.Schema(
     adress: {
       type: String,
     },
-    num_enf: {
+    num_conj: {
       type: Number,
+      default: 0,
     },
-    stuation_s_avec_d: {
+    note_revenue: {
       type: Number,
+      default: 0,
     },
-    stuation_s_andicap: {
-      type: String,
-    },
-    stuation_d: {
+    note_habita: {
       type: Number,
+      default: 0,
     },
-    numb_p: {
+    note_situation_familiale: {
       type: Number,
+      default: 0,
+    },
+    note_anciennete: {
+      type: Number,
+      default: 0,
     },
     type: {
       type: String,
@@ -52,6 +57,7 @@ const dossierSchema = mongoose.Schema(
     },
     notes: {
       type: Number,
+      default: 0,
     },
   },
   {

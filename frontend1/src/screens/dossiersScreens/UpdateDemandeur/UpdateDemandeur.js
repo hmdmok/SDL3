@@ -29,6 +29,7 @@ function UpdateDemandeur() {
   const [gender, setGender] = useState("");
   const [gender_conj, setGender_conj] = useState("");
   const [num_act, setNum_act] = useState("");
+  const [type_date_n, setType_date_n] = useState("");
   const [date_n, setDate_n] = useState("");
   const [lieu_n, setLieu_n] = useState("");
   const [lieu_n_fr, setLieu_n_fr] = useState("");
@@ -121,6 +122,7 @@ function UpdateDemandeur() {
       setNom_fr(demandeur.nom_fr);
       setGender(demandeur.gender);
       setNum_act(demandeur.num_act);
+      setType_date_n(demandeur.type_date_n);
       setDate_n(demandeur.date_n);
       setLieu_n(demandeur.lieu_n);
       setLieu_n_fr(demandeur.lieu_n_fr);
@@ -200,6 +202,7 @@ function UpdateDemandeur() {
         nom_fr,
         gender,
         num_act,
+        type_date_n,
         date_n,
         lieu_n,
         lieu_n_fr,
@@ -365,6 +368,25 @@ function UpdateDemandeur() {
               name="date_n"
               required
             />
+            <label htmlFor="type_date_n">طبيعة تاريخ الميلاد</label>
+            <select
+              className="form-control text-right"
+              onChange={(e) => setType_date_n(e.target.value)}
+              id="type_date_n"
+              defaultValue="N"
+              name="type_date_n"
+              required
+            >
+              <option name="type_date_n" value="N">
+                عادي
+              </option>
+              <option name="type_date_n" value="P">
+                مفترض
+              </option>
+              <option name="type_date_n" value="B">
+                مكرر
+              </option>
+            </select>
             <br />
           </div>
           <div className="col-sm order-sm-first">

@@ -10,15 +10,18 @@ import {
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
 import MainScreen from "../../../components/MainScreen/MainScreen";
+import { convertDateFormat } from "../../../Functions/functions";
 
 function UpdateDossiers() {
-  const [stuation_d, setStuation_d] = useState("");
+  const [num_conj, setNum_conj] = useState(0);
   const [num_enf, setNum_enf] = useState("0");
   const [stuation_s_avec_d, setStuation_s_avec_d] = useState(false);
   const [stuation_s_andicap, setStuation_s_andicap] = useState(false);
   const [numb_p, setNumb_p] = useState("0");
   const [remark, setRemark] = useState("");
   const [creator, setCreator] = useState("");
+  const [adress, setAdress] = useState("");
+  const [date_depo, setDate_depo] = useState("");
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
@@ -55,7 +58,10 @@ function UpdateDossiers() {
   }, [dispatch, id]);
 
   useEffect(() => {
-    if (dossier) dispatch(getDemandeurAction(dossier?.id_demandeur));
+    if (dossier) {
+      dispatch(getDemandeurAction(dossier?.id_demandeur));
+      setDate_depo(dossier?.date_depo);
+    }
   }, [dispatch, dossier]);
 
   useEffect(() => {
@@ -78,12 +84,12 @@ function UpdateDossiers() {
         creator,
         dossier.id_demandeur,
         dossier.id_conjoin,
-        dossier.date_depo,
+        date_depo,
         dossier.num_dos,
-        num_enf,
+        adress,
         stuation_s_avec_d.toString(),
         stuation_s_andicap.toString(),
-        stuation_d,
+        num_conj,
         numb_p,
         dossier.type,
         dossier.gender_conj,
@@ -95,10 +101,9 @@ function UpdateDossiers() {
   };
 
   return (
-    <MainScreen title={"معلومات الملف"}>
-      <h1>الرجاء إدخال بيانات ملف طلب السكن</h1>
-      <h2>{"السيد(ة): " + demandeur?.nom + " " + demandeur?.prenom}</h2>
-      <br />
+    <MainScreen
+      title={` معلومات ملف : ${demandeur?.nom}  ${demandeur?.prenom} | ${demandeur?.nom_fr} ${demandeur?.prenom_fr}`}
+    >
       {errorDemandeurGet && (
         <ErrorMessage variant="danger">{errorDemandeurGet}</ErrorMessage>
       )}
@@ -121,18 +126,6 @@ function UpdateDossiers() {
         <div>
           <div className="row text-right">
             <div className="col-sm order-sm-last">
-              <label htmlFor="date_depo"> تاريخ الإيداع </label>
-              <input
-                defaultValue={dossier?.date_depo}
-                disabled={true}
-                type="date"
-                id="date_depo"
-                name="date_depo"
-                className="form-control text-right"
-                required
-              />
-              <br />
-
               <label htmlFor="num_dos"> رقم الملف</label>
               <input
                 defaultValue={dossier?.num_dos}
@@ -145,70 +138,46 @@ function UpdateDossiers() {
               />
               <br />
 
-              <label>ظروف السكن</label>
+              <label htmlFor="date_depo"> تاريخ الإيداع </label>
+              <input
+                defaultValue={convertDateFormat(date_depo, "T").jsDate}
+                type="date"
+                id="date_depo"
+                name="date_depo"
+                className="form-control text-right"
+                onChange={(e) => {
+                  setDate_depo(e.target.value);
+                }}
+                required
+              />
               <br />
 
-              <input
-                type="radio"
-                id="garage"
-                name="stuation_d"
-                value="garage"
-                onChange={(e) => setStuation_d(e.target.value)}
-              />
-              <label className="form-control text-right" htmlFor="garage">
-                محل غير مخصص للسكن{" "}
-              </label>
-              <br />
+              {demandeur?.stuation_f.toString() !== "C" &&
+                demandeur?.gender.toString() !== "F" && (
+                  <>
+                    <label>عدد الزوجات</label>
+                    <br />
 
-              <input
-                type="radio"
-                id="legem_1"
-                name="stuation_d"
-                value="legem_1"
-                onChange={(e) => setStuation_d(e.target.value)}
-              />
-              <label className="form-control text-right" htmlFor="legem_1">
-                سكن خطر مهدد بالانهيار ملك جماعي
-              </label>
-              <br />
+                    <input
+                      type="text"
+                      id="garage"
+                      name="num_conj"
+                      className="form-control text-right"
+                      value={dossier?.num_conj}
+                      onChange={(e) => setNum_conj(e.target.value)}
+                    />
+                  </>
+                )}
 
-              <input
-                type="radio"
-                id="legem2"
-                name="stuation_d"
-                value="legem2"
-                onChange={(e) => setStuation_d(e.target.value)}
-              />
-              <label className="form-control text-right" htmlFor="legem2">
-                سكن خطر مهدد بالانهيار ملك فردي
-              </label>
               <br />
-
+              <label htmlFor="adress">العنوان</label>
               <input
-                type="radio"
-                id="loca"
-                name="stuation_d"
-                value="loca"
-                onChange={(e) => setStuation_d(e.target.value)}
+                value={adress}
+                type="text"
+                name="adress"
+                className="form-control text-right"
+                onChange={(e) => setAdress(e.target.value)}
               />
-              <label className="form-control text-right" htmlFor="loca">
-                سكن عند الأقارب او مستأجر
-              </label>
-              <br />
-
-              <input
-                type="radio"
-                id="fonc"
-                name="stuation_d"
-                value="fonc"
-                onChange={(e) => setStuation_d(e.target.value)}
-              />
-              <label className="form-control text-right" htmlFor="fonc">
-                سكن وظيفي
-              </label>
-              <br />
-            </div>
-            <div className="col-sm order-sm-first">
               <br />
               <label htmlFor="num_enf">عدد الأولاد</label>
               <input

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Col, Form, Row } from "react-bootstrap";
+import { Col, Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { listCommunesByWilayaAction } from "../../../actions/communeActions";
 import { listWilayasAction } from "../../../actions/wilayaActions";
@@ -19,6 +19,7 @@ function AddDemandeur() {
   const [gender_conj, setGender_conj] = useState("");
   const [num_act, setNum_act] = useState("");
   const [date_n, setDate_n] = useState("");
+  const [type_date_n, setType_date_n] = useState("");
   const [lieu_n, setLieu_n] = useState("");
   const [lieu_n_fr, setLieu_n_fr] = useState("");
   const [wil_n, setWil_n] = useState(0);
@@ -116,6 +117,10 @@ function AddDemandeur() {
 
   let navigate = useNavigate();
 
+  const backHandler = () => {
+    navigate("/dossiers");
+  };
+
   useEffect(() => {
     if (dossier) navigate(`/adddossiers/${dossier._id}`);
   }, [navigate, successDossierAdd, dossier]);
@@ -130,6 +135,7 @@ function AddDemandeur() {
         nom_fr,
         gender,
         num_act,
+        type_date_n,
         date_n,
         lieu_n,
         lieu_n_fr,
@@ -174,7 +180,7 @@ function AddDemandeur() {
       {loadingCommunes && <Loading />}
 
       <Form onSubmit={submitDemandeurHandler}>
-        <Row className="text-right">
+        <div className="row text-right">
           <Col className="col-sm order-sm-last">
             <label htmlFor="prenom">الاسم</label>
             <input
@@ -215,7 +221,7 @@ function AddDemandeur() {
             />
             <br />
           </div>
-        </Row>
+        </div>
         <div className="row text-right">
           <div className="col-sm order-sm-last">
             <div
@@ -260,6 +266,25 @@ function AddDemandeur() {
               defaultValue="01-01-1900"
               required
             />
+            <label htmlFor="type_date_n">طبيعة تاريخ الميلاد</label>
+            <select
+              className="form-control text-right"
+              onChange={(e) => setType_date_n(e.target.value)}
+              id="type_date_n"
+              defaultValue="N"
+              name="type_date_n"
+              required
+            >
+              <option name="type_date_n" value="N">
+                عادي
+              </option>
+              <option name="type_date_n" value="P">
+                مفترض
+              </option>
+              <option name="type_date_n" value="B">
+                مكرر
+              </option>
+            </select>
             <br />
           </div>
           <div className="col-sm order-sm-first">
@@ -512,6 +537,14 @@ function AddDemandeur() {
               type="reset"
               className="btn btn-lg btn-primary btn-block"
               value="إلغاء"
+            />
+          </div>
+          <div className="col-sm order-sm-first my-2">
+            <input
+              type=""
+              className="btn btn-lg btn-primary btn-block"
+              value="الرجوع"
+              onClick={() => backHandler()}
             />
           </div>
         </div>

@@ -304,6 +304,20 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
 
     // calculate total
     const total = filterBySearch.length;
+    var totalArray = filterBySearch.map(function (item) {
+      return {
+        _id: item._id,
+        num_dos: item.num_dos,
+        date_depo: item.date_depo,
+        notes: item.notes,
+        demandeur: {
+          nom_fr: item["demandeur"].nom_fr,
+          prenom_fr: item["demandeur"].prenom_fr,
+          date_n: item["demandeur"].date_n,
+          stuation_f: item["demandeur"].stuation_f,
+        },
+      };
+    });
 
     // Skip page * limit and limit
     filterBySearch = filterBySearch.filter((x, i) => {
@@ -334,6 +348,7 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
       page: page + 1,
       limit,
       data: keyArray,
+      totalArray: totalArray,
     };
 
     res.status(200).json(response);

@@ -32,7 +32,6 @@ function Dossiers() {
   const [situationFamiliale, setSituationFamiliale] = useState("");
   const [dateEtude, setDateEtude] = useState("");
 
-
   useEffect(() => {
     dispatch(
       listDossiersAction(
@@ -77,6 +76,7 @@ function Dossiers() {
           limit={dossiers?.limit ? dossiers.limit : 20}
           total={dossiers?.total ? dossiers.total : 0}
           data={dossiers?.data ? dossiers.data : {}}
+          totalArray={dossiers?.totalArray ? dossiers.totalArray : {}}
           setPage={setPage}
           page={page}
           key={"tools"}

@@ -30,6 +30,7 @@ const createPerson = asyncHandler(async (req, res) => {
     nom_fr,
     gender,
     num_act,
+    type_date_n,
     date_n,
     lieu_n,
     lieu_n_fr,
@@ -57,6 +58,7 @@ const createPerson = asyncHandler(async (req, res) => {
     nom_fr,
     gender,
     num_act,
+    type_date_n,
     date_n,
     lieu_n,
     lieu_n_fr,
@@ -96,6 +98,7 @@ const updatePerson = asyncHandler(async (req, res) => {
     nom_fr,
     gender,
     num_act,
+    type_date_n,
     date_n,
     lieu_n,
     lieu_n_fr,
@@ -129,6 +132,7 @@ const updatePerson = asyncHandler(async (req, res) => {
     personToUpdate.nom_fr = nom_fr || personToUpdate.nom_fr;
     personToUpdate.gender = gender || personToUpdate.gender;
     personToUpdate.num_act = num_act || personToUpdate.num_act;
+    personToUpdate.type_date_n = type_date_n || personToUpdate.type_date_n;
     personToUpdate.date_n = date_n || personToUpdate.date_n;
     personToUpdate.lieu_n = lieu_n || personToUpdate.lieu_n;
     personToUpdate.lieu_n_fr = lieu_n_fr || personToUpdate.lieu_n_fr;
