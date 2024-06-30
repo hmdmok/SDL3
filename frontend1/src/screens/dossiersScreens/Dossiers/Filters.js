@@ -34,9 +34,8 @@ const Filters = ({
 
   return (
     <div className="filters">
-      <h4>{"ادوات البحث والفرز"}</h4>
       <hr />
-      <Form.Label>{"عدد الملفات للبحث"}</Form.Label>
+      <Form.Label>{"عدد الملفات في الصفحة"}</Form.Label>
       <Form.Control
         size="sm"
         type="search"
@@ -59,26 +58,28 @@ const Filters = ({
           setSearch(e.target.value);
         }}
       />
+      <div style={{ display: 0 }}>
+        <Form.Label>{"تاريخ الدراسة"}</Form.Label>
+        <Form.Control
+          size="sm"
+          type="date"
+          className="m-1"
+          onChange={(e) => {
+            setDateEtude(e.target.value);
+          }}
+        />
 
-      <Form.Label>{"تاريخ الدراسة"}</Form.Label>
-      <Form.Control
-        size="sm"
-        type="date"
-        className="m-1"
-        onChange={(e) => {
-          setDateEtude(e.target.value);
-        }}
-      />
+        <RadioGroup
+          name="plusMoin35DE"
+          items={PlusMoinRadioItems}
+          value={p_m_35_de}
+          onChange={(e) => {
+            setP_m_35_de(e.target.value);
+          }}
+          desabled={dateEtude === ""}
+        />
+      </div>
 
-      <RadioGroup
-        name="plusMoin35DE"
-        items={PlusMoinRadioItems}
-        value={p_m_35_de}
-        onChange={(e) => {
-          setP_m_35_de(e.target.value);
-        }}
-        desabled={dateEtude === ""}
-      />
       <RadioGroup
         name="plusMoin35DD"
         items={PlusMoinDDRadioItems}

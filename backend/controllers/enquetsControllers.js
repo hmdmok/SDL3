@@ -29,7 +29,6 @@ const ExcelJS = require("exceljs");
 const System = require("../models/systemModel");
 const path = require("path");
 
-
 function createRecord(dossier, newData, type) {
   const demandeur = dossier.demandeur || {};
   const conjoin = dossier.conjoin || {};
@@ -173,10 +172,21 @@ const uploadDossierEnq = asyncHandler(async (req, res) => {
 });
 
 const getEnquetCNLFile = asyncHandler(async (req, res) => {
-  var {} = req.body;
+  var { dossierEnq: dossiersList } = req.body;
 
-  const dossierEnq = await getFullDossier();
-
+  const data = await getFullDossier();
+  var dossierEnq = [];
+  if (dossiersList.length > 0) {
+    console.log(dossiersList);
+    await dossiersList.forEach(function (e) {
+      const element = this.find((e1) => {
+        return e1._id.toString() === e;
+      });
+      if (element) dossierEnq.push(element);
+    }, Object.values(data));
+  } else {
+    dossierEnq = data;
+  }
   // console.log(dossierEnq);
   let workbook = XLSX.readFile("CNL.xlsx", { cellStyles: true });
   let first_sheet_name = workbook.SheetNames;
@@ -555,7 +565,19 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
 
 const getListBenefisiersFile = asyncHandler(async (req, res) => {
   var { dossiersList, type, quotaDate } = req.body;
-  const dossiers = await dossier.find();
+
+  const data = await getFullDossier();
+  var dossiers = [];
+  if (dossiersList.length > 0) {
+    await dossiersList.forEach(function (e) {
+      const element = this.find((e1) => {
+        return e1._id.toString() === e;
+      });
+      if (element) dossiers.push(element);
+    }, Object.values(data));
+  } else {
+    dossiers = data;
+  }
   const workbook = new ExcelJS.Workbook();
   let pi = 1,
     mi = 1;
@@ -602,6 +624,11 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
       worksheetMoin = workbook.worksheets[1];
       break;
     }
+    case "exportFilter": {
+      await workbook.xlsx.readFile("Export-ArFilter.xlsx");
+      worksheetPlus = workbook.worksheets[0];
+      break;
+    }
   }
 
   const imageId1 = workbook.addImage({
@@ -611,16 +638,14 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
 
   // insert an image over B2:D6
   worksheetPlus.addImage(imageId1, "AA2:AB3");
-  worksheetMoin.addImage(imageId1, "AA2:AB3");
+  if (type !== "exportFilter") worksheetMoin.addImage(imageId1, "AA2:AB3");
 
   let newDoss;
   if (type === "export") {
     newDoss = await dossiers.map(
       asyncHandler(async function (record, i) {
-        const demandeur = await person.findById(record.id_demandeur);
-        const conjoin = await person.findById(record.id_conjoin);
         if (
-          new Date(convertDateFormat(demandeur?.date_n).jsDate) <=
+          new Date(convertDateFormat(record.demandeur?.date_n).jsDate) <=
           new Date(
             new Date(quotaDate).getFullYear() - 35,
             new Date(quotaDate).getMonth(),
@@ -632,32 +657,34 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
               worksheetPlus._rows.length - 3,
               record.num_dos,
               record.date_depo,
-              demandeur?.nom,
-              demandeur?.prenom,
-              getGenderName(demandeur?.gender, "a"),
-              demandeur?.date_n,
-              demandeur?.num_act,
-              demandeur?.lieu_n,
-              getCivility(demandeur?.stuation_f, "a"),
-              demandeur?.prenom_p,
-              demandeur?.nom_m,
-              demandeur?.prenom_m,
+              record.demandeur?.nom,
+              record.demandeur?.prenom,
+              getGenderName(record.demandeur?.gender, "a"),
+              record.demandeur?.type_date_n,
+              record.demandeur?.date_n,
+              record.demandeur?.num_act,
+              record.demandeur?.lieu_n,
+              getCivility(record.demandeur?.stuation_f, "a"),
+              record.demandeur?.prenom_p,
+              record.demandeur?.nom_m,
+              record.demandeur?.prenom_m,
               record.adress,
-              conjoin?.nom,
-              conjoin?.prenom,
-              conjoin?.date_n,
-              conjoin?.num_act,
-              conjoin?.lieu_n,
-              conjoin?.prenom_p,
-              conjoin?.nom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
+              record.conjoin?.nom,
+              record.conjoin?.prenom,
+              record.conjoin?.type_date_n,
+              record.conjoin?.date_n,
+              record.conjoin?.num_act,
+              record.conjoin?.lieu_n,
+              record.conjoin?.prenom_p,
+              record.conjoin?.nom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
             ],
             "i+"
           );
@@ -667,36 +694,77 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
               worksheetMoin._rows.length - 3,
               record.num_dos,
               record.date_depo,
-              demandeur?.nom,
-              demandeur?.prenom,
-              getGenderName(demandeur?.gender, "a"),
-              demandeur?.date_n,
-              demandeur?.num_act,
-              demandeur?.lieu_n,
-              getCivility(demandeur?.stuation_f, "a"),
-              demandeur?.prenom_p,
-              demandeur?.nom_m,
-              demandeur?.prenom_m,
+              record.demandeur?.nom,
+              record.demandeur?.prenom,
+              getGenderName(record.demandeur?.gender, "a"),
+              record.demandeur?.date_n,
+              record.demandeur?.num_act,
+              record.demandeur?.lieu_n,
+              getCivility(record.demandeur?.stuation_f, "a"),
+              record.demandeur?.prenom_p,
+              record.demandeur?.nom_m,
+              record.demandeur?.prenom_m,
               record.adress,
-              conjoin?.nom,
-              conjoin?.prenom,
-              conjoin?.date_n,
-              conjoin?.num_act,
-              conjoin?.lieu_n,
-              conjoin?.prenom_p,
-              conjoin?.nom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
-              conjoin?.prenom_m,
+              record.conjoin?.nom,
+              record.conjoin?.prenom,
+              record.conjoin?.date_n,
+              record.conjoin?.num_act,
+              record.conjoin?.lieu_n,
+              record.conjoin?.prenom_p,
+              record.conjoin?.nom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
+              record.conjoin?.prenom_m,
             ],
             "i+"
           );
         }
+      })
+    );
+  } else if (type === "exportFilter") {
+    newDoss = await dossiers.map(
+      asyncHandler(async function (record, i) {
+        await worksheetPlus.addRow(
+          [
+            worksheetPlus._rows.length - 3,
+            record.num_dos,
+            record.date_depo,
+            record.demandeur?.nom,
+            record.demandeur?.prenom,
+            getGenderName(record.demandeur?.gender, "a"),
+            record.demandeur?.date_n,
+            record.demandeur?.type_date_n,
+            record.demandeur?.num_act,
+            record.demandeur?.lieu_n,
+            getCivility(record.demandeur?.stuation_f, "a"),
+            record.demandeur?.prenom_p,
+            record.demandeur?.nom_m,
+            record.demandeur?.prenom_m,
+            record.adress,
+            record.conjoin?.nom,
+            record.conjoin?.prenom,
+            record.conjoin?.date_n,
+            record.conjoin?.type_date_n,
+            record.conjoin?.num_act,
+            record.conjoin?.lieu_n,
+            record.conjoin?.prenom_p,
+            record.conjoin?.nom_m,
+            record.conjoin?.prenom_m,
+            record.conjoin?.prenom_m,
+            record.conjoin?.prenom_m,
+            record.conjoin?.prenom_m,
+            record.conjoin?.prenom_m,
+            record.conjoin?.prenom_m,
+            record.conjoin?.prenom_m,
+            record.conjoin?.prenom_m,
+          ],
+          "i+"
+        );
       })
     );
   } else {
@@ -902,6 +970,8 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         if (type === "export") {
           await worksheetPlus.spliceRows(2, 3);
           await worksheetMoin.spliceRows(2, 3);
+        } else if (type === "exportFilter") {
+          await worksheetPlus.spliceRows(2, 3);
         } else {
           await worksheetPlus.spliceRows(7, 1);
           await worksheetMoin.spliceRows(7, 1);
@@ -910,8 +980,8 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         try {
           await workbook.xlsx.writeFile(newFileName);
         } catch (error) {
-          console.log(workbook);
-          // console.log("writeFile(newFileName): ", error);
+          // console.log(workbook);
+          console.log("writeFile(newFileName): ", error);
         }
       })
     )
@@ -1108,9 +1178,21 @@ const getEnquetCNASFileTest = asyncHandler(async (req, res) => {
 });
 
 const getEnquetCNASFile = asyncHandler(async (req, res) => {
-  const {} = req.body;
+  var { dossierEnq: dossiersList } = req.body;
 
-  const dossierEnq = await getFullDossier();
+  const data = await getFullDossier();
+  var dossierEnq = [];
+  if (dossiersList.length > 0) {
+    console.log(dossiersList);
+    await dossiersList.forEach(function (e) {
+      const element = this.find((e1) => {
+        return e1._id.toString() === e;
+      });
+      if (element) dossierEnq.push(element);
+    }, Object.values(data));
+  } else {
+    dossierEnq = data;
+  }
 
   var newData = [];
   var numOrdre = 1;
@@ -1138,10 +1220,21 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
 });
 
 const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
-  const {} = req.body;
+  var { dossierEnq: dossiersList } = req.body;
 
-  const dossierEnq = await getFullDossier();
-
+  const data = await getFullDossier();
+  var dossierEnq = [];
+  if (dossiersList.length > 0) {
+    console.log(dossiersList);
+    await dossiersList.forEach(function (e) {
+      const element = this.find((e1) => {
+        return e1._id.toString() === e;
+      });
+      if (element) dossierEnq.push(element);
+    }, Object.values(data));
+  } else {
+    dossierEnq = data;
+  }
   const dateTimeString = getCurrentDateTimeString();
   const folderPath = path.join(__dirname, `CASNOS_${dateTimeString}`);
 
@@ -1168,7 +1261,6 @@ const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
         newData = []; // Reset the newData array for the next batch of 200 records
         fileCounter++; // Increment the file counter
       }
-      
     })
   );
 

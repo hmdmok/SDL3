@@ -1,17 +1,28 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Badge, Button, ButtonGroup, ButtonToolbar } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addList, deleteList } from "../../../actions/filesActions";
-import { addBenefisierList, deleteBenefisierList } from "../../../actions/benifisierActions";
+import {
+  addBenefisierList,
+  deleteBenefisierList,
+} from "../../../actions/benifisierActions";
 import styles from "./Tools.module.css";
+import { getIDList } from "../../../Functions/functions";
+import { listBenefisiersAction } from "../../../actions/listBenefisiersActions";
+import Loading from "../../../components/Loading";
+import ErrorMessage from "../../../components/ErrorMessage";
+import fileDownload from "js-file-download";
 
 const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
   const dispatch = useDispatch();
-
+  const systemData = localStorage.getItem("systemInfo");
+  const systemInfo = JSON.parse(systemData);
   const addListToCheck = (fileTo) => {
     dispatch(addList(fileTo));
   };
+  const listBenefisiersGet = useSelector((state) => state.listBenefisiersGet);
+  const { loading, listBenefisiers, error, success } = listBenefisiersGet;
 
   const dellAllDossiersFromCheck = () => {
     dispatch(deleteList());
@@ -28,6 +39,25 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
   const clickPage = (page) => {
     setPage(page);
   };
+  const onGetBenefisiersList = (listDossierBenefisiers, type) => {
+    dispatch(
+      listBenefisiersAction(
+        listDossierBenefisiers,
+        type,
+        systemInfo[0].quotaDate
+      )
+    );
+  };
+
+  useEffect(() => {
+    if (success) {
+      fileDownload(
+        listBenefisiers.data,
+        listBenefisiers.headers["content-disposition"]?.split('"')[1]
+      );
+    }
+  }, [dispatch, listBenefisiers, success]);
+
   return (
     <div style={{ display: "flex", flexDirection: "row-reverse" }} className="">
       <Button className="m-1 " size="sm">
@@ -95,6 +125,16 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
       >
         حذف كل قائمة المستفيدين
       </Button>
+      <Button
+        variant="warning"
+        className="m-1"
+        size="sm"
+        onClick={() => {
+          onGetBenefisiersList(getIDList(totalArray), "exportFilter");
+        }}
+      >
+        تحميل كل الملفات excell
+      </Button>
 
       <Button className="m-1 " size="sm">
         <Badge>ملف</Badge>
@@ -138,6 +178,10 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
           </ButtonGroup>
         </ButtonToolbar>
       )}
+      <div className="alerts">
+        {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
+        {loading && <Loading />}
+      </div>
     </div>
   );
 };

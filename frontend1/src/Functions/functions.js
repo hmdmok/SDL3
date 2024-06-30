@@ -178,6 +178,13 @@ function convertDateFormat(dateStr, outputType) {
   return { date: formattedDate, type: type, jsDate: jsFormattedDate };
 }
 
+function getIDList(obj) {
+  var keyArray = obj.map(function (item) {
+    return item._id;
+  });
+  return keyArray;
+}
+
 export {
   isValidDate,
   validateHeader,
@@ -186,4 +193,5 @@ export {
   getCivility,
   getAlphabet,
   convertDateFormat,
+  getIDList,
 };

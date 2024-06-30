@@ -10,6 +10,7 @@ import {
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
 import fileDownload from "js-file-download";
+import { getIDList } from "../../../Functions/functions";
 
 const EnqTools = () => {
   const dispatch = useDispatch();
@@ -94,28 +95,53 @@ const EnqTools = () => {
       <Button
         className="m-1 "
         onClick={() => {
-          onGetEnqCNAS(files);
+          onGetEnqCNAS([]);
         }}
       >
-        انشاء ملف تحقيق CNAS
+        انشاء ملف تحقيق CNAS لكل الملفات
       </Button>
       <Button
         className="m-1 "
         onClick={() => {
-          onGetEnqCASNOS(files);
+          onGetEnqCNAS(getIDList(files));
         }}
       >
-        انشاء ملف تحقيق CASNOS
+        انشاء ملف تحقيق CNAS للقائمة
+      </Button>
+      <Button
+        className="m-1 "
+        onClick={() => {
+          onGetEnqCASNOS([]);
+        }}
+      >
+        انشاء ملف تحقيق CASNOS لكل الملفات
+      </Button>
+      <Button
+        className="m-1 "
+        onClick={() => {
+          onGetEnqCASNOS(getIDList(files));
+        }}
+      >
+        انشاء ملف تحقيق CASNOS للقائمة
       </Button>
 
       <Button
         variant="success"
         className="m-1 "
         onClick={() => {
-          onGetEnqCNL(files);
+          onGetEnqCNL([]);
         }}
       >
-        انشاء ملف تحقيق CNL
+        انشاء ملف تحقيق CNL لكل الملفات
+      </Button>
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() => {
+          onGetEnqCNL(getIDList(files));
+        }}
+      >
+        انشاء ملف تحقيق CNL للقائمة
       </Button>
       <Button
         variant="danger"
@@ -131,7 +157,9 @@ const EnqTools = () => {
         {loading && <Loading />}
         {errorCNAS && <ErrorMessage variant="danger">{errorCNAS}</ErrorMessage>}
         {loadingCNAS && <Loading />}
-        {errorCASNOS && <ErrorMessage variant="danger">{errorCASNOS}</ErrorMessage>}
+        {errorCASNOS && (
+          <ErrorMessage variant="danger">{errorCASNOS}</ErrorMessage>
+        )}
         {loadingCASNOS && <Loading />}
       </div>
     </div>
