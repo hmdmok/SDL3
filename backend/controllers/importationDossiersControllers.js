@@ -31,13 +31,14 @@ const updateDossiers = asyncHandler(async (req, res) => {
   });
 
   if (remark === "French Fichier Imported") {
-    stream.on("end", function () {
+    stream.on("end", async function () {
       const dossiersCount = excel_file.length;
       let dossierAddedCount = 0;
       let dossierUpdatedCount = 0;
 
       const finalData = excel_file?.map(
         asyncHandler(async (dossier) => {
+          console.log(dossier);
           // extract data from dossier
           const {
             Prenom: prenom_dem,
@@ -45,6 +46,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
             sexe: gender_dem,
             "N°\nDE ACT": num_act_dem,
             "Date de naissance": date_n_dem,
+            "Type date de naissance": type_date_n_dem,
             "Lieu de naissance": lieu_n_dem,
             "Prénom du pére": prenom_p_dem,
             "Prenom de la mére": prenom_m_dem,
@@ -53,6 +55,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
             "Prenom DE CONJOINT": prenom_conj,
             "Nom DE CONJOINT": nom_conj,
             "N DE L ACT": num_act_conj,
+            "Type date de naissance_1": type_date_n_conj,
             "Date de naissance_1": date_n_conj,
             "Lieu de naissance_1": lieu_n_conj,
             "Prénom du pére_1": prenom_p_conj,
@@ -60,6 +63,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
             "Nom de la mére_1": nom_m_conj,
             "Ref demande": num_dos,
             "Date demande": date_depo,
+            Remarque: remark,
           } = dossier;
           // check if dossier exists in DB
           const dossierToUpdate = await Dossier.find({ num_dos: num_dos });
@@ -97,7 +101,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
                   convertDateFormat(date_n_dem, "S").date ||
                   demandeurToUpdate.date_n;
                 demandeurToUpdate.type_date_n =
-                  convertDateFormat(date_n_dem, "S").type ||
+                  type_date_n_dem ||
                   demandeurToUpdate.type_date_n;
 
                 const updatedDemandeur = await demandeurToUpdate.save();
@@ -135,7 +139,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
                   convertDateFormat(date_n_conj, "S").date ||
                   conjoinToUpdate.date_n;
                 conjoinToUpdate.type_date_n =
-                  convertDateFormat(date_n_conj, "S").type ||
+                  type_date_n_conj ||
                   conjoinToUpdate.type_date_n;
 
                 const updatedConjoin = await conjoinToUpdate.save();
@@ -144,7 +148,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
 
             // update dossier
             dossierToUpdate[0].notes = dossierToUpdate[0].notes || "";
-            dossierToUpdate[0].remark = dossierToUpdate[0].remark || "";
+            dossierToUpdate[0].remark = remark || dossierToUpdate[0].remark;
             const updatedDossier = await dossierToUpdate[0].save();
             dossierUpdatedCount++;
           } else {
@@ -167,7 +171,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
                 gender: gender_dem,
                 num_act: num_act_dem,
                 date_n: convertDateFormat(date_n_dem, "S").date,
-                type_date_n: convertDateFormat(date_n_dem, "S").type,
+                type_date_n: type_date_n_dem,
                 lieu_n: "",
                 lieu_n_fr: lieu_n_dem,
                 wil_n: "",
@@ -203,7 +207,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
                 gender: gender_conj,
                 num_act: num_act_conj,
                 date_n: convertDateFormat(date_n_conj, "S").date,
-                type_date_n: convertDateFormat(date_n_conj, "S").type,
+                type_date_n: type_date_n_conj,
                 lieu_n: "",
                 lieu_n_fr: lieu_n_conj,
                 wil_n: "",

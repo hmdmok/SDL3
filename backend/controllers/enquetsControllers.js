@@ -30,12 +30,12 @@ const System = require("../models/systemModel");
 const path = require("path");
 
 function createRecord(dossier, newData, type) {
-  const demandeur = dossier.demandeur || {};
-  const conjoin = dossier.conjoin || {};
+  const demandeur = dossier.demandeur || null;
+  const conjoin = dossier.conjoin || null;
 
   switch (type) {
     case "CASNOS": {
-      if (dossier.id_demandeur) {
+      if (demandeur) {
         const newRecord = {
           CODE_P: newData.length + 1,
           NOM_P: sanitizeInput(demandeur.nom_fr || ""),
@@ -55,7 +55,7 @@ function createRecord(dossier, newData, type) {
 
         newData.push(newRecord);
       }
-      if (dossier.id_conjoin) {
+      if (conjoin) {
         const newRecord = {
           CODE_P: newData.length + 1,
           NOM_P: sanitizeInput(conjoin.nom_fr || ""),
@@ -79,7 +79,7 @@ function createRecord(dossier, newData, type) {
     }
 
     case "CNAS": {
-      if (dossier.id_demandeur) {
+      if (demandeur) {
         const newRecord = {
           "N°": newData.length + 1,
           NUM_DOSS: dossier.num_dos,
@@ -101,7 +101,7 @@ function createRecord(dossier, newData, type) {
 
         newData.push(newRecord);
       }
-      if (dossier.id_conjoin) {
+      if (conjoin) {
         const newRecord = {
           "N°": newData.length + 1,
           NUM_DOSS: dossier.num_dos,
@@ -177,7 +177,7 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
   const data = await getFullDossier();
   var dossierEnq = [];
   if (dossiersList.length > 0) {
-    console.log(dossiersList);
+    // console.log(dossiersList);
     await dossiersList.forEach(function (e) {
       const element = this.find((e1) => {
         return e1._id.toString() === e;
@@ -269,7 +269,7 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
         sz: 14,
       },
     };
-
+    console.log(record.conjoin);
     if (record.demandeur) {
       // modify value in B
       XLSX.utils.sheet_add_aoa(worksheet, [[record.demandeur.nom_fr]], {
@@ -1183,7 +1183,7 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
   const data = await getFullDossier();
   var dossierEnq = [];
   if (dossiersList.length > 0) {
-    console.log(dossiersList);
+    // console.log(dossiersList);
     await dossiersList.forEach(function (e) {
       const element = this.find((e1) => {
         return e1._id.toString() === e;
@@ -1225,7 +1225,7 @@ const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
   const data = await getFullDossier();
   var dossierEnq = [];
   if (dossiersList.length > 0) {
-    console.log(dossiersList);
+    // console.log(dossiersList);
     await dossiersList.forEach(function (e) {
       const element = this.find((e1) => {
         return e1._id.toString() === e;
