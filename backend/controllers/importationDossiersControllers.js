@@ -158,6 +158,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
                   dossierToUpdate[0].id_conjoin = [];
                   dossierToUpdate[0].num_conj = 0;
                 }
+
             // update dossier
             dossierToUpdate[0].notes = dossierToUpdate[0].notes || 0;
             dossierToUpdate[0].remark = remark || dossierToUpdate[0].remark;
@@ -167,8 +168,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
             // check Data Validity for new dossier
             var conjoinCheked = false;
             var gender_conj = "";
-            var nbr_conj = 0,
-              Ord_conj = 0;
+            var Ord_conj = 0;
 
             if (stuation_f_dem === "M" || "V") {
               if (num_conj === "") {
@@ -297,24 +297,26 @@ const updateDossiers = asyncHandler(async (req, res) => {
   }
 
   if (remark === "Arabic Fichier Imported") {
-    stream.on("end", function () {
+    stream.on("end", async function () {
       const dossiersCount = excel_file.length;
       var dossierAddedCount = 0;
       var dossierUpdatededCount = 0;
 
-      const dossiersMaped = excel_file?.map(
+      const dossiersMaped = await excel_file?.map(
         asyncHandler(async (dossier) => {
           // // extract demandeur
           // console.log(dossier);
           const {
             "رقـــم \nالملــــــف": num_dos,
             "تاريــــخ \nالايـــداع": date_depo,
+            "عدد الزوجات": num_conj,
             اللقــــب: nom_dem,
             الاســــم: prenom_dem,
             "بلــدية الميــــلاد": lieu_n_dem,
             "اســــــــم الاب": prenom_p_dem,
             "لقــــــب الام": nom_m_dem,
             "اســــم الام": prenom_m_dem,
+            "ترتيب الزوجة": Ordre_conj,
             "اســــم \nالـــزوج(ة)": prenom_conj,
             "لقـــب الــزوج(ة)": nom_conj,
             "بلـــدية ميــــــلاد الـــــــــــــزوج(ة)": lieu_n_conj,
@@ -327,8 +329,14 @@ const updateDossiers = asyncHandler(async (req, res) => {
             "الحالة العائلية": stuation_f,
             "رقـم عقد الميـــــلاد": num_act_dem,
             "تاريخ الميلاد": date_n_dem,
+            "طبيعة تاريخ الميلاد": type_date_n_dem,
             "رقم عقد ميلاد الـــزوج(ة)": num_act_conj,
             "تاريـخ ميـــلاد\n الـــــــــزوج (ة)": date_n_conj,
+            "طبيعة تاريخ ميلاد الزوج(ة)": type_date_n_conj,
+            "مستوى المداخيل": note_revenue,
+            "ظروف السكن": note_habita,
+            "الحالة العائلية": note_situation_familiale,
+            "أقدمية طلب السكن": note_anciennete,
           } = dossier;
 
           // find dossier to update
@@ -358,38 +366,64 @@ const updateDossiers = asyncHandler(async (req, res) => {
                 demandeurToUpdate.prenom_m =
                   prenom_m_dem || demandeurToUpdate.prenom_m;
                 demandeurToUpdate.nom_m = nom_m_dem || demandeurToUpdate.nom_m;
+                demandeurToUpdate.num_act =
+                  num_act_dem || demandeurToUpdate.num_act;
+                demandeurToUpdate.date_n =
+                  convertDateFormat(date_n_dem, "S").date ||
+                  demandeurToUpdate.date_n;
+                demandeurToUpdate.type_date_n =
+                  type_date_n_dem || demandeurToUpdate.type_date_n;
+
                 const updatedDemandeur = await demandeurToUpdate.save();
               }
             }
-            if (
-              dossierToUpdate[0].id_conjoin &&
-              !(nom_conj === "") &&
-              !(nom_conj === "/") &&
-              !(nom_conj == null)
-            ) {
-              // get conjoin
-              const conjoinToUpdate = await person.findById(
-                dossierToUpdate[0].id_conjoin
-              );
 
-              // update conjoin
-              if (conjoinToUpdate?._id) {
-                conjoinToUpdate.prenom = prenom_conj || conjoinToUpdate.prenom;
-                conjoinToUpdate.nom = nom_conj || conjoinToUpdate.nom;
-                conjoinToUpdate.lieu_n = lieu_n_conj || conjoinToUpdate.lieu_n;
-                conjoinToUpdate.prenom_p =
-                  prenom_p_conj || conjoinToUpdate.prenom_p;
-                conjoinToUpdate.prenom_m =
-                  prenom_m_conj || conjoinToUpdate.prenom_m;
-                conjoinToUpdate.nom_m = nom_m_conj || conjoinToUpdate.nom_m;
-                const updatedConjoin = await conjoinToUpdate.save();
-              }
-            }
+            // update conjoin data if exsits
+            if (stuation_f_dem === "M" || "V")
+              if (dossierToUpdate[0].id_conjoin)
+                if (dossierToUpdate[0].id_conjoin[Ordre_conj - 1]) {
+                  if (
+                    !(nom_conj === "") &&
+                    !(nom_conj === "/") &&
+                    !(nom_conj == null)
+                  ) {
+                    // get conjoin
+                    const conjoinToUpdate = await person.findById(
+                      dossierToUpdate[0].id_conjoin[Ordre_conj - 1]
+                    );
+
+                    // update conjoin
+                    if (conjoinToUpdate?._id) {
+                      conjoinToUpdate.prenom =
+                        prenom_conj || conjoinToUpdate.prenom;
+                      conjoinToUpdate.nom = nom_conj || conjoinToUpdate.nom;
+                      conjoinToUpdate.lieu_n =
+                        lieu_n_conj || conjoinToUpdate.lieu_n;
+                      conjoinToUpdate.prenom_p =
+                        prenom_p_conj || conjoinToUpdate.prenom_p;
+                      conjoinToUpdate.prenom_m =
+                        prenom_m_conj || conjoinToUpdate.prenom_m;
+                      conjoinToUpdate.nom_m =
+                        nom_m_conj || conjoinToUpdate.nom_m;
+                      conjoinToUpdate.num_act =
+                        num_act_conj || conjoinToUpdate.num_act;
+                      conjoinToUpdate.date_n =
+                        convertDateFormat(date_n_conj, "S").date ||
+                        conjoinToUpdate.date_n;
+                      conjoinToUpdate.type_date_n =
+                        type_date_n_conj || conjoinToUpdate.type_date_n;
+
+                      const updatedConjoin = await conjoinToUpdate.save();
+                    }
+                  }
+                } else {
+                  dossierToUpdate[0].id_conjoin = [];
+                  dossierToUpdate[0].num_conj = 0;
+                }
 
             // update dossier
             dossierToUpdate[0].notes = notes || dossierToUpdate[0].notes;
             dossierToUpdate[0].remark = remark || dossierToUpdate[0].remark;
-            dossierToUpdate[0].num_dos = num_dos || dossierToUpdate[0].num_dos;
             const updatedDossier = await dossierToUpdate[0].save();
             dossierUpdatededCount++;
           } else {
@@ -398,6 +432,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
             var gender_conj = "";
             var gender_dem = "";
             var stuation_f_dem = "";
+            var Ord_conj = 0;
 
             if (gender === "ذكر") {
               gender_dem = "M";
@@ -408,20 +443,28 @@ const updateDossiers = asyncHandler(async (req, res) => {
             }
             if (stuation_f === "متزوج" || "متزوجة") {
               stuation_f_dem = "M";
-              conjoinCheked = true;
             } else if (stuation_f === "أرملة") {
               stuation_f_dem = "V";
-              conjoinCheked = true;
             } else if (stuation_f === "مطلقة") {
               stuation_f_dem = "D";
-              conjoinCheked = false;
             } else if (stuation_f === "عزباء") {
               stuation_f_dem = "C";
-              conjoinCheked = false;
+            }
+
+            if (stuation_f_dem === "M" || "V") {
+              if (num_conj === "") {
+                nb_conj = 1;
+                Ord_conj = 1;
+              } else {
+                nb_conj = Number(num_conj);
+                if (Ordre_conj === "") Ord_conj = 1;
+                else Ord_conj = Number(Ordre_conj);
+              }
+              conjoinCheked = true;
             }
 
             // add demandeur
-            var conjoinAdded;
+            var conjoinAdded = [];
             const demandeurAdded = await person.create({
               type: "dema",
               prenom: prenom_dem,
@@ -431,7 +474,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
               gender: gender_dem,
               num_act: num_act_dem,
               date_n: convertDateFormat(date_n_dem, "S").date,
-              type_date_n: convertDateFormat(date_n_dem, "S").type,
+              type_date_n: type_date_n_dem,
               lieu_n: lieu_n_dem,
               lieu_n_fr: "",
               wil_n: "",
@@ -452,7 +495,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
 
             // add conjoin if any
             if (conjoinCheked) {
-              conjoinAdded = await person.create({
+              conjoinAdded[Ord_conj - 1] = await person.create({
                 type: "conj",
                 prenom: prenom_conj,
                 prenom_fr: "",
@@ -461,7 +504,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
                 gender: gender_conj,
                 num_act: num_act_conj,
                 date_n: convertDateFormat(date_n_conj, "S").date,
-                type_date_n: convertDateFormat(date_n_conj, "S").type,
+                type_date_n: type_date_n_conj,
                 lieu_n: lieu_n_conj,
                 lieu_n_fr: "",
                 wil_n: "",
@@ -485,20 +528,21 @@ const updateDossiers = asyncHandler(async (req, res) => {
             const dossierAdded = await Dossier.create({
               creator: creator,
               id_demandeur: demandeurAdded?._id,
-              id_conjoin: conjoinAdded?._id || "",
+              id_conjoin: conjoinAdded || [],
               date_depo: date_depo,
               num_dos: num_dos,
-              num_enf: 0,
-              stuation_s_avec_d: "",
-              stuation_s_andicap: "",
-              stuation_d: "",
-              numb_p: 0,
+              adress: address,
+              num_conj: nb_conj,
+              note_revenue,
+              note_habita,
+              note_situation_familiale,
+              note_anciennete,
               type: "imported",
-              gender_conj: gender_conj,
-              remark: remark,
+              gender_conj,
+              remark,
               saisi_conj: "imported",
               scan_dossier: "",
-              notes: notes,
+              notes,
             });
 
             // // add count dossier added
