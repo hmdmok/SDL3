@@ -12,15 +12,19 @@ const {
   getDossierByNumDoss,
 } = require("../controllers/dossiersControllers");
 const {
-  getEnquetCNLFile,
-  getEnquetCNASFile,
-  getEnquetCASNOSFile,
+  
+
   getEnquetCNLFileTest,
   getEnquetCNASFileTest,
   getEnquetCASNOSFileTest,
   getListBenefisiersFile,
   getDossierByDates,
 } = require("../controllers/enquetsControllers");
+const {
+  getEnquetCNASFile,
+  getEnquetCNLFile,
+  getEnquetCASNOSFile,
+} = require("../controllers/enquetsControllersTest");
 const personPhotoStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, `./personsPicUpload/`);

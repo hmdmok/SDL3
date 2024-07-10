@@ -4,13 +4,16 @@ const { protect } = require("../middlewares/authMiddleware");
 const {
   getEnquetCNLFile,
   getEnquetCNASFile,
-  getEnquetCASNOSFile,
+
   getEnquetCNLFileTest,
   getEnquetCNASFileTest,
   getEnquetCASNOSFileTest,
   getDossierByDates,
   uploadDossierEnq,
 } = require("../controllers/enquetsControllers");
+const {
+  getEnquetCASNOSFile,
+} = require("../controllers/enquetsControllersTest");
 
 const dossiersEnqStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -38,6 +41,6 @@ router.route("/enqCNLtest").post(getEnquetCNLFileTest);
 router.route("/enqCNAS").post(getEnquetCNASFile);
 router.route("/enqCNAStest").post(getEnquetCNASFileTest);
 router.route("/enqCASNOS").post(getEnquetCASNOSFile);
-router.route("/enqCASNOStest").post(getEnquetCASNOSFileTest);
+router.route("/enqCASNOStest").post(getEnquetCASNOSFile);
 
 module.exports = router;

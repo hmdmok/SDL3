@@ -195,6 +195,7 @@ async function updateExistingDossier(dossier, newData, creator, language) {
 
   if (demandeur) {
     if (language === "French") {
+      dossier.adress_fr = address || dossier.adress_fr;
       demandeur.prenom_fr = prenom_dem || demandeur.prenom_fr;
       demandeur.nom_fr = nom_dem || demandeur.nom_fr;
       demandeur.lieu_n_fr = lieu_n_dem || demandeur.lieu_n_fr;
@@ -202,6 +203,7 @@ async function updateExistingDossier(dossier, newData, creator, language) {
       demandeur.prenom_m_fr = prenom_m_dem || demandeur.prenom_m_fr;
       demandeur.nom_m_fr = nom_m_dem || demandeur.nom_m_fr;
     } else if (language === "Arabic") {
+      dossier.adress = address || dossier.adress;
       demandeur.prenom = prenom_dem || demandeur.prenom;
       demandeur.nom = nom_dem || demandeur.nom;
       demandeur.lieu_n = lieu_n_dem || demandeur.lieu_n;
@@ -279,7 +281,7 @@ async function updateExistingDossier(dossier, newData, creator, language) {
 
   // Update dossier
   dossier.date_depo = date_depo || dossier.date_depo;
-  dossier.adress = address || dossier.adress;
+
   dossier.num_conj = num_conj || dossier.num_conj;
   dossier.note_revenue = note_revenue || dossier.note_revenue;
   dossier.note_habita = note_habita || dossier.note_habita;
@@ -406,7 +408,8 @@ async function createNewDossier(dossier, creator, language) {
     id_conjoin: id_conjoin,
     date_depo: date_depo,
     num_dos: num_dos,
-    adress: address,
+    adress: language === "Arabic" ? address : "",
+    adress_fr: language === "French" ? address : "",
     num_conj: nb_conj,
     note_revenue,
     note_habita,
