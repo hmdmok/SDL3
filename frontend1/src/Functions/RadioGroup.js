@@ -9,7 +9,7 @@ function RadioGroup({ name, items, onChange, value, desabled }) {
           <Form.Check
             type="radio"
             name={name}
-            className="d-flex flex-row-reverse p-1"
+            className="d-flex flex-row-reverse"
             value={item.value}
             id={name + item.value}
             checked={item.value === value}
@@ -17,7 +17,7 @@ function RadioGroup({ name, items, onChange, value, desabled }) {
             disabled={desabled}
           />
           <Form.Label
-            className="d-flex justify-content-center p-1"
+            className="d-flex flex-row-reverse mx-5"
             htmlFor={name + item.value}
           >
             {item.label}

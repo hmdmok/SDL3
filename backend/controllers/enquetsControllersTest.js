@@ -319,13 +319,16 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
 
 const getListBenefisiersFile = asyncHandler(async (req, res) => {
   try {
-    const { dossiersList, type, quotaDate } = req.body;
+    const { dossiersList, type, triDossiers, photoFemme } = req.body;
     const data = await getFullDossier();
+    let quotaDate;
+    const systemInfo = await System.findOne();
+
     let dossiers =
       dossiersList.length > 0
-        ? dossiersList
-            .map((e) => data.find((d) => d._id.toString() === e))
-            .filter(Boolean)
+        ? await dossiersList.map((e) =>
+            data.find((d) => d._id.toString() === e._id.toString())
+          )
         : data;
 
     const workbook = new ExcelJS.Workbook();
@@ -356,7 +359,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         worksheetMoin = workbook.worksheets[0];
         break;
       case "frenchr":
-        await loadWorkbook("ListBenefisiersFr.xlsx");
+        await loadWorkbook("ListReserveBenefisiersFr.xlsx");
         worksheetPlus = workbook.worksheets[0];
         worksheetMoin = workbook.worksheets[1];
         break;
@@ -378,16 +381,21 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
       extension: "png",
     });
 
-    worksheetPlus.addImage(imageId1, "AA2:AB3");
-    if (type !== "exportFilter") worksheetMoin.addImage(imageId1, "AA2:AB3");
+    worksheetPlus.addImage(imageId1, "A1:A1");
+    if (type !== "exportFilter") worksheetMoin.addImage(imageId1, "A1:A1");
 
-    const isDateBeforeQuota = (date) =>
-      new Date(convertDateFormat(date).jsDate) <=
-      new Date(
-        new Date(quotaDate).getFullYear() - 35,
-        new Date(quotaDate).getMonth(),
-        new Date(quotaDate).getDate()
+    const isDateBeforeQuota = (record) => {
+      if (triDossiers === "quotas") quotaDate = systemInfo.quotaDate;
+      else if (triDossiers === "date-depo") quotaDate = record.date_depo;
+      return (
+        new Date(convertDateFormat(record.demandeur?.date_n).jsDate) <=
+        new Date(
+          new Date(quotaDate).getFullYear() - 35,
+          new Date(quotaDate).getMonth(),
+          new Date(quotaDate).getDate()
+        )
       );
+    };
 
     const addRowToWorksheet = (worksheet, rowData, imagePath, col, row) => {
       worksheet.addRow(rowData, "i+");
@@ -404,77 +412,80 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
     };
 
     const processDossier = async (record) => {
-      const imagePath =
-        record.demandeur?.photo_link || "usersPicUpload/default.png";
-      const rowData = [
-        worksheetPlus._rows.length - 3,
-        record.num_dos,
-        record.date_depo,
-        record.demandeur?.nom,
-        record.demandeur?.prenom,
-        getGenderName(record.demandeur?.gender, "a"),
-        record.demandeur?.date_n,
-        record.demandeur?.num_act,
-        record.demandeur?.lieu_n,
-        getCivility(record.demandeur?.stuation_f, "a"),
-        record.demandeur?.prenom_p,
-        record.demandeur?.nom_m,
-        record.demandeur?.prenom_m,
-        record.adress,
-        record.conjoin?.nom,
-        record.conjoin?.prenom,
-        record.conjoin?.date_n,
-        record.conjoin?.num_act,
-        record.conjoin?.lieu_n,
-        record.conjoin?.prenom_p,
-        record.conjoin?.nom_m,
-        record.conjoin?.prenom_m,
-      ];
-      if (type === "export" && isDateBeforeQuota(record.demandeur?.date_n)) {
+      let imagePath;
+      if (photoFemme === "false" && record.demandeur?.gender === "F") {
+        imagePath = "usersPicUpload/Women_icon.png";
+      } else
+        imagePath =
+          record.demandeur?.photo_link || "usersPicUpload/default.png";
+      const rowCount = isDateBeforeQuota(record)
+        ? worksheetPlus._rows.length - 6
+        : worksheetMoin._rows.length - 6;
+      const rowData = type.includes("fr")
+        ? [
+            rowCount,
+            record.demandeur?.nom_fr,
+            record.demandeur?.prenom_fr,
+            record.demandeur?.date_n,
+            record.demandeur?.lieu_n_fr,
+            getCivility(record.demandeur?.stuation_f, "f"),
+            record.demandeur?.prenom_p_fr,
+            record.demandeur?.nom_m_fr,
+            record.demandeur?.prenom_m_fr,
+          ]
+        : [
+            rowCount,
+            record.demandeur?.nom,
+            record.demandeur?.prenom,
+            record.demandeur?.date_n,
+            record.demandeur?.lieu_n,
+            getCivility(record.demandeur?.stuation_f, "a"),
+            record.demandeur?.prenom_p,
+            record.demandeur?.nom_m,
+            record.demandeur?.prenom_m,
+          ];
+      const addWorkSheet = isDateBeforeQuota(record)
+        ? worksheetPlus
+        : worksheetMoin;
+      if (type === "export") {
         addRowToWorksheet(
-          worksheetPlus,
+          addWorkSheet,
           rowData,
           imagePath,
           29,
-          worksheetPlus._media.length + 5
+          addWorkSheet._media.length + 5
         );
       } else if (type === "exportFilter") {
         addRowToWorksheet(
-          worksheetPlus,
+          addWorkSheet,
           rowData,
           imagePath,
           29,
-          worksheetPlus._media.length + 5
+          addWorkSheet._media.length + 5
         );
-      } else if (
-        type.includes("f") &&
-        isDateBeforeQuota(record.demandeur?.date_n)
-      ) {
+      } else if (type.includes("f")) {
         addRowToWorksheet(
-          worksheetMoin,
+          addWorkSheet,
           rowData,
           imagePath,
-          29,
-          worksheetMoin._media.length + 5
+          9,
+          addWorkSheet._media.length + 5
         );
       } else if (type.includes("f")) {
         addRowToWorksheet(
           worksheetPlus,
           rowData,
           imagePath,
-          29,
+          9,
           worksheetPlus._media.length + 5
         );
-      } else if (
-        type.includes("a") &&
-        isDateBeforeQuota(record.demandeur?.date_n)
-      ) {
+      } else if (type.includes("a")) {
         addRowToWorksheet(
-          worksheetMoin,
+          addWorkSheet,
           rowData,
           imagePath,
           9,
-          worksheetMoin._media.length + 5
+          addWorkSheet._media.length + 5
         );
       } else if (type.includes("a")) {
         addRowToWorksheet(
@@ -486,7 +497,6 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         );
       }
     };
-
     await Promise.all(dossiers.map((dossier) => processDossier(dossier)));
 
     const newFileName = `List Benifisiers ${
