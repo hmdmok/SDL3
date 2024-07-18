@@ -32,9 +32,9 @@ export const quotaListReducer = (state = { quotas: [] }, actions) => {
     case QUOTA_LIST_REQUEST:
       return { loading: true };
     case QUOTA_LIST_SUCCESS:
-      return { loading: false, quotas: actions.payload };
+      return { loading: false, quotas: actions.payload, success: true };
     case QUOTA_LIST_FAIL:
-      return { loading: false, error: actions.payload };
+      return { loading: false, error: actions.payload, success: false };
 
     default:
       return state;

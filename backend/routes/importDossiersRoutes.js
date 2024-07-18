@@ -1,5 +1,6 @@
 const express = require("express");
 const importationDossiersControllers = require("../controllers/importationDossiersControllers");
+const importationDossiersControllersTest = require("../controllers/importationDossiersControllersTest");
 const multer = require("multer");
 const { protect } = require("../middlewares/authMiddleware");
 const importationFileStorage = multer.diskStorage({
@@ -24,7 +25,7 @@ router
   .route("/update")
   .post(
     uploadImportationFile.single("importation_File"),
-    importationDossiersControllers.updateDossiers
+    importationDossiersControllersTest.updateDossiers
   );
 
 

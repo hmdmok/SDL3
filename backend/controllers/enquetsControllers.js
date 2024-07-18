@@ -1263,7 +1263,7 @@ const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
       }
     })
   );
-
+  console.log("test");
   return Promise.all(dossiersMaped)
     .then(async () => {
       await compressFolderToZip(folderPath);
@@ -1521,7 +1521,6 @@ module.exports = {
   getDossierByDates,
   getEnquetCNLFile,
   getEnquetCNASFile,
-  getEnquetCASNOSFile,
   getEnquetCNLFileTest,
   getEnquetCNASFileTest,
   getEnquetCASNOSFileTest,

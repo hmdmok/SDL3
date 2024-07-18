@@ -6,7 +6,7 @@ import {
 } from "../constants/benifisierConstants";
 
 export const listBenefisiersAction =
-  (dossiersList, type, quotaDate) => async (dispatch, getState) => {
+  (dossiersList, type, triDossiers, photoFemme) => async (dispatch, getState) => {
     try {
       dispatch({
         type: LIST_BENEFISIERS_GET_REQUEST,
@@ -26,7 +26,8 @@ export const listBenefisiersAction =
       const formData = {
         dossiersList: dossiersList,
         type: type,
-        quotaDate: quotaDate,
+        triDossiers: triDossiers,
+        photoFemme: photoFemme,
       };
 
       const data = await axios.post(

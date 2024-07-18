@@ -241,7 +241,13 @@ async function getFullDossier() {
   // Combine dossier data with person data
   const dossierEnq = dossies.map((dossier) => {
     const demandeurInfo = personMap[dossier.id_demandeur] || null;
-    const conjoinInfo = personMap[dossier.id_conjoin] || null;
+    var conjoinInfo = [];
+    if (dossier.id_conjoin)
+      conjoinInfo = dossier.id_conjoin.map((id_conj) => {
+        const conjoin = personMap[id_conj] || null;
+        return conjoin;
+      });
+
     if (conjoinInfo)
       return {
         ...dossier._doc,

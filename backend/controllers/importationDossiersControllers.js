@@ -38,7 +38,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
 
       const finalData = excel_file?.map(
         asyncHandler(async (dossier) => {
-          console.log(dossier);
+          // console.log(dossier);
           // extract data from dossier
           const {
             Prenom: prenom_dem,
@@ -155,13 +155,17 @@ const updateDossiers = asyncHandler(async (req, res) => {
                     }
                   }
                 } else {
-                  dossierToUpdate[0].id_conjoin = [];
-                  dossierToUpdate[0].num_conj = 0;
+                  if (dossierToUpdate[0].id_conjoin)
+                    dossierToUpdate[0].id_conjoin = [];
+                  if (dossierToUpdate[0].num_conj)
+                    dossierToUpdate[0].num_conj = 0;
                 }
 
             // update dossier
-            dossierToUpdate[0].notes = dossierToUpdate[0].notes || 0;
-            dossierToUpdate[0].remark = remark || dossierToUpdate[0].remark;
+            if (dossierToUpdate[0].notes)
+              dossierToUpdate[0].notes = notes || dossierToUpdate[0].notes;
+            if (dossierToUpdate[0].remark)
+              dossierToUpdate[0].remark = remark || dossierToUpdate[0].remark;
             const updatedDossier = await dossierToUpdate[0].save();
             dossierUpdatedCount++;
           } else {
@@ -417,13 +421,17 @@ const updateDossiers = asyncHandler(async (req, res) => {
                     }
                   }
                 } else {
-                  dossierToUpdate[0].id_conjoin = [];
-                  dossierToUpdate[0].num_conj = 0;
+                  if (dossierToUpdate[0].id_conjoin)
+                    dossierToUpdate[0].id_conjoin = [];
+                  if (dossierToUpdate[0].num_conj)
+                    dossierToUpdate[0].num_conj = 0;
                 }
 
             // update dossier
-            dossierToUpdate[0].notes = notes || dossierToUpdate[0].notes;
-            dossierToUpdate[0].remark = remark || dossierToUpdate[0].remark;
+            if (dossierToUpdate[0].notes)
+              dossierToUpdate[0].notes = notes || dossierToUpdate[0].notes;
+            if (dossierToUpdate[0].remark)
+              dossierToUpdate[0].remark = remark || dossierToUpdate[0].remark;
             const updatedDossier = await dossierToUpdate[0].save();
             dossierUpdatededCount++;
           } else {

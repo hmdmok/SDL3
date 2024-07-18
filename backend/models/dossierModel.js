@@ -43,7 +43,7 @@ const dossierSchema = mongoose.Schema(
     type: {
       type: String,
     },
-    gender_conj: {
+    adress_fr: {
       type: String,
     },
     remark: {
