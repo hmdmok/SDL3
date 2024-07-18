@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 import * as XLSX from "xlsx";
 
 function validateHeader(file, expectedHeader) {
@@ -102,8 +103,8 @@ function convertDateFormat(dateStr, outputType) {
   }
 
   // Regular expressions to match dd/mm/yyyy, dd-mm-yyyy, yyyy/mm/dd, and yyyy-mm-dd formats
-  const dateRegex1 = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/; // dd/mm/yyyy or dd-mm-yyyy
-  const dateRegex2 = /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/; // yyyy/mm/dd or yyyy-mm-dd
+  const dateRegex1 = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/; // dd/mm/yyyy or dd-mm-yyyy
+  const dateRegex2 = /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/; // yyyy/mm/dd or yyyy-mm-dd
   let match1 = dateRegex1.exec(dateStr);
   let match2 = dateRegex2.exec(dateStr);
 

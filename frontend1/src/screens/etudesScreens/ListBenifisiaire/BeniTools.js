@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import fileDownload from "js-file-download";
-import { Badge, Button, Dropdown, DropdownButton, Form } from "react-bootstrap";
+import { Badge, Button, Dropdown, DropdownButton } from "react-bootstrap";
 import { deleteBenefisierList } from "../../../actions/benifisierActions";
 import { listBenefisiersAction } from "../../../actions/listBenefisiersActions";
 import { listQuotas } from "../../../actions/quotaActions";
@@ -22,7 +22,6 @@ const BeniTools = () => {
     loading: loadingQuotas,
     quotas,
     error: errorQuotas,
-    success: successQuotas,
   } = listQuotasGet;
 
   const listBenefisiersGet = useSelector((state) => state.listBenefisiersGet);

@@ -413,7 +413,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
 
     const processDossier = async (record) => {
       let imagePath;
-      if (photoFemme === "false" && record.demandeur?.gender === "F") {
+      if (photoFemme === "true" && record.demandeur?.gender === "F") {
         imagePath = "usersPicUpload/Women_icon.png";
       } else
         imagePath =

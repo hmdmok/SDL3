@@ -201,10 +201,10 @@ const Navigation = () => {
                     id="basic-nav-dropdown"
                   >
                     <AiFillTrophy />
-                    <Badge className="m-1">{benefisiers.length}</Badge>
+                    <Badge className="m-1">{benefisiers?.length}</Badge>
                   </Dropdown.Toggle>
                   <DropdownMenu style={{ minWidth: 370 }}>
-                    {benefisiers.length > 0 ? (
+                    {benefisiers?.length > 0 ? (
                       <>
                         {benefisiers.map((file) => (
                           <span className="file" key={file._id}>

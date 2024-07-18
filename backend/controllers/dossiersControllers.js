@@ -208,14 +208,14 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
           new Date(convertDateFormat(dossier.date_depo)).getTime() >=
           new Date(convertDateFormat(toDate)).getTime()
         );
-        console.log(
-          "check:" +
-            tdCheck +
-            " ,date depo:" +
-            new Date(convertDateFormat(dossier.date_depo)).getTime() +
-            " ,date to:" +
-            convertDateFormat(dossier.date_depo)
-        );
+        // console.log(
+        //   "check:" +
+        //     tdCheck +
+        //     " ,date depo:" +
+        //     new Date(convertDateFormat(dossier.date_depo)).getTime() +
+        //     " ,date to:" +
+        //     convertDateFormat(dossier.date_depo)
+        // );
       }
       return fdCheck && tdCheck;
     });
@@ -274,7 +274,7 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
           // Turn your strings into dates, and then subtract them
           // to get a value that is either negative, positive, or zero.
           if (sort.type === "asc") {
-            console.log(convertDateFormat(b.date_depo, "S").jsDate);
+            // console.log(convertDateFormat(b.date_depo, "S").jsDate);
             return (
               new Date(convertDateFormat(a.date_depo, "S")?.jsDate).getTime() -
               new Date(convertDateFormat(b.date_depo, "S")?.jsDate).getTime()
