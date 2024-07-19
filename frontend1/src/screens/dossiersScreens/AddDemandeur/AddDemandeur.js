@@ -99,20 +99,22 @@ function AddDemandeur() {
       dispatch(
         addDossierAction(
           creator,
-          demandeur?._id,
-          "",
+          demandeur._id,
+          id_conjoin,
           date_depo,
           num_dos,
-          "",
-          "",
-          "",
-          "",
-          "",
+          adress,
+          num_conj,
+          note_revenue,
+          note_habita,
+          note_situation_familiale,
+          note_anciennete,
           type,
-          gender_conj,
+          adress_fr,
           remark,
           saisi_conj,
-          "false"
+          scan_dossier,
+          notes
         )
       );
   }, [
@@ -470,14 +472,7 @@ function AddDemandeur() {
               />
             </div>
             <div className="col-sm order-sm-first">
-              <div
-                name="stuation_f"
-                onChange={(e) => {
-                  setStuation_f(e.target.value);
-                  if (e.target.value === "m") setSaisi_conj("false");
-                }}
-                className="text-right"
-              >
+             
                 <div className="intro">
                   <label>الحالة العائلية</label>{" "}
                 </div>
@@ -504,7 +499,6 @@ function AddDemandeur() {
                     />
                   </>
                 )}
-              </div>
             </div>
           </div>
           <hr />

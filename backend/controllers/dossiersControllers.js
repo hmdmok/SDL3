@@ -366,16 +366,18 @@ const createDossier = asyncHandler(async (req, res) => {
     id_conjoin,
     date_depo,
     num_dos,
-    num_enf,
-    stuation_s_avec_d,
-    stuation_s_andicap,
-    stuation_d,
-    numb_p,
+    adress,
+    num_conj,
+    note_revenue,
+    note_habita,
+    note_situation_familiale,
+    note_anciennete,
     type,
-    gender_conj,
+    adress_fr,
     remark,
     saisi_conj,
     scan_dossier,
+    notes,
   } = req.body;
 
   let dossierExists;
@@ -388,10 +390,12 @@ const createDossier = asyncHandler(async (req, res) => {
   }
 
   let conjoinExists;
-  id_conjoin && id_conjoin !== ""
-    ? (conjoinExists = await dossier.findOne({ id_demandeur: id_conjoin }))
+  id_conjoin && id_conjoin?.length !== 0
+    ? (conjoinExists = await id_conjoin.map(async (conjoin) => {
+        return await dossier.findOne({ id_demandeur: conjoin });
+      }))
     : (conjoinExists = null);
-  if (conjoinExists) {
+  if (conjoinExists?.length > 0) {
     res.status(400);
     throw new Error("الزوج(ة) يمتلك ملف من قبل");
   }
@@ -405,53 +409,20 @@ const createDossier = asyncHandler(async (req, res) => {
     throw new Error("الشخص يمتلك ملف من قبل");
   }
 
-  let salairDemandeur = "",
-    salairConjoin = "",
-    situationFamiliale = "";
-  const tableNotes = await Notes.find();
-
-  const demandeurData = await person.findById(id_demandeur);
-  if (!demandeurData) {
-    res.status(400);
-    throw new Error("يرجى ادخال معلومات صحيحة لطالب السكن");
-  } else {
-    salairDemandeur = demandeurData.salaire || 0;
-    situationFamiliale = demandeurData.stuation_f;
-  }
-
-  let conjoinData;
-  id_conjoin && id_conjoin !== ""
-    ? (conjoinData = await person.findById(id_conjoin))
-    : (conjoinData = null);
-  if (!conjoinData) {
-    salairConjoin = 0;
-  } else {
-    salairConjoin = conjoinData.salaire || 0;
-  }
-
-  let newNotes =
-      calculate(
-        req.body,
-        salairDemandeur,
-        salairConjoin,
-        situationFamiliale,
-        tableNotes
-      ) || 0,
-    notes = newNotes;
-
   const dossierToAdd = await dossier.create({
     creator,
     id_demandeur,
     id_conjoin,
     date_depo,
     num_dos,
-    num_enf,
-    stuation_s_avec_d,
-    stuation_s_andicap,
-    stuation_d,
-    numb_p,
+    adress,
+    num_conj,
+    note_revenue,
+    note_habita,
+    note_situation_familiale,
+    note_anciennete,
     type,
-    gender_conj,
+    adress_fr,
     remark,
     saisi_conj,
     scan_dossier,
@@ -476,39 +447,22 @@ const updateDossier = asyncHandler(async (req, res) => {
     id_conjoin,
     date_depo,
     num_dos,
-    num_enf,
-    stuation_s_avec_d,
-    stuation_s_andicap,
-    stuation_d,
-    numb_p,
+    adress,
+    num_conj,
+    note_revenue,
+    note_habita,
+    note_situation_familiale,
+    note_anciennete,
     type,
-    gender_conj,
+    adress_fr,
     remark,
     saisi_conj,
     scan_dossier,
+    notes,
   } = req.body;
 
   const id = req.params.id;
   const dossierToUpdate = await dossier.findById(id);
-
-  let conjoinData, salairConjoin;
-  const tableNotes = await Notes.find();
-  const demandeurData = await person.findById(id_demandeur);
-  if (id_conjoin && id_conjoin !== "") {
-    conjoinData = await person.findById(id_conjoin);
-    salairConjoin = conjoinData.salaire || 0;
-  } else salairConjoin = 0;
-  const salairDemandeur = demandeurData?.salaire || 0;
-
-  const situationFamiliale = demandeurData?.stuation_f;
-
-  let notes = calculate(
-    req.body,
-    salairDemandeur,
-    salairConjoin,
-    situationFamiliale,
-    tableNotes
-  );
 
   if (!dossierToUpdate) {
     res.status(400);
@@ -519,15 +473,16 @@ const updateDossier = asyncHandler(async (req, res) => {
     dossierToUpdate.id_conjoin = id_conjoin || dossierToUpdate.id_conjoin;
     dossierToUpdate.date_depo = date_depo || dossierToUpdate.date_depo;
     dossierToUpdate.num_dos = num_dos || dossierToUpdate.num_dos;
-    dossierToUpdate.num_enf = num_enf || dossierToUpdate.num_enf;
-    dossierToUpdate.stuation_s_avec_d =
-      stuation_s_avec_d || dossierToUpdate.stuation_s_avec_d;
-    dossierToUpdate.stuation_s_andicap =
-      stuation_s_andicap || dossierToUpdate.stuation_s_andicap;
-    dossierToUpdate.stuation_d = stuation_d || dossierToUpdate.stuation_d;
-    dossierToUpdate.numb_p = numb_p || dossierToUpdate.numb_p;
+    dossierToUpdate.adress = adress || dossierToUpdate.adress;
+    dossierToUpdate.num_conj = num_conj || dossierToUpdate.num_conj;
+    dossierToUpdate.note_revenue = note_revenue || dossierToUpdate.note_revenue;
+    dossierToUpdate.note_habita = note_habita || dossierToUpdate.note_habita;
+    dossierToUpdate.note_situation_familiale =
+      note_situation_familiale || dossierToUpdate.note_situation_familiale;
     dossierToUpdate.type = type || dossierToUpdate.type;
-    dossierToUpdate.gender_conj = gender_conj || dossierToUpdate.gender_conj;
+    dossierToUpdate.adress_fr = adress_fr || dossierToUpdate.adress_fr;
+    dossierToUpdate.note_anciennete =
+      note_anciennete || dossierToUpdate.note_anciennete;
     dossierToUpdate.remark = remark || dossierToUpdate.remark;
     dossierToUpdate.saisi_conj = saisi_conj || dossierToUpdate.saisi_conj;
     dossierToUpdate.scan_dossier = scan_dossier || dossierToUpdate.scan_dossier;

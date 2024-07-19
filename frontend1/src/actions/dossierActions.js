@@ -24,16 +24,18 @@ export const addDossierAction =
     id_conjoin,
     date_depo,
     num_dos,
-    num_enf,
-    stuation_s_avec_d,
-    stuation_s_andicap,
-    stuation_d,
-    numb_p,
+    adress,
+    num_conj,
+    note_revenue,
+    note_habita,
+    note_situation_familiale,
+    note_anciennete,
     type,
-    gender_conj,
+    adress_fr,
     remark,
     saisi_conj,
-    scan_dossier
+    scan_dossier,
+    notes
   ) =>
   async (dispatch, getState) => {
     try {
@@ -55,16 +57,18 @@ export const addDossierAction =
         id_conjoin,
         date_depo,
         num_dos,
-        num_enf,
-        stuation_s_avec_d,
-        stuation_s_andicap,
-        stuation_d,
-        numb_p,
+        adress,
+        num_conj,
+        note_revenue,
+        note_habita,
+        note_situation_familiale,
+        note_anciennete,
         type,
-        gender_conj,
+        adress_fr,
         remark,
         saisi_conj,
         scan_dossier,
+        notes,
       };
 
       const data = await axios.post("/api/dossiers/create", formData, config);
