@@ -444,13 +444,35 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             record.demandeur?.nom_m,
             record.demandeur?.prenom_m,
           ];
+      const rowDataExport = [
+        rowCount,
+        record.num_dos,
+        record.date_depo,
+        record.demandeur?.nom,
+        record.demandeur?.prenom,
+        record.demandeur?.gender,
+        record.demandeur?.date_n,
+        record.demandeur?.num_act,
+        record.demandeur?.lieu_n,
+        getCivility(record.demandeur?.stuation_f, "a"),
+        record.demandeur?.prenom_p,
+        record.demandeur?.nom_m,
+        record.demandeur?.prenom_m,
+        record.adress,
+        record.note_revenue,
+        record.note_habita,
+        record.note_situation_familiale,
+        record.note_anciennete,
+        record.notes,
+        record.remark,
+      ];
       const addWorkSheet = isDateBeforeQuota(record)
         ? worksheetPlus
         : worksheetMoin;
       if (type === "export") {
         addRowToWorksheet(
           addWorkSheet,
-          rowData,
+          rowDataExport,
           imagePath,
           29,
           addWorkSheet._media.length + 5
@@ -458,7 +480,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
       } else if (type === "exportFilter") {
         addRowToWorksheet(
           addWorkSheet,
-          rowData,
+          rowDataExport,
           imagePath,
           29,
           addWorkSheet._media.length + 5
@@ -471,14 +493,6 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
           9,
           addWorkSheet._media.length + 5
         );
-      } else if (type.includes("f")) {
-        addRowToWorksheet(
-          worksheetPlus,
-          rowData,
-          imagePath,
-          9,
-          worksheetPlus._media.length + 5
-        );
       } else if (type.includes("a")) {
         addRowToWorksheet(
           addWorkSheet,
@@ -486,14 +500,6 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
           imagePath,
           9,
           addWorkSheet._media.length + 5
-        );
-      } else if (type.includes("a")) {
-        addRowToWorksheet(
-          worksheetPlus,
-          rowData,
-          imagePath,
-          9,
-          worksheetPlus._media.length + 5
         );
       }
     };

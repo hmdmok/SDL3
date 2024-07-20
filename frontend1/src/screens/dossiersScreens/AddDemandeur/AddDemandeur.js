@@ -40,10 +40,16 @@ function AddDemandeur() {
   const [creator, setCreator] = useState("");
   const [remark, setRemark] = useState("");
   const [num_conj, setNum_conj] = useState(1);
-
   const [date_depo, setDate_depo] = useState("");
   const [num_dos, setNum_dos] = useState("");
   const [saisi_conj, setSaisi_conj] = useState("");
+  const [adress, setAdress] = useState("");
+  const [adress_fr, setAdress_fr] = useState("");
+  const [note_revenue, setNote_revenue] = useState(0);
+  const [note_habita, setNote_habita] = useState(0);
+  const [note_situation_familiale, setNote_situation_familiale] = useState(0);
+  const [note_anciennete, setNote_anciennete] = useState(0);
+  const [notes, setNotes] = useState(0);
 
   const dispatch = useDispatch();
 
@@ -100,7 +106,7 @@ function AddDemandeur() {
         addDossierAction(
           creator,
           demandeur._id,
-          id_conjoin,
+          [],
           date_depo,
           num_dos,
           adress,
@@ -113,22 +119,11 @@ function AddDemandeur() {
           adress_fr,
           remark,
           saisi_conj,
-          scan_dossier,
+          null,
           notes
         )
       );
-  }, [
-    dispatch,
-    success,
-    creator,
-    demandeur,
-    date_depo,
-    num_dos,
-    type,
-    gender_conj,
-    remark,
-    saisi_conj,
-  ]);
+  }, [dispatch, success]);
 
   let navigate = useNavigate();
 
@@ -371,7 +366,6 @@ function AddDemandeur() {
               <br />
             </div>
           </div>
-
           <div className="row text-right">
             <div className="col-sm order-sm-last">
               <label htmlFor="prenom_m"> اسم الأم</label>
@@ -412,7 +406,6 @@ function AddDemandeur() {
               <br />
             </div>
           </div>
-
           <div className="row text-right">
             <div className="col-sm order-sm-last">
               <label htmlFor="num_i_n"> رقم التعريف الوطني</label>
@@ -472,60 +465,150 @@ function AddDemandeur() {
               />
             </div>
             <div className="col-sm order-sm-first">
-             
-                <div className="intro">
-                  <label>الحالة العائلية</label>{" "}
-                </div>
-                <RadioGroup
-                  name={"stuation_f"}
-                  items={stuation_fItems}
-                  onChange={(e) => {
-                    setStuation_f(e.target.value);
-                    if (e.target.value === "m") setSaisi_conj("false");
-                  }}
-                  value={stuation_f}
-                />
-                <br />
-                {stuation_f === "m" && gender === "m" && (
-                  <>
-                    <label htmlFor="num_conj">عدد الزوجات</label>
-                    <input
-                      onChange={(e) => setNum_conj(e.target.value)}
-                      type="text"
-                      id="num_conj"
-                      className="form-control text-right"
-                      name="num_conj"
-                      value={num_conj}
-                    />
-                  </>
-                )}
+              <div className="intro">
+                <label>الحالة العائلية</label>{" "}
+              </div>
+              <RadioGroup
+                name={"stuation_f"}
+                items={stuation_fItems}
+                onChange={(e) => {
+                  setStuation_f(e.target.value);
+                  if (e.target.value === "m") setSaisi_conj("false");
+                }}
+                value={stuation_f}
+              />
+              <br />
+              {stuation_f === "m" && gender === "m" && (
+                <>
+                  <label htmlFor="num_conj">عدد الزوجات</label>
+                  <input
+                    onChange={(e) => setNum_conj(e.target.value)}
+                    type="text"
+                    id="num_conj"
+                    className="form-control text-right"
+                    name="num_conj"
+                    value={num_conj}
+                  />
+                </>
+              )}
             </div>
           </div>
-          <hr />
-          <div className="col-sm order-sm-last">
-            <label htmlFor="date_depo"> تاريخ الإيداع </label>
-            <input
-              type="date"
-              id="date_depo"
-              name="date_depo"
-              className="form-control text-right"
-              onChange={(e) => setDate_depo(e.target.value)}
-              required
-            />
-            <br />
-
-            <label htmlFor="num_dos"> رقم الملف</label>
+          <Col className="col-sm order-sm-last  text-right">
+            <label htmlFor="adress">العنوان</label>
             <input
               type="text"
-              id="num_dos"
-              name="num_dos"
+              id="adress"
               className="form-control text-right"
-              onChange={(e) => setNum_dos(e.target.value)}
-              required
+              name="adress"
+              placeholder="العنوان"
+              onChange={(e) => setAdress(e.target.value)}
+            />
+            <input
+              onChange={(e) => setAdress_fr(e.target.value)}
+              type="text"
+              id="adress_fr"
+              name="adress_fr"
+              className="form-control text-right"
+              placeholder="العنوان باللاتينية"
             />
             <br />
+          </Col>
+          <hr />
+          <div className="row text-right">
+            <div className="col-sm order-sm-last">
+              <label htmlFor="date_depo"> تاريخ الإيداع </label>
+              <input
+                type="date"
+                id="date_depo"
+                name="date_depo"
+                className="form-control text-right"
+                onChange={(e) => setDate_depo(e.target.value)}
+                required
+              />
+              <br />
+            </div>
+            <div className="col-sm order-sm-last">
+              <label htmlFor="num_dos"> رقم الملف</label>
+              <input
+                type="text"
+                id="num_dos"
+                name="num_dos"
+                className="form-control text-right"
+                onChange={(e) => setNum_dos(e.target.value)}
+                required
+              />
+              <br />
+            </div>
           </div>
-
+          <div className="row text-right">
+            <div className="col-sm order-sm-last">
+              <label htmlFor="note_revenue">مستوى المداخيل</label>
+              <input
+                type="text"
+                id="note_revenue"
+                name="note_revenue"
+                className="form-control text-right"
+                onChange={(e) => setNote_revenue(e.target.value)}
+                value={note_revenue}
+                required
+              />
+              <br />
+            </div>
+            <div className="col-sm order-sm-last">
+              <label htmlFor="note_habita">ظروف السكن</label>
+              <input
+                type="text"
+                id="note_habita"
+                name="note_habita"
+                className="form-control text-right"
+                onChange={(e) => setNote_habita(e.target.value)}
+                value={note_habita}
+                required
+              />
+              <br />
+            </div>
+          </div>
+          <div className="row text-right">
+            <div className="col-sm order-sm-last">
+              <label htmlFor="note_situation_familiale">الحالة العائلية</label>
+              <input
+                type="text"
+                id="note_situation_familiale"
+                name="note_situation_familiale"
+                className="form-control text-right"
+                onChange={(e) => setNote_situation_familiale(e.target.value)}
+                value={note_situation_familiale}
+                required
+              />
+              <br />
+            </div>
+            <div className="col-sm order-sm-last">
+              <label htmlFor="notes">أقدمية طلب السكن</label>
+              <input
+                type="text"
+                id="notes"
+                name="notes"
+                className="form-control text-right"
+                onChange={(e) => setNotes(e.target.value)}
+                value={notes}
+                required
+              />
+              <br />
+            </div>{" "}
+            <div className="col-sm order-sm-last">
+              <label htmlFor="note_anciennete">مجموع النقاط</label>
+              <input
+                type="text"
+                id="note_anciennete"
+                name="note_anciennete"
+                className="form-control text-right"
+                onChange={(e) => setNote_anciennete(e.target.value)}
+                value={note_anciennete}
+                required
+              />
+              <br />
+            </div>
+          </div>
           <hr />
           <div className="row text-right">
             <div className="col-sm order-sm-last my-2">

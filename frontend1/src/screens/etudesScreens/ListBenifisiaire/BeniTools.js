@@ -18,11 +18,7 @@ const BeniTools = () => {
   const { benefisiers } = benefisiersInfo;
 
   const listQuotasGet = useSelector((state) => state.quotaList);
-  const {
-    loading: loadingQuotas,
-    quotas,
-    error: errorQuotas,
-  } = listQuotasGet;
+  const { loading: loadingQuotas, quotas, error: errorQuotas } = listQuotasGet;
 
   const listBenefisiersGet = useSelector((state) => state.listBenefisiersGet);
   const { loading, listBenefisiers, error, success } = listBenefisiersGet;
@@ -194,7 +190,7 @@ const BeniTools = () => {
       <Button
         variant="success"
         className="m-1 "
-        onClick={() => onGetBenefisiersList(benefisiers, "export", TriDossiers)}
+        onClick={() => onGetBenefisiersList([], "export", TriDossiers)}
       >
         استخراج الملف الكامل
       </Button>
