@@ -1,6 +1,5 @@
-import React from "react";
-import { Form } from "react-bootstrap";
-import { isValidDate } from "../../../Functions/functions";
+import React, { useState } from "react";
+import { Button, Form } from "react-bootstrap";
 import RadioGroup from "../../../Functions/RadioGroup";
 import Sort from "./Sort";
 
@@ -31,7 +30,8 @@ const Filters = ({
     { value: "p", label: "اكثر من 35 سنة من تاريخ الايداع" },
     { value: "m", label: "اقل من 35 سنة من تاريخ الايداع" },
   ];
-
+  const [fDate, setSetFDate] = useState("");
+  const [tDate, setSetTDate] = useState("");
   return (
     <div className="filters">
       <hr />
@@ -174,31 +174,35 @@ const Filters = ({
       >
         {"ارمل"}
       </Form.Label>
+      <Button
+        onClick={(e) => {
+          setFromDate(new Date(fDate).toLocaleDateString());
+          setToDate(new Date(tDate).toLocaleDateString());
+        }}
+      >
+        فرز حسب تاريخ الايداع من الى
+      </Button>
       <Form.Label htmlFor="inputFromDate">{"من"}</Form.Label>
       <Form.Control
-        value={fromDate}
         name="fromDate"
-        onChange={(e) => {
-          if (isValidDate(e.target.value))
-            setFromDate(new Date(e.target.value).toLocaleDateString());
-        }}
         size="sm"
         type="date"
         id="inputFromDate"
         className="m-1  text-right"
+        onChange={(e) => {
+          setSetFDate(e.target.value);
+        }}
       />
       <Form.Label htmlFor="inputToDate">{"الى"}</Form.Label>
       <Form.Control
-        value={toDate}
         name="toDate"
-        onChange={(e) => {
-          if (isValidDate(e.target.value))
-            setToDate(new Date(e.target.value).toLocaleDateString());
-        }}
         size="sm"
         type="date"
         id="inputToDate"
         className="m-1  text-right "
+        onChange={(e) => {
+          setSetTDate(e.target.value);
+        }}
       />
     </div>
   );

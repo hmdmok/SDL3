@@ -330,7 +330,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             data.find((d) => d._id.toString() === e._id?.toString())
           )
         : data;
-    if (type === "exportFilter")
+    if (type.includes("export"))
       dossiers = await dossiersList.map((e) =>
         data.find((d) => d._id.toString() === e)
       );

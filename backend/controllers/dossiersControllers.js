@@ -199,22 +199,24 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
 
       if (fromDate !== "") {
         fdCheck = !(
-          new Date(convertDateFormat(dossier.date_depo)).getTime() <=
-          new Date(convertDateFormat(fromDate)).getTime()
+          new Date(convertDateFormat(dossier.date_depo, "S").jsDate).getTime() <=
+          new Date(convertDateFormat(fromDate, "S").jsDate).getTime()
         );
       }
       if (toDate) {
         tdCheck = !(
-          new Date(convertDateFormat(dossier.date_depo)).getTime() >=
-          new Date(convertDateFormat(toDate)).getTime()
+          new Date(
+            convertDateFormat(dossier.date_depo, "S").jsDate
+          ).getTime() >=
+          new Date(convertDateFormat(toDate, "S").jsDate).getTime()
         );
         // console.log(
         //   "check:" +
         //     tdCheck +
         //     " ,date depo:" +
-        //     new Date(convertDateFormat(dossier.date_depo)).getTime() +
+        //     new Date(dossier.date_depo).getTime() +
         //     " ,date to:" +
-        //     convertDateFormat(dossier.date_depo)
+        //     fromDate
         // );
       }
       return fdCheck && tdCheck;

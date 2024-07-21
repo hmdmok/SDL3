@@ -40,13 +40,7 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
     setPage(page);
   };
   const onGetBenefisiersList = (listDossierBenefisiers, type) => {
-    dispatch(
-      listBenefisiersAction(
-        listDossierBenefisiers,
-        type,
-        systemInfo[0].quotaDate
-      )
-    );
+    dispatch(listBenefisiersAction(listDossierBenefisiers, type, "date-depo"));
   };
 
   useEffect(() => {
@@ -60,13 +54,13 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
 
   return (
     <div style={{ display: "flex", flexDirection: "row-reverse" }} className="">
-      <Button className="m-1 " size="sm">
+      <Button className="mt-1 " size="sm">
         <Link to="/demandeur">اضافة ملف جديد</Link>
       </Button>
 
       <Button
         variant="success"
-        className="m-1 "
+        className="mt-1 "
         size="sm"
         onClick={() => {
           addListToCheck(data);
@@ -76,7 +70,7 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
       </Button>
       <Button
         variant="success"
-        className="m-1 "
+        className="mt-1 "
         size="sm"
         onClick={() => {
           addListToCheck(totalArray);
@@ -86,7 +80,7 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
       </Button>
       <Button
         variant="danger"
-        className="m-1 "
+        className="mt-1 "
         size="sm"
         onClick={() => {
           dellAllDossiersFromCheck();
@@ -97,7 +91,7 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
 
       <Button
         variant="success"
-        className="m-1"
+        className="mt-1"
         size="sm"
         onClick={() => {
           addListToBenefisiers(data);
@@ -107,7 +101,7 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
       </Button>
       <Button
         variant="success"
-        className="m-1"
+        className="mt-1"
         size="sm"
         onClick={() => {
           addListToBenefisiers(totalArray);
@@ -117,7 +111,7 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
       </Button>
       <Button
         variant="danger"
-        className="m-1"
+        className="mt-1"
         size="sm"
         onClick={() => {
           dellAllDossiersFromBenefisiers();
@@ -127,16 +121,26 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
       </Button>
       <Button
         variant="warning"
-        className="m-1"
+        className="mt-1"
         size="sm"
         onClick={() => {
           onGetBenefisiersList(getIDList(totalArray), "exportFilter");
         }}
       >
-        تحميل كل الملفات excell
+        excell 1
+      </Button>
+      <Button
+        variant="warning"
+        className="mt-1"
+        size="sm"
+        onClick={() => {
+          onGetBenefisiersList(getIDList(totalArray), "export");
+        }}
+      >
+        excell 2
       </Button>
 
-      <Button className="m-1 " size="sm">
+      <Button className="mt-1 " size="sm">
         <Badge>ملف</Badge>
         <Badge>{total}</Badge>
       </Button>
