@@ -327,13 +327,10 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
     let dossiers =
       dossiersList.length > 0
         ? await dossiersList.map((e) =>
-            data.find((d) => d._id.toString() === e._id?.toString())
+            data.find((d) => d._id.toString() === e)
           )
         : data;
-    if (type.includes("export"))
-      dossiers = await dossiersList.map((e) =>
-        data.find((d) => d._id.toString() === e)
-      );
+
     const workbook = new ExcelJS.Workbook();
     let worksheetPlus, worksheetMoin;
 

@@ -9,6 +9,7 @@ import { checkSystem, updateSystem } from "../../../actions/systemActions";
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
 import RadioGroup from "../../../Functions/RadioGroup";
+import { getIDList } from "../../../Functions/functions";
 
 const BeniTools = () => {
   const dispatch = useDispatch();
@@ -152,7 +153,12 @@ const BeniTools = () => {
         variant="success"
         className="m-1 "
         onClick={() =>
-          onGetBenefisiersList(benefisiers, "french", TriDossiers, PhotoFemme)
+          onGetBenefisiersList(
+            getIDList(benefisiers),
+            "french",
+            TriDossiers,
+            PhotoFemme
+          )
         }
       >
         انشاء ملف المستفيدين بالفرنسية
@@ -162,7 +168,12 @@ const BeniTools = () => {
         variant="success"
         className="m-1 "
         onClick={() =>
-          onGetBenefisiersList(benefisiers, "frenchr", TriDossiers, PhotoFemme)
+          onGetBenefisiersList(
+            getIDList(benefisiers),
+            "frenchr",
+            TriDossiers,
+            PhotoFemme
+          )
         }
       >
         انشاء ملف الاحتياطيين بالفرنسية
@@ -172,7 +183,12 @@ const BeniTools = () => {
         variant="success"
         className="m-1 "
         onClick={() =>
-          onGetBenefisiersList(benefisiers, "arabic", TriDossiers, PhotoFemme)
+          onGetBenefisiersList(
+            getIDList(benefisiers),
+            "arabic",
+            TriDossiers,
+            PhotoFemme
+          )
         }
       >
         انشاء ملف المستفيدين
@@ -182,7 +198,12 @@ const BeniTools = () => {
         variant="success"
         className="m-1 "
         onClick={() =>
-          onGetBenefisiersList(benefisiers, "arabicr", TriDossiers, PhotoFemme)
+          onGetBenefisiersList(
+            getIDList(benefisiers),
+            "arabicr",
+            TriDossiers,
+            PhotoFemme
+          )
         }
       >
         انشاء ملف الاحتياطيين
