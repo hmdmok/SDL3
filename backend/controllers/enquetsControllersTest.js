@@ -327,10 +327,13 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
     let dossiers =
       dossiersList.length > 0
         ? await dossiersList.map((e) =>
-            data.find((d) => d._id.toString() === e._id.toString())
+            data.find((d) => d._id.toString() === e._id?.toString())
           )
         : data;
-
+    if (type === "exportFilter")
+      dossiers = await dossiersList.map((e) =>
+        data.find((d) => d._id.toString() === e)
+      );
     const workbook = new ExcelJS.Workbook();
     let worksheetPlus, worksheetMoin;
 
@@ -381,8 +384,10 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
       extension: "png",
     });
 
-    worksheetPlus.addImage(imageId1, "A1:A1");
-    if (type !== "exportFilter") worksheetMoin.addImage(imageId1, "A1:A1");
+    if (type !== "exportFilter" && type !== "export") {
+      worksheetPlus.addImage(imageId1, "A1:A1");
+      worksheetMoin.addImage(imageId1, "A1:A1");
+    }
 
     const isDateBeforeQuota = (record) => {
       if (triDossiers === "quotas") quotaDate = systemInfo.quotaDate;
@@ -398,13 +403,13 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
     };
 
     const addRowToWorksheet = (worksheet, rowData, imagePath, col, row) => {
-      worksheet.addRow(rowData, "i+");
+      worksheet?.addRow(rowData, "i+");
       if (imagePath) {
         const image = workbook.addImage({
           filename: imagePath,
           extension: "png",
         });
-        worksheet.addImage(image, {
+        worksheet?.addImage(image, {
           tl: { col, row: worksheet._media.length + 5 },
           ext: { width: 200, height: 250 },
         });
@@ -419,8 +424,8 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         imagePath =
           record.demandeur?.photo_link || "usersPicUpload/default.png";
       const rowCount = isDateBeforeQuota(record)
-        ? worksheetPlus._rows.length - 6
-        : worksheetMoin._rows.length - 6;
+        ? worksheetPlus?._rows.length - 6
+        : worksheetMoin?._rows.length - 6;
       const rowData = type.includes("fr")
         ? [
             rowCount,
@@ -445,7 +450,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             record.demandeur?.prenom_m,
           ];
       const rowDataExport = [
-        rowCount,
+        worksheetPlus?._rows.length - 1,
         record.num_dos,
         record.date_depo,
         record.demandeur?.nom,
@@ -466,14 +471,17 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         record.notes,
         record.remark,
       ];
-      const addWorkSheet = isDateBeforeQuota(record)
-        ? worksheetPlus
-        : worksheetMoin;
+      let addWorkSheet;
+      if (type === "exportFilter") addWorkSheet = worksheetPlus;
+      else
+        addWorkSheet = isDateBeforeQuota(record)
+          ? worksheetPlus
+          : worksheetMoin;
       if (type === "export") {
         addRowToWorksheet(
           addWorkSheet,
           rowDataExport,
-          imagePath,
+          null,
           29,
           addWorkSheet._media.length + 5
         );
@@ -481,9 +489,9 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         addRowToWorksheet(
           addWorkSheet,
           rowDataExport,
-          imagePath,
+          null,
           29,
-          addWorkSheet._media.length + 5
+          addWorkSheet?._media.length + 5
         );
       } else if (type.includes("f")) {
         addRowToWorksheet(
@@ -510,8 +518,8 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
     }.xlsx`;
 
     if (type === "export" || type === "exportFilter") {
-      worksheetPlus.spliceRows(2, 3);
-      if (type === "export") worksheetMoin.spliceRows(2, 3);
+      worksheetPlus.spliceRows(2, 1);
+      if (type === "export") worksheetMoin.spliceRows(2, 1);
     } else {
       worksheetPlus.spliceRows(7, 1);
       worksheetMoin.spliceRows(7, 1);

@@ -66,17 +66,17 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
     let p_m_35_de = req.query.p_m_35_de || "";
     let stuation_f = req.query.stuation_f || "";
 
-    const {
-      dossiersCount,
-      numDoss,
-      nomFr,
-      prenomFr,
-      birthDate,
+    // const {
+    //   dossiersCount,
+    //   numDoss,
+    //   nomFr,
+    //   prenomFr,
+    //   birthDate,
 
-      situationFamiliale,
-      dateEtude,
-      plusMoin35Value,
-    } = req.body;
+    //   situationFamiliale,
+    //   dateEtude,
+    //   plusMoin35Value,
+    // } = req.body;
 
     const dossierByNotes = await getFullDossier();
 
@@ -311,10 +311,10 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
         date_depo: item.date_depo,
         notes: item.notes,
         demandeur: {
-          nom_fr: item["demandeur"].nom_fr,
-          prenom_fr: item["demandeur"].prenom_fr,
-          date_n: item["demandeur"].date_n,
-          stuation_f: item["demandeur"].stuation_f,
+          nom_fr: item["demandeur"]?.nom_fr,
+          prenom_fr: item["demandeur"]?.prenom_fr,
+          date_n: item["demandeur"]?.date_n,
+          stuation_f: item["demandeur"]?.stuation_f,
         },
       };
     });
@@ -333,10 +333,10 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
         date_depo: item.date_depo,
         notes: item.notes,
         demandeur: {
-          nom_fr: item["demandeur"].nom_fr,
-          prenom_fr: item["demandeur"].prenom_fr,
-          date_n: item["demandeur"].date_n,
-          stuation_f: item["demandeur"].stuation_f,
+          nom_fr: item["demandeur"]?.nom_fr,
+          prenom_fr: item["demandeur"]?.prenom_fr,
+          date_n: item["demandeur"]?.date_n,
+          stuation_f: item["demandeur"]?.stuation_f,
         },
       };
     });
@@ -354,7 +354,7 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
     res.status(200).json(response);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: true, message: "Internal Server Error" });
+    res.status(500).json({ error: true, message: "Internal Server Error2" });
     throw new Error(error.message);
   }
 });

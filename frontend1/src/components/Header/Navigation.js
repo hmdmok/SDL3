@@ -163,10 +163,10 @@ const Navigation = () => {
                     id="basic-nav-dropdown"
                   >
                     <AiOutlineFileSearch />
-                    <Badge className="m-1">{files.length}</Badge>
+                    <Badge className="m-1">{files?.length}</Badge>
                   </Dropdown.Toggle>
                   <DropdownMenu style={{ minWidth: 370 }}>
-                    {files.length > 0 ? (
+                    {files?.length > 0 ? (
                       <>
                         {files.map((file) => (
                           <span className="file" key={file._id}>
