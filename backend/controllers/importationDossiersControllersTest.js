@@ -2,7 +2,7 @@ const asyncHandler = require("express-async-handler");
 const reader = require("xlsx");
 const Dossier = require("../models/dossierModel");
 const Person = require("../models/personModel");
-const { convertDateFormat } = require("../config/functions");
+const { convertDateFormat, getFullDossier } = require("../config/functions");
 
 const updateDossiers = asyncHandler(async (req, res) => {
   try {
@@ -33,6 +33,8 @@ const updateDossiers = asyncHandler(async (req, res) => {
         await processDossiers(excelData, creator, res, "French");
       } else if (remark === "Arabic Fichier Imported") {
         await processDossiers(excelData, creator, res, "Arabic");
+      } else if (remark === "numDos Fichier Imported") {
+        await processDossiers(excelData, creator, res, "numDos");
       } else {
         res.status(400).send("Invalid remark provided");
       }
@@ -53,31 +55,54 @@ async function processDossiers(data, creator, res, language) {
     const dossiersCount = data.length;
     let dossierAddedCount = 0;
     let dossierUpdatedCount = 0;
-
+    let numDos = [];
+    const data2 = await getFullDossier();
     await Promise.all(
       data.map(async (dossier) => {
         const { num_dos } = extractDossierData(dossier, language);
-
         const existingDossier = await Dossier.findOne({ num_dos });
 
-        if (existingDossier) {
-          await updateExistingDossier(
-            existingDossier,
-            dossier,
-            creator,
-            language
-          );
-          dossierUpdatedCount++;
+        if (language === "numDos") {
+          if (existingDossier) {
+            let dossiers = await data2.find(
+              (d) => d._id.toString() === existingDossier._id.toString()
+            );
+            numDos.push({
+              _id: dossiers._id,
+              num_dos: dossiers.num_dos,
+              date_depo: dossiers.date_depo,
+              notes: dossiers.notes,
+              demandeur: {
+                nom_fr: dossiers["demandeur"]?.nom_fr,
+                prenom_fr: dossiers["demandeur"]?.prenom_fr,
+                date_n: dossiers["demandeur"]?.date_n,
+                stuation_f: dossiers["demandeur"]?.stuation_f,
+              },
+            });
+          }
         } else {
-          await createNewDossier(dossier, creator, language);
-          dossierAddedCount++;
+          if (existingDossier) {
+            await updateExistingDossier(
+              existingDossier,
+              dossier,
+              creator,
+              language
+            );
+            dossierUpdatedCount++;
+          } else {
+            await createNewDossier(dossier, creator, language);
+            dossierAddedCount++;
+          }
         }
       })
     );
-
-    res.send(
-      `${dossierAddedCount} added, and ${dossierUpdatedCount} updated of ${dossiersCount} dossiers.`
-    );
+    if (language === "numDos") res.status(200).send(numDos);
+    else
+      res
+        .status(200)
+        .send(
+          `${dossierAddedCount} added, and ${dossierUpdatedCount} updated of ${dossiersCount} dossiers.`
+        );
   } catch (error) {
     console.error("Error processing dossiers:", error);
     res.status(500).send("Error processing dossiers");
@@ -153,6 +178,10 @@ function extractDossierData(dossier, language) {
       note_habita: dossier["ظروف السكن"],
       note_situation_familiale: dossier["الحالة العائلية"],
       note_anciennete: dossier["أقدمية طلب السكن"],
+    };
+  } else if (language === "numDos") {
+    return {
+      num_dos: dossier["Ordre"],
     };
   }
 }

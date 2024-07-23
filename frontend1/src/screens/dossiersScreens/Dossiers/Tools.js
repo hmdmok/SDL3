@@ -54,33 +54,29 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
 
   return (
     <div style={{ display: "flex", flexDirection: "row-reverse" }} className="">
-      <Button className="mt-1 " size="sm">
-        <Link to="/demandeur">اضافة ملف جديد</Link>
-      </Button>
-
       <Button
         variant="success"
-        className="mt-1 "
+        className="m-1 "
         size="sm"
         onClick={() => {
           addListToCheck(data);
         }}
       >
-        اظافة كل الصفحة للتحقيق
+        اضافة كل الصفحة للتحقيق
       </Button>
       <Button
         variant="success"
-        className="mt-1 "
+        className="m-1 "
         size="sm"
         onClick={() => {
           addListToCheck(totalArray);
         }}
       >
-        اظافة كل الملفات للتحقيق
+        اضافة كل الملفات للتحقيق
       </Button>
       <Button
         variant="danger"
-        className="mt-1 "
+        className="m-1 "
         size="sm"
         onClick={() => {
           dellAllDossiersFromCheck();
@@ -91,27 +87,27 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
 
       <Button
         variant="success"
-        className="mt-1"
+        className="m-1"
         size="sm"
         onClick={() => {
           addListToBenefisiers(data);
         }}
       >
-        اظافة كل الصفحة للمسفيدين
+        اضافة كل الصفحة للمسفيدين
       </Button>
       <Button
         variant="success"
-        className="mt-1"
+        className="m-1"
         size="sm"
         onClick={() => {
           addListToBenefisiers(totalArray);
         }}
       >
-        اظافة كل الملفات للمسفيدين
+        اضافة كل الملفات للمسفيدين
       </Button>
       <Button
         variant="danger"
-        className="mt-1"
+        className="m-1"
         size="sm"
         onClick={() => {
           dellAllDossiersFromBenefisiers();
@@ -121,7 +117,7 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
       </Button>
       <Button
         variant="warning"
-        className="mt-1"
+        className="m-1"
         size="sm"
         onClick={() => {
           onGetBenefisiersList(getIDList(totalArray), "exportFilter");
@@ -131,7 +127,7 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
       </Button>
       <Button
         variant="warning"
-        className="mt-1"
+        className="m-1"
         size="sm"
         onClick={() => {
           onGetBenefisiersList(getIDList(totalArray), "export");
@@ -140,7 +136,7 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
         excell 2
       </Button>
 
-      <Button className="mt-1 " size="sm">
+      <Button className="m-1 " size="sm">
         <Badge>ملف</Badge>
         <Badge>{total}</Badge>
       </Button>

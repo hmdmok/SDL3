@@ -158,11 +158,11 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
   selectedDossiers.forEach((record, i) => {
     const rowIndex = index + 10 + i;
 
-    XLSX.utils.sheet_add_aoa(worksheet, [[rowIndex - 9]], {
+    XLSX.utils.sheet_add_aoa(worksheet, [[record.num_dos]], {
       origin: `A${rowIndex}`,
     });
 
-    worksheet[`A${rowIndex}`].s = cellStyles.default;
+    // worksheet[`A${rowIndex}`].s = cellStyles.default;
 
     const addPersonData = (person, prefix) => {
       if (prefix === "D")
