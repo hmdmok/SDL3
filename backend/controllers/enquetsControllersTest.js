@@ -408,7 +408,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         });
         worksheet?.addImage(image, {
           tl: { col, row: worksheet._media.length + 5 },
-          ext: { width: 200, height: 250 },
+          ext: { width: 178, height: 198 },
         });
       }
     };
@@ -434,6 +434,10 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             record.demandeur?.prenom_p_fr,
             record.demandeur?.nom_m_fr,
             record.demandeur?.prenom_m_fr,
+            record.adress_fr,
+            record.date_depo,
+            "",
+            record.num_dos,
           ]
         : [
             rowCount,
@@ -445,6 +449,10 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             record.demandeur?.prenom_p,
             record.demandeur?.nom_m,
             record.demandeur?.prenom_m,
+            record.adress,
+            record.date_depo,
+            "",
+            record.num_dos,
           ];
       const rowDataExport = [
         worksheetPlus?._rows.length - 1,
@@ -495,7 +503,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
           addWorkSheet,
           rowData,
           imagePath,
-          9,
+          11,
           addWorkSheet._media.length + 5
         );
       } else if (type.includes("a")) {
@@ -503,7 +511,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
           addWorkSheet,
           rowData,
           imagePath,
-          9,
+          11,
           addWorkSheet._media.length + 5
         );
       }
