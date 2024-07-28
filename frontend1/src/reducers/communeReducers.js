@@ -11,6 +11,9 @@ import {
   COMMUNE_GETW_FAIL,
   COMMUNE_GETW_REQUEST,
   COMMUNE_GETW_SUCCESS,
+  COMMUNE_GETD_FAIL,
+  COMMUNE_GETD_REQUEST,
+  COMMUNE_GETD_SUCCESS,
   COMMUNE_LIST_FAIL,
   COMMUNE_LIST_REQUEST,
   COMMUNE_LIST_SUCCESS,
@@ -71,6 +74,23 @@ export const communeGetByWilayaReducer = (
     case COMMUNE_GETW_SUCCESS:
       return { loading: false, communes: actions.payload };
     case COMMUNE_GETW_FAIL:
+      return { loading: false, error: actions.payload };
+
+    default:
+      return state;
+  }
+};
+
+export const communeGetByDairaReducer = (
+  state = { communes: [] },
+  actions
+) => {
+  switch (actions.type) {
+    case COMMUNE_GETD_REQUEST:
+      return { loading: true };
+    case COMMUNE_GETD_SUCCESS:
+      return { loading: false, communes: actions.payload };
+    case COMMUNE_GETD_FAIL:
       return { loading: false, error: actions.payload };
 
     default:

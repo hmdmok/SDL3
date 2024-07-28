@@ -9,6 +9,9 @@ import {
   COMMUNE_GET_FAIL,
   COMMUNE_GET_REQUEST,
   COMMUNE_GET_SUCCESS,
+  COMMUNE_GETD_FAIL,
+  COMMUNE_GETD_REQUEST,
+  COMMUNE_GETD_SUCCESS,
   COMMUNE_GETW_FAIL,
   COMMUNE_GETW_REQUEST,
   COMMUNE_GETW_SUCCESS,
@@ -98,6 +101,38 @@ export const listCommunesByWilayaAction =
     } catch (error) {
       dispatch({
         type: COMMUNE_GETW_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
+
+export const listCommunesByDairaAction =
+  (nomDaira) => async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: COMMUNE_GETD_REQUEST,
+      });
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      const formData = { nomDaira };
+
+      const { data } = await axios.post("/api/communes/daira", formData, config);
+
+      dispatch({
+        type: COMMUNE_GETD_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: COMMUNE_GETD_FAIL,
         payload:
           error.response && error.response.data.message
             ? error.response.data.message

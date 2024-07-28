@@ -7,11 +7,13 @@ const {
   updateCommune,
   deleteCommune,
   getCommuneByًWilya,
+  getCommuneByًDaira,
 } = require("../controllers/communesControllers");
 
 const router = express.Router();
 
 router.route("/").get(getCommunes).post(getCommuneByًWilya);
+router.route("/daira").get(getCommunes).post(getCommuneByًDaira);
 router
   .route("/:id")
   .get(getCommuneById)

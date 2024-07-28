@@ -5,6 +5,7 @@ import Loading from "../../../components/Loading";
 import MainScreen from "../../../components/MainScreen/MainScreen";
 import { useDispatch, useSelector } from "react-redux";
 import { add } from "../../../actions/quotaActions";
+import { useNavigate } from "react-router-dom";
 
 function AddQuota() {
   const [quotaname, setQuotaname] = useState("");
@@ -27,7 +28,7 @@ function AddQuota() {
   const dispatch = useDispatch();
   const quotaAdd = useSelector((state) => state.quotaAdd);
 
-  const { loading, error } = quotaAdd;
+  const { loading, error, quotaInfo } = quotaAdd;
 
   useEffect(() => {
     if (quotascan) {
@@ -40,7 +41,12 @@ function AddQuota() {
       setPreview(null);
     }
   }, [quotascan]);
-
+  let history = useNavigate();
+  useEffect(() => {
+    if (quotaInfo) {
+      history("/quotas");
+    }
+  }, [history, quotaInfo]);
   const onSubmitQuota = async (event) => {
     event.preventDefault();
 

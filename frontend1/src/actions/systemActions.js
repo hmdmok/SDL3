@@ -70,17 +70,13 @@ export const updateSystem =
     onlineID,
     onlineCheckDate
   ) =>
-  async (dispatch, getState) => {
+  async (dispatch) => {
     try {
       dispatch({ type: SYSTEM_UPDATE_REQUEST });
-      const {
-        userLogin: { userInfo },
-      } = getState();
-
+    
       const config = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${userInfo.token}`,
         },
       };
       const { data } = await axios.put(

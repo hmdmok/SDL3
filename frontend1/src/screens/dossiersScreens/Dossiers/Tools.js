@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { Badge, Button, ButtonGroup, ButtonToolbar } from "react-bootstrap";
-import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addList, deleteList } from "../../../actions/filesActions";
 import {
@@ -16,8 +15,6 @@ import fileDownload from "js-file-download";
 
 const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
   const dispatch = useDispatch();
-  const systemData = localStorage.getItem("systemInfo");
-  const systemInfo = JSON.parse(systemData);
   const addListToCheck = (fileTo) => {
     dispatch(addList(fileTo));
   };

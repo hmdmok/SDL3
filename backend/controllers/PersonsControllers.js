@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const person = require("../models/personModel");
+const dossier = require("../models/dossierModel");
 const generateToken = require("../utils/generateToken");
 
 const getPersons = asyncHandler(async (req, res) => {
@@ -120,7 +121,6 @@ const updatePerson = asyncHandler(async (req, res) => {
 
   const id = req.params.id;
   const personToUpdate = await person.findById(id);
-
   if (!personToUpdate) {
     res.status(400);
     throw new Error("هذا الشخص غير موجود");
@@ -198,5 +198,5 @@ module.exports = {
   getPersonById,
   updatePerson,
   deletePerson,
-  addPhotoToPerson
+  addPhotoToPerson,
 };

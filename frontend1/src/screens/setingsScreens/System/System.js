@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Button, Card } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import ErrorMessage from "../../../components/ErrorMessage";
@@ -12,218 +12,131 @@ import { useNavigate } from "react-router-dom";
 
 function System() {
   const [selectedWilaya, setSelectedWilaya] = useState("");
-  const [selectedCommune, setSelectedCommune] = useState("");
   const [selectedDaira, setSelectedDaira] = useState("");
-  const [wilayasList, setWilayasList] = useState([]);
-  const [communesList, setCommunesList] = useState([]);
-  const [dairasList, setDairasList] = useState([]);
-  const [typeAdmin, setTypeAdmin] = useState("");
+  const typeAdmin = "daira";
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const wilayaList = useSelector((state) => state.wilayaList);
-  const { loading, wilayas, error } = wilayaList;
-
-  const communeGetByWilaya = useSelector((state) => state.communeGetByWilaya);
   const {
-    loading: loadingCommunes,
-    communes,
-    error: errorCommunes,
-  } = communeGetByWilaya;
-
-  const dairaGetByWilaya = useSelector((state) => state.dairaGetByWilaya);
+    loading: loadingWilayas,
+    wilayas,
+    error: errorWilayas,
+  } = useSelector((state) => state.wilayaList);
   const {
     loading: loadingDairas,
     dairas,
     error: errorDairas,
-  } = dairaGetByWilaya;
-
-  const systemAdd = useSelector((state) => state.systemAdd);
-  const { loading: loadingSystem, systemInfo, error: errorSystem } = systemAdd;
+  } = useSelector((state) => state.dairaGetByWilaya);
+  const {
+    loading: loadingSystem,
+    systemInfo,
+    error: errorSystem,
+  } = useSelector((state) => state.systemAdd);
 
   useEffect(() => {
     dispatch(listWilayasAction());
   }, [dispatch]);
 
-  let history = useNavigate();
-
   useEffect(() => {
     if (systemInfo) {
-      history("/login");
+      navigate("/login");
     }
-  }, [systemInfo, history]);
+  }, [systemInfo, navigate]);
 
   useEffect(() => {
-    if (wilayas?.length > 0) {
-      setWilayasList(wilayas);
+    if (selectedWilaya) {
+      dispatch(listCommunesByWilayaAction(selectedWilaya));
+      dispatch(listDairasByWilayaAction(selectedWilaya));
     }
-  }, [wilayas]);
-
-  useEffect(() => {
-    if (communes?.length > 0) {
-      setCommunesList(communes);
-    }
-  }, [communes]);
-
-  useEffect(() => {
-    if (dairas?.length > 0) {
-      setDairasList(dairas);
-    }
-  }, [dairas]);
-
-  useEffect(() => {
-    dispatch(listCommunesByWilayaAction(selectedWilaya));
-    dispatch(listDairasByWilayaAction(selectedWilaya));
   }, [dispatch, selectedWilaya]);
 
-  const addSystemButton = async (event) => {
+  const handleAddSystem = async (event) => {
     event.preventDefault();
-    if (typeAdmin === "daira") {
-      if (selectedDaira !== "") {
-        dispatch(addSystem(typeAdmin, selectedDaira));
-      }
-    }
-    if (typeAdmin === "commune") {
-      if (selectedCommune !== "") {
-        dispatch(addSystem(typeAdmin, selectedCommune));
-      }
+    if (typeAdmin === "daira" && selectedDaira) {
+      dispatch(addSystem(typeAdmin, selectedDaira));
     }
   };
 
-  const readWilaya = (wilayaMap) => {
-    return (
-      <select
-        onChange={(e) => setSelectedWilaya(e.target.value)}
-        id="wil_n"
-        className="form-control text-right"
-        name="wil_n"
-        defaultValue="-1"
-        required
-      >
-        <option value="-1" disabled hidden>
-          اختر الولاية
+  const wilayaOptions = useMemo(
+    () =>
+      wilayas?.map((wilaya) => (
+        <option key={wilaya._id} value={wilaya.code}>
+          {wilaya.nomAr}
         </option>
-        {wilayaMap?.map((wilaya) => (
-          <option key={wilaya._id} value={wilaya.code}>
-            {wilaya.nomAr}
-          </option>
-        ))}
-      </select>
-    );
-  };
+      )),
+    [wilayas]
+  );
 
-  const readCommune = (communs) => {
-    return (
-      <select
-        onChange={(e) => setSelectedCommune(e.target.value)}
-        id="comm_n"
-        className="form-control text-right"
-        name="comm_n"
-        defaultValue="-1"
-        required
-      >
-        <option value="-1" disabled hidden>
-          اختر البلدية
+  const dairaOptions = useMemo(
+    () =>
+      dairas?.map((daira) => (
+        <option key={daira.code} value={daira.nomFr}>
+          {daira.nomAr}
         </option>
-        {communs?.map((commune) => (
-          <option key={commune._id} value={commune.code}>
-            {commune.nomAr}
-          </option>
-        ))}
-      </select>
-    );
-  };
-
-  const readDaira = (dairs) => {
-    return (
-      <select
-        onChange={(e) => setSelectedDaira(e.target.value)}
-        id="comm_n"
-        className="form-control text-right"
-        name="comm_n"
-        defaultValue="-1"
-        required
-      >
-        <option value="-1" disabled hidden>
-          اختر البلدية
-        </option>
-        {dairs?.map((commune) => (
-          <option key={commune._id} value={commune.code}>
-            {commune.nomAr}
-          </option>
-        ))}
-      </select>
-    );
-  };
+      )),
+    [dairas]
+  );
 
   return (
-    <MainScreen title={"اعدادات تثبيت التطبيقة"}>
-      {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
-      {loading && <Loading />}
-      {errorCommunes && (
-        <ErrorMessage variant="danger">{errorCommunes}</ErrorMessage>
+    <MainScreen title="اعدادات تثبيت التطبيقة">
+      {errorWilayas && (
+        <ErrorMessage variant="danger">{errorWilayas}</ErrorMessage>
       )}
-      {loadingCommunes && <Loading />}
+      {loadingWilayas && <Loading />}
+
       {errorDairas && (
         <ErrorMessage variant="danger">{errorDairas}</ErrorMessage>
       )}
       {loadingDairas && <Loading />}
-      {errorSystem && (
-        <ErrorMessage variant="danger">{errorSystem}</ErrorMessage>
-      )}
-      {loadingSystem && <Loading />}
 
       {errorSystem && (
         <ErrorMessage variant="danger">{errorSystem}</ErrorMessage>
       )}
       {loadingSystem && <Loading />}
+
       <div>
-        <Card.Header className="form-control text-right">الادارة</Card.Header>
-        <Card.Body>
-          <select
-            onChange={(e) => setTypeAdmin(e.target.value)}
-            id="typeAdmin"
-            className="form-control text-right"
-            name="typeAdmin"
-            defaultValue="-1"
-            required
-          >
-            <option value="-1" disabled hidden>
-              اختر الادارة
-            </option>
+        <div>
+          <Card.Header className="form-control text-right">
+            اختار الولاية
+          </Card.Header>
+          <Card.Body>
+            <select
+              onChange={(e) => setSelectedWilaya(e.target.value)}
+              id="wil_n"
+              className="form-control text-right"
+              name="wil_n"
+              defaultValue="-1"
+              required
+            >
+              <option value="-1" key={"wilaya"} disabled hidden>
+                اختر الولاية
+              </option>
+              {wilayaOptions}
+            </select>
+          </Card.Body>
+        </div>
 
-            <option key={"01"} value={"daira"}>
-              {"دائرة"}
-            </option>
-            <option key={"02"} value={"commune"}>
-              {"بلدية"}
-            </option>
-          </select>
-        </Card.Body>
-        {typeAdmin !== "" && (
-          <div>
-            <Card.Header className="form-control text-right">
-              اختار الولاية
-            </Card.Header>
-            <Card.Body>{readWilaya(wilayasList)}</Card.Body>
-          </div>
-        )}
-        {typeAdmin === "commune" && (
-          <div>
-            <Card.Header className="form-control text-right">
-              اختار البلدية
-            </Card.Header>
-            <Card.Body>{readCommune(communesList)}</Card.Body>
-          </div>
-        )}
-        {typeAdmin === "daira" && (
-          <div>
-            <Card.Header className="form-control text-right">
-              اختار الدائرة
-            </Card.Header>
-            <Card.Body>{readDaira(dairasList)}</Card.Body>
-            <Button onClick={(e) => addSystemButton(e)}>تثبيت</Button>
-          </div>
-        )}
+        <div>
+          <Card.Header className="form-control text-right">
+            اختار الدائرة
+          </Card.Header>
+          <Card.Body>
+            <select
+              onChange={(e) => setSelectedDaira(e.target.value)}
+              id="comm_n"
+              className="form-control text-right"
+              name="comm_n"
+              defaultValue="-1"
+              required
+            >
+              <option value="-1" key={"daira"} disabled hidden>
+                اختر البلدية
+              </option>
+              {dairaOptions}
+            </select>
+            <Button onClick={handleAddSystem}>تثبيت</Button>
+          </Card.Body>
+        </div>
       </div>
     </MainScreen>
   );

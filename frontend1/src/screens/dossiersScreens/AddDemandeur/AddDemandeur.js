@@ -1,111 +1,273 @@
 import React, { useEffect, useState } from "react";
-import { Col, Form } from "react-bootstrap";
+import { Button, Col, Form, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { listCommunesByWilayaAction } from "../../../actions/communeActions";
-import { listWilayasAction } from "../../../actions/wilayaActions";
-import { addDemandeurAction } from "../../../actions/demandeurActions";
+import {
+  addDemandeurAction,
+  getDemandeurAction,
+  updateDemandeurAction,
+} from "../../../actions/demandeurActions";
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
 import MainScreen from "../../../components/MainScreen/MainScreen";
-import { addDossierAction } from "../../../actions/dossierActions";
-import { useNavigate } from "react-router-dom";
 import RadioGroup from "../../../Functions/RadioGroup";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  addDossierAction,
+  getDossierAction,
+  updateDossierAction,
+} from "../../../actions/dossierActions";
+import { listCommunesByWilayaAction } from "../../../actions/communeActions";
+import { listWilayasAction } from "../../../actions/wilayaActions";
+import { convertDateFormat } from "../../../Functions/functions";
 
-function AddDemandeur() {
-  const [prenom, setPrenom] = useState("");
-  const [prenom_fr, setPrenom_fr] = useState("");
-  const [nom, setNom] = useState("");
-  const [nom_fr, setNom_fr] = useState("");
-  const [gender, setGender] = useState("");
-  const [gender_conj, setGender_conj] = useState("");
-  const [num_act, setNum_act] = useState("");
-  const [date_n, setDate_n] = useState("");
-  const [type_date_n, setType_date_n] = useState("");
-  const [lieu_n, setLieu_n] = useState("");
-  const [lieu_n_fr, setLieu_n_fr] = useState("");
-  const [wil_n, setWil_n] = useState(0);
-  const [com_n, setCom_n] = useState(0);
-  const [prenom_p, setPrenom_p] = useState("");
-  const [prenom_p_fr, setPrenom_p_fr] = useState("");
-  const [prenom_m, setPrenom_m] = useState("");
-  const [prenom_m_fr, setPrenom_m_fr] = useState("");
-  const [nom_m, setNom_m] = useState("");
-  const [nom_m_fr, setNom_m_fr] = useState("");
-  const [num_i_n, setNum_i_n] = useState("");
-  const [stuation_f, setStuation_f] = useState("");
-  const type = "dema";
-  const [situation_p, setSituation_p] = useState("chomeur");
-  const [profession, setProfession] = useState("");
-  const [salaire, setSalaire] = useState("");
-  const [creator, setCreator] = useState("");
-  const [remark, setRemark] = useState("");
-  const [num_conj, setNum_conj] = useState(1);
-  const [date_depo, setDate_depo] = useState("");
-  const [num_dos, setNum_dos] = useState("");
-  const [saisi_conj, setSaisi_conj] = useState("");
-  const [adress, setAdress] = useState("");
-  const [adress_fr, setAdress_fr] = useState("");
-  const [note_revenue, setNote_revenue] = useState(0);
-  const [note_habita, setNote_habita] = useState(0);
-  const [note_situation_familiale, setNote_situation_familiale] = useState(0);
-  const [note_anciennete, setNote_anciennete] = useState(0);
-  const [notes, setNotes] = useState(0);
+function AddDemandeur({ type }) {
+  const [formData, setFormData] = useState({
+    prenom: "",
+    prenom_fr: "",
+    nom: "",
+    nom_fr: "",
+    gender: "",
+    num_act: "",
+    date_n: "",
+    type_date_n: "N",
+    lieu_n: "",
+    lieu_n_fr: "",
+    wil_n: -1,
+    com_n: -1,
+    prenom_p: "",
+    prenom_p_fr: "",
+    prenom_m: "",
+    prenom_m_fr: "",
+    nom_m: "",
+    nom_m_fr: "",
+    num_i_n: "",
+    stuation_f: "",
+    situation_p: "chomeur",
+    profession: "",
+    salaire: "",
+    creator: "",
+    remark: "",
+    num_conj: 1,
+    date_depo: "",
+    num_dos: "",
+    saisi_conj: "",
+    adress: "",
+    adress_fr: "",
+    note_revenue: 0,
+    note_habita: 0,
+    note_situation_familiale: 0,
+    note_anciennete: 0,
+    notes: 0,
+    type: type,
+  });
+
+  const {
+    prenom,
+    prenom_fr,
+    nom,
+    nom_fr,
+    gender,
+    num_act,
+    date_n,
+    type_date_n,
+    lieu_n,
+    lieu_n_fr,
+    wil_n,
+    com_n,
+    prenom_p,
+    prenom_p_fr,
+    prenom_m,
+    prenom_m_fr,
+    nom_m,
+    nom_m_fr,
+    num_i_n,
+    stuation_f,
+    situation_p,
+    profession,
+    salaire,
+    creator,
+    remark,
+    num_conj,
+    date_depo,
+    num_dos,
+    saisi_conj,
+    adress,
+    adress_fr,
+    note_revenue,
+    note_habita,
+    note_situation_familiale,
+    note_anciennete,
+    notes,
+  } = formData;
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const demandeurAdd = useSelector((state) => state.demandeurAdd);
-  const { loading, demandeur, success, error } = demandeurAdd;
-
-  const dossierAdd = useSelector((state) => state.dossierAdd);
-  const {
-    loading: loadingDossierAdd,
-    dossier,
-    success: successDossierAdd,
-    error: errorDossierAdd,
-  } = dossierAdd;
+  const backHandler = () => {
+    navigate("/dossiers");
+  };
 
   const genderItems = [
-    { value: "m", label: "ذكر" },
-    { value: "f", label: "أنثى" },
+    { value: "M", label: "ذكر" },
+    { value: "F", label: "أنثى" },
   ];
   const stuation_fItems = [
-    { value: "c", label: "أعزبعزباء" },
-    { value: "m", label: "متزوجة" },
-    { value: "d", label: "مطلقة" },
-    { value: "v", label: "أرملة" },
+    { value: "C", label: "أعزب/عزباء" },
+    { value: "M", label: "متزوج(ة)" },
+    { value: "D", label: "مطلق(ة)" },
+    { value: "V", label: "أرمل(ة)" },
   ];
 
-  const communeGetByWilaya = useSelector((state) => state.communeGetByWilaya);
+  const { id, ordre } = useParams();
+
+  const { loading, demandeur, success, error } = useSelector(
+    (state) => state.demandeurGet
+  );
   const {
-    loading: loadingCommunes,
-    communes,
-    error: errorCommunes,
-  } = communeGetByWilaya;
-
-  const wilayaList = useSelector((state) => state.wilayaList);
-  const { loading: loadingWilayas, wilayas, error: errorWilayas } = wilayaList;
-
-  const userLogin = useSelector((state) => state.userLogin);
-  const { userInfo } = userLogin;
+    loading: addLoading,
+    demandeur: AddDemandeur,
+    success: addSuccess,
+    error: addError,
+  } = useSelector((state) => state.demandeurAdd);
+  const {
+    loading: updateLoading,
+    demandeur: UpdateDemandeur,
+    success: updateSuccess,
+    error: updateError,
+  } = useSelector((state) => state.demandeurUpdate);
+  const { loading: loadingWilayas, wilayas } = useSelector(
+    (state) => state.wilayaList
+  );
+  const { loading: loadingCommunes, communes } = useSelector(
+    (state) => state.communeGetByWilaya
+  );
+  const {
+    loading: loadingDossier,
+    dossier,
+    error: errorDossier,
+  } = useSelector((state) => state.dossierGet);
+  const {
+    loading: loadingDossierAdd,
+    success: successDossierAdd,
+    error: errorDossierAdd,
+  } = useSelector((state) => state.dossierAdd);
+  const {
+    loading: loadingDossierUpdate,
+    success: successDossierUpdate,
+    error: errorDossierUpdate,
+  } = useSelector((state) => state.dossierUpdate);
+  const { userInfo } = useSelector((state) => state.userLogin);
 
   useEffect(() => {
-    setCreator(userInfo.username);
-  }, [userInfo]);
-
-  useEffect(() => {
+    setFormData((prevState) => ({ ...prevState, creator: userInfo.username }));
     dispatch(listWilayasAction());
-  }, [dispatch]);
+    if (id) dispatch(getDossierAction(id));
+    // console.log(id);
+  }, [dispatch, userInfo, id]);
 
   useEffect(() => {
-    dispatch(listCommunesByWilayaAction(wil_n));
+    if (dossier) {
+      setFormData((prevState) => ({
+        ...prevState,
+        date_depo: dossier.date_depo || "",
+        num_dos: dossier.num_dos || "",
+        adress: dossier.adress || "",
+        num_conj: dossier.num_conj || "0",
+        note_revenue: dossier.note_revenue || "0",
+        note_habita: dossier.note_habita || "0",
+        note_situation_familiale: dossier.note_situation_familiale || "0",
+        note_anciennete: dossier.note_anciennete || "0",
+        adress_fr: dossier.adress_fr || "",
+        remark: dossier.remark || "",
+        saisi_conj: dossier.saisi_conj || "",
+        notes: dossier.notes || "0",
+      }));
+      if (type === "dema") dispatch(getDemandeurAction(dossier?.id_demandeur));
+
+      if (type === "conj")
+        if (dossier?.id_conjoin[ordre])
+          dispatch(getDemandeurAction(dossier?.id_conjoin[ordre]));
+        else
+          setFormData((prevState) => ({
+            ...prevState,
+            prenom: "",
+            prenom_fr: "",
+            nom: "",
+            nom_fr: "",
+            gender: dossier?.gender_conj,
+            num_act: "",
+            type_date_n: "",
+            date_n: "",
+            lieu_n: "",
+            lieu_n_fr: "",
+            wil_n: "",
+            com_n: "",
+            prenom_p: "",
+            prenom_p_fr: "",
+            prenom_m: "",
+            prenom_m_fr: "",
+            nom_m: "",
+            nom_m_fr: "",
+            num_i_n: "",
+            stuation_f: "M",
+            situation_p: "chomeur",
+            profession: "",
+            salaire: "",
+            photo_link: "",
+          }));
+
+      // console.log(dossier?.gender_conj);
+    }
+    // Load the existing record for editing
+    // Replace this with a specific action to fetch the record details if needed
+  }, [dispatch, dossier, ordre, type]);
+
+  useEffect(() => {
+    if (demandeur) {
+      setFormData((prevState) => ({
+        ...prevState,
+        prenom: demandeur.prenom || "",
+        prenom_fr: demandeur.prenom_fr || "",
+        nom: demandeur.nom || "",
+        nom_fr: demandeur.nom_fr || "",
+        gender: demandeur.gender || "",
+        num_act: demandeur.num_act || "",
+        type_date_n: demandeur.type_date_n || "",
+        date_n: demandeur.date_n || "",
+        lieu_n: demandeur.lieu_n || "",
+        lieu_n_fr: demandeur.lieu_n_fr || "",
+        wil_n: demandeur.wil_n || "",
+        com_n: demandeur.com_n || "",
+        prenom_p: demandeur.prenom_p || "",
+        prenom_p_fr: demandeur.prenom_p_fr || "",
+        prenom_m: demandeur.prenom_m || "",
+        prenom_m_fr: demandeur.prenom_m_fr || "",
+        nom_m: demandeur.nom_m || "",
+        nom_m_fr: demandeur.nom_m_fr || "",
+        num_i_n: demandeur.num_i_n || "",
+        stuation_f: demandeur.stuation_f || "",
+        situation_p: demandeur.situation_p || "",
+        profession: demandeur.profession || "",
+        salaire: demandeur.salaire || "",
+        photo_link: demandeur.photo_link || "",
+      }));
+
+      // console.log("demandeur:", demandeur.gender);
+    }
+    // Load the existing record for editing
+    // Replace this with a specific action to fetch the record details if needed
+  }, [dispatch, demandeur, success]);
+
+  useEffect(() => {
+    if (wil_n) dispatch(listCommunesByWilayaAction(wil_n));
   }, [dispatch, wil_n]);
 
   useEffect(() => {
-    if (demandeur)
+    if (addSuccess)
       dispatch(
         addDossierAction(
           creator,
-          demandeur._id,
+          AddDemandeur._id,
           [],
           date_depo,
           num_dos,
@@ -115,7 +277,7 @@ function AddDemandeur() {
           note_habita,
           note_situation_familiale,
           note_anciennete,
-          type,
+          "Saisi",
           adress_fr,
           remark,
           saisi_conj,
@@ -123,75 +285,101 @@ function AddDemandeur() {
           notes
         )
       );
-  }, [dispatch, success]);
-
-  let navigate = useNavigate();
-
-  const backHandler = () => {
-    navigate("/dossiers");
+    if (updateSuccess) {
+      if (id)
+        dispatch(
+          updateDossierAction(
+            id,
+            creator,
+            UpdateDemandeur._id,
+            [],
+            date_depo,
+            num_dos,
+            adress,
+            num_conj,
+            note_revenue,
+            note_habita,
+            note_situation_familiale,
+            note_anciennete,
+            "Saisi",
+            adress_fr,
+            remark,
+            saisi_conj,
+            null,
+            notes
+          )
+        );
+    }
+  }, [
+    dispatch,
+    id,
+    addSuccess,
+    updateSuccess,
+    creator,
+    AddDemandeur,
+    UpdateDemandeur,
+    date_depo,
+    num_dos,
+    adress,
+    num_conj,
+    note_revenue,
+    note_habita,
+    note_situation_familiale,
+    note_anciennete,
+    adress_fr,
+    remark,
+    saisi_conj,
+    notes,
+  ]);
+  useEffect(() => {
+    if (successDossierAdd || successDossierUpdate) navigate(`/dossiers`);
+  }, [navigate, successDossierAdd, successDossierUpdate]);
+  const handleChange = (e) => {
+    // console.log(e.target.value);
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  useEffect(() => {
-    if (dossier) navigate(`/adddossiers/${dossier._id}`);
-  }, [navigate, successDossierAdd, dossier]);
-
-  const submitDemandeurHandler = (event) => {
+  const submitHandler = (event) => {
     event.preventDefault();
-    dispatch(
-      addDemandeurAction(
-        prenom,
-        prenom_fr,
-        nom,
-        nom_fr,
-        gender,
-        num_act,
-        type_date_n,
-        date_n,
-        lieu_n,
-        lieu_n_fr,
-        wil_n,
-        com_n,
-        prenom_p,
-        prenom_p_fr,
-        prenom_m,
-        prenom_m_fr,
-        nom_m,
-        nom_m_fr,
-        num_i_n,
-        stuation_f,
-        type,
-        situation_p,
-        profession,
-        salaire,
-        creator,
-        remark
-      )
-    );
+    if (id) {
+      if (type === "dema")
+        dispatch(updateDemandeurAction(dossier.id_demandeur, formData));
+      if (type === "conj")
+        dispatch(updateDemandeurAction(dossier.id_conjoin[ordre], formData));
+    } else {
+      dispatch(addDemandeurAction(formData));
+    }
   };
 
   return (
     <>
       {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
-      {loading && <Loading />}
-
+      {addError && <ErrorMessage variant="danger">{addError}</ErrorMessage>}
+      {errorDossierUpdate && (
+        <ErrorMessage variant="danger">{errorDossierUpdate}</ErrorMessage>
+      )}
       {errorDossierAdd && (
         <ErrorMessage variant="danger">{errorDossierAdd}</ErrorMessage>
       )}
+      {updateError && (
+        <ErrorMessage variant="danger">{updateError}</ErrorMessage>
+      )}
+      {errorDossier && (
+        <ErrorMessage variant="danger">{errorDossier}</ErrorMessage>
+      )}
+      {loading && <Loading />}
       {loadingDossierAdd && <Loading />}
-
-      {errorWilayas && (
-        <ErrorMessage variant="danger">{errorWilayas}</ErrorMessage>
-      )}
+      {loadingDossierUpdate && <Loading />}
+      {addLoading && <Loading />}
+      {updateLoading && <Loading />}
       {loadingWilayas && <Loading />}
-
-      {errorCommunes && (
-        <ErrorMessage variant="danger">{errorCommunes}</ErrorMessage>
-      )}
       {loadingCommunes && <Loading />}
+      {loadingDossier && <Loading />}
+
       <MainScreen title={"ادخال معلومات طالب السكن"}>
-        <Form onSubmit={submitDemandeurHandler} className="container">
-          <div className="row text-right">
-            <Col className="col-sm order-sm-last">
+        <Form onSubmit={submitHandler} className="container">
+          <Row className="text-right">
+            <Col sm={{ order: "last" }}>
               <label htmlFor="prenom">الاسم</label>
               <input
                 type="text"
@@ -199,10 +387,12 @@ function AddDemandeur() {
                 className="form-control text-right"
                 name="prenom"
                 placeholder="الاسم"
-                onChange={(e) => setPrenom(e.target.value)}
+                value={prenom || ""}
+                onChange={handleChange}
               />
               <input
-                onChange={(e) => setPrenom_fr(e.target.value)}
+                value={prenom_fr || ""}
+                onChange={handleChange}
                 type="text"
                 id="prenom_fr"
                 name="prenom_fr"
@@ -211,10 +401,11 @@ function AddDemandeur() {
               />
               <br />
             </Col>
-            <div className="col-sm order-sm-first">
+            <Col sm={{ order: "first" }}>
               <label htmlFor="nom">اللقب</label>
               <input
-                onChange={(e) => setNom(e.target.value)}
+                value={nom || ""}
+                onChange={handleChange}
                 type="text"
                 id="nom"
                 className="form-control text-right"
@@ -222,7 +413,8 @@ function AddDemandeur() {
                 placeholder="اللقب"
               />
               <input
-                onChange={(e) => setNom_fr(e.target.value)}
+                value={nom_fr || ""}
+                onChange={handleChange}
                 type="text"
                 id="nom_fr"
                 name="nom_fr"
@@ -230,26 +422,24 @@ function AddDemandeur() {
                 placeholder="اللقب باللاتينية"
               />
               <br />
-            </div>
-          </div>
-          <div className="row text-right">
-            <div className="col-sm order-sm-last">
+            </Col>
+          </Row>
+          <Row className="text-right">
+            <Col sm={{ order: "last" }}>
               <label>الجنس</label>
               <br />
               <RadioGroup
                 name={"gender"}
                 items={genderItems}
-                onChange={(e) => {
-                  setGender(e.target.value);
-                  if (e.target.value === "m") setGender_conj("f");
-                  else setGender_conj("m");
-                }}
-                value={gender}
+                value={gender || ""}
+                onChange={handleChange}
+                desabled={type === "conj"}
               />
 
               <label htmlFor="num_act">رقم عقد الميلاد</label>
               <input
-                onChange={(e) => setNum_act(e.target.value)}
+                value={num_act || ""}
+                onChange={handleChange}
                 type="text"
                 className="form-control text-right"
                 name="num_act"
@@ -259,20 +449,20 @@ function AddDemandeur() {
 
               <label htmlFor="date_n">تاريخ الميلاد </label>
               <input
-                onChange={(e) => setDate_n(e.target.value)}
+                value={convertDateFormat(date_n, "T").jsDate || ""}
+                onChange={handleChange}
                 type="date"
                 id="date_n"
                 className="form-control text-right"
                 name="date_n"
-                defaultValue="01-01-1900"
                 required
               />
               <label htmlFor="type_date_n">طبيعة تاريخ الميلاد</label>
               <select
                 className="form-control text-right"
-                onChange={(e) => setType_date_n(e.target.value)}
+                onChange={handleChange}
+                value={type_date_n}
                 id="type_date_n"
-                defaultValue="N"
                 name="type_date_n"
                 required
               >
@@ -287,22 +477,22 @@ function AddDemandeur() {
                 </option>
               </select>
               <br />
-            </div>
-            <div className="col-sm order-sm-first">
+            </Col>
+            <Col sm={{ order: "first" }}>
               <label htmlFor="wil_n">ولاية الميلاد</label>
               <select
-                onChange={(e) => setWil_n(e.target.value)}
+                value={wil_n || ""}
+                onChange={handleChange}
                 id="wil_n"
                 className="form-control text-right"
                 name="wil_n"
-                defaultValue="-1"
                 required
               >
                 <option value="-1" disabled hidden>
                   اختر ولاية الميلاد
                 </option>
                 {wilayas?.map((wilaya) => (
-                  <option key={wilaya._id} value={wilaya.code}>
+                  <option key={wilaya._id} value={wilaya.nomFr || ""}>
                     {wilaya.nomAr}
                   </option>
                 ))}
@@ -311,14 +501,16 @@ function AddDemandeur() {
 
               <label htmlFor="lieu_n">مكان الميلاد</label>
               <input
-                onChange={(e) => setLieu_n(e.target.value)}
+                value={lieu_n || ""}
+                onChange={handleChange}
                 type="text"
                 id="lieu_n"
                 className="form-control text-right"
                 name="lieu_n"
               />
               <input
-                onChange={(e) => setLieu_n_fr(e.target.value)}
+                value={lieu_n_fr || ""}
+                onChange={handleChange}
                 type="text"
                 id="lieu_n_fr"
                 className="form-control text-right"
@@ -329,18 +521,18 @@ function AddDemandeur() {
 
               <label htmlFor="com_n">بلدية الميلاد</label>
               <select
-                onChange={(e) => setCom_n(e.target.value)}
+                value={com_n || ""}
+                onChange={handleChange}
                 id="com_n"
                 className="form-control text-right"
                 name="com_n"
-                defaultValue="-1"
                 required
               >
                 <option value="-1" disabled hidden>
                   اختر بلدية الميلاد
                 </option>
                 {communes?.map((commune) => (
-                  <option key={commune._id} value={commune.code}>
+                  <option key={commune._id} value={commune.nomFr || ""}>
                     {commune.nomAr}
                   </option>
                 ))}
@@ -349,14 +541,16 @@ function AddDemandeur() {
 
               <label htmlFor="prenom_p"> اسم الاب</label>
               <input
-                onChange={(e) => setPrenom_p(e.target.value)}
+                value={prenom_p || ""}
+                onChange={handleChange}
                 type="text"
                 id="prenom_p"
                 className="form-control text-right"
                 name="prenom_p"
               />
               <input
-                onChange={(e) => setPrenom_p_fr(e.target.value)}
+                value={prenom_p_fr || ""}
+                onChange={handleChange}
                 type="text"
                 id="prenom_p_fr"
                 className="form-control text-right"
@@ -364,20 +558,22 @@ function AddDemandeur() {
                 placeholder="اسم الاب باللاتينية"
               />
               <br />
-            </div>
-          </div>
-          <div className="row text-right">
-            <div className="col-sm order-sm-last">
+            </Col>
+          </Row>
+          <Row className="text-right">
+            <Col sm={{ order: "last" }}>
               <label htmlFor="prenom_m"> اسم الأم</label>
               <input
-                onChange={(e) => setPrenom_m(e.target.value)}
+                value={prenom_m || ""}
+                onChange={handleChange}
                 type="text"
                 id="prenom_m"
                 className="form-control text-right"
                 name="prenom_m"
               />
               <input
-                onChange={(e) => setPrenom_m_fr(e.target.value)}
+                value={prenom_m_fr || ""}
+                onChange={handleChange}
                 type="text"
                 id="prenom_m_fr"
                 className="form-control text-right"
@@ -385,18 +581,20 @@ function AddDemandeur() {
                 placeholder="اسم الأم باللاتينية"
               />
               <br />
-            </div>
-            <div className="col-sm order-sm-first">
+            </Col>
+            <Col sm={{ order: "first" }}>
               <label htmlFor="nom_m">لقب الأم</label>
               <input
-                onChange={(e) => setNom_m(e.target.value)}
+                value={nom_m || ""}
+                onChange={handleChange}
                 type="text"
                 id="nom_m"
                 className="form-control text-right"
                 name="nom_m"
               />
               <input
-                onChange={(e) => setNom_m_fr(e.target.value)}
+                value={nom_m_fr || ""}
+                onChange={handleChange}
                 type="text"
                 id="nom_m_fr"
                 className="form-control text-right"
@@ -404,13 +602,14 @@ function AddDemandeur() {
                 placeholder="لقب الأم باللاتينية"
               />
               <br />
-            </div>
-          </div>
-          <div className="row text-right">
-            <div className="col-sm order-sm-last">
+            </Col>
+          </Row>
+          <Row className="text-right">
+            <Col sm={{ order: "last" }}>
               <label htmlFor="num_i_n"> رقم التعريف الوطني</label>
               <input
-                onChange={(e) => setNum_i_n(e.target.value)}
+                value={num_i_n || ""}
+                onChange={handleChange}
                 type="text"
                 id="num_i_n"
                 className="form-control text-right"
@@ -421,10 +620,10 @@ function AddDemandeur() {
               <br />
               <select
                 className="form-control text-right"
-                onChange={(e) => setSituation_p(e.target.value)}
+                value={situation_p || ""}
+                onChange={handleChange}
                 id="hide_situation_p"
-                defaultValue="non"
-                name="hide_situation_p"
+                name="situation_p"
               >
                 <option name="situation_p" value="chomeur">
                   بطال
@@ -439,7 +638,8 @@ function AddDemandeur() {
                 <br />
                 <input
                   className="form-control text-right"
-                  onChange={(e) => setProfession(e.target.value)}
+                  value={profession || ""}
+                  onChange={handleChange}
                   type="text"
                   name="profession"
                 />
@@ -448,7 +648,8 @@ function AddDemandeur() {
                 <br />
                 <input
                   className="form-control text-right"
-                  onChange={(e) => setSalaire(e.target.value)}
+                  value={salaire || ""}
+                  onChange={handleChange}
                   type="text"
                   name="salaire"
                 />
@@ -457,42 +658,39 @@ function AddDemandeur() {
 
               <label htmlFor="remark"> ملاحظات</label>
               <input
-                onChange={(e) => setRemark(e.target.value)}
+                value={remark || ""}
+                onChange={handleChange}
                 type="text"
                 id="remark"
                 className="form-control text-right"
                 name="remark"
               />
-            </div>
-            <div className="col-sm order-sm-first">
-              <div className="intro">
-                <label>الحالة العائلية</label>{" "}
-              </div>
+            </Col>
+            <Col sm={{ order: "first" }}>
+              <label>الحالة العائلية</label>
               <RadioGroup
                 name={"stuation_f"}
-                items={stuation_fItems}
-                onChange={(e) => {
-                  setStuation_f(e.target.value);
-                  if (e.target.value === "m") setSaisi_conj("false");
-                }}
+                items={stuation_fItems || ""}
+                onChange={handleChange}
                 value={stuation_f}
+                desabled={type === "conj"}
               />
               <br />
-              {stuation_f === "m" && gender === "m" && (
+              {stuation_f === "M" && gender === "M" && (
                 <>
                   <label htmlFor="num_conj">عدد الزوجات</label>
                   <input
-                    onChange={(e) => setNum_conj(e.target.value)}
+                    onChange={handleChange}
                     type="text"
                     id="num_conj"
                     className="form-control text-right"
                     name="num_conj"
-                    value={num_conj}
+                    value={num_conj || ""}
                   />
                 </>
               )}
-            </div>
-          </div>
+            </Col>
+          </Row>
           <Col className="col-sm order-sm-last  text-right">
             <label htmlFor="adress">العنوان</label>
             <input
@@ -501,10 +699,12 @@ function AddDemandeur() {
               className="form-control text-right"
               name="adress"
               placeholder="العنوان"
-              onChange={(e) => setAdress(e.target.value)}
+              onChange={handleChange}
+              value={adress || ""}
             />
             <input
-              onChange={(e) => setAdress_fr(e.target.value)}
+              value={adress_fr || ""}
+              onChange={handleChange}
               type="text"
               id="adress_fr"
               name="adress_fr"
@@ -514,126 +714,141 @@ function AddDemandeur() {
             <br />
           </Col>
           <hr />
-          <div className="row text-right">
-            <div className="col-sm order-sm-last">
+          <Row className="text-right">
+            <Col sm={{ order: "last" }}>
               <label htmlFor="date_depo"> تاريخ الإيداع </label>
               <input
                 type="date"
                 id="date_depo"
                 name="date_depo"
                 className="form-control text-right"
-                onChange={(e) => setDate_depo(e.target.value)}
+                onChange={handleChange}
+                value={convertDateFormat(date_depo, "T").jsDate || ""}
                 required
               />
               <br />
-            </div>
-            <div className="col-sm order-sm-last">
+            </Col>
+            <Col sm={{ order: "last" }}>
               <label htmlFor="num_dos"> رقم الملف</label>
               <input
                 type="text"
                 id="num_dos"
                 name="num_dos"
                 className="form-control text-right"
-                onChange={(e) => setNum_dos(e.target.value)}
+                onChange={handleChange}
+                value={num_dos || ""}
                 required
               />
               <br />
-            </div>
-          </div>
-          <div className="row text-right">
-            <div className="col-sm order-sm-last">
+            </Col>
+          </Row>
+          <Row className="text-right">
+            <Col sm={{ order: "last" }}>
               <label htmlFor="note_revenue">مستوى المداخيل</label>
               <input
                 type="text"
                 id="note_revenue"
                 name="note_revenue"
                 className="form-control text-right"
-                onChange={(e) => setNote_revenue(e.target.value)}
-                value={note_revenue}
+                onChange={handleChange}
+                value={note_revenue || ""}
                 required
               />
               <br />
-            </div>
-            <div className="col-sm order-sm-last">
+            </Col>
+            <Col sm={{ order: "last" }}>
               <label htmlFor="note_habita">ظروف السكن</label>
               <input
                 type="text"
                 id="note_habita"
                 name="note_habita"
                 className="form-control text-right"
-                onChange={(e) => setNote_habita(e.target.value)}
-                value={note_habita}
+                onChange={handleChange}
+                value={note_habita || ""}
                 required
               />
               <br />
-            </div>
-          </div>
-          <div className="row text-right">
-            <div className="col-sm order-sm-last">
+            </Col>
+          </Row>
+          <Row className="text-right">
+            <Col sm={{ order: "last" }}>
               <label htmlFor="note_situation_familiale">الحالة العائلية</label>
               <input
                 type="text"
                 id="note_situation_familiale"
                 name="note_situation_familiale"
                 className="form-control text-right"
-                onChange={(e) => setNote_situation_familiale(e.target.value)}
-                value={note_situation_familiale}
+                onChange={handleChange}
+                value={note_situation_familiale || ""}
                 required
               />
               <br />
-            </div>
-            <div className="col-sm order-sm-last">
+            </Col>
+            <Col sm={{ order: "last" }}>
               <label htmlFor="notes">أقدمية طلب السكن</label>
               <input
                 type="text"
                 id="notes"
                 name="notes"
                 className="form-control text-right"
-                onChange={(e) => setNotes(e.target.value)}
-                value={notes}
+                onChange={handleChange}
+                value={notes || ""}
                 required
               />
               <br />
-            </div>{" "}
-            <div className="col-sm order-sm-last">
+            </Col>{" "}
+            <Col sm={{ order: "last" }}>
               <label htmlFor="note_anciennete">مجموع النقاط</label>
               <input
                 type="text"
                 id="note_anciennete"
                 name="note_anciennete"
                 className="form-control text-right"
-                onChange={(e) => setNote_anciennete(e.target.value)}
-                value={note_anciennete}
+                onChange={handleChange}
+                value={note_anciennete || ""}
                 required
               />
               <br />
-            </div>
-          </div>
+            </Col>
+          </Row>
+          <Row className="text-right">
+            {type === "dema" &&
+              [...Array(num_conj)].map((_, i) =>
+                dossier?.id_conjoin[i] ? (
+                  <Button className="col-sm m-2" key={i + i}>
+                    <Link to={`/conjoin/${id}/${i}`}>
+                      تعديل معلومات الزوجة {i + 1}
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button className="col-sm m-2" key={i + i}>
+                    <Link to={`/conjoin/${id}/${i}`}>
+                      اظافة معلومات الزوجة {i + 1}
+                    </Link>
+                  </Button>
+                )
+              )}
+            {type === "conj" && (
+              <Button className="col-sm m-2">
+                <Link to={`/adddossiers/${id}`}>تعديل معلومات طالب السكن</Link>
+              </Button>
+            )}
+          </Row>
           <hr />
-          <div className="row text-right">
-            <div className="col-sm order-sm-last my-2">
-              <input
-                type="submit"
-                className="btn btn-lg btn-primary btn-block"
-                value="حفظ"
-              />
-            </div>
-            <div className="col-sm order-sm-first my-2">
-              <input
-                type="reset"
-                className="btn btn-lg btn-primary btn-block"
-                value="إلغاء"
-              />
-            </div>
-            <div className="col-sm order-sm-first my-2">
-              <input
-                type=""
-                className="btn btn-lg btn-primary btn-block"
-                value="الرجوع"
-                onClick={() => backHandler()}
-              />
-            </div>
-          </div>
+          <Row className="text-right">
+            <Button type="submit" className="col-sm order-sm-last m-2">
+              {"حفظ"}
+            </Button>
+            <Button type="reset" className="col-sm order-sm-first m-2">
+              {"إلغاء"}
+            </Button>
+            <Button
+              className="col-sm order-sm-first m-2"
+              onClick={() => backHandler()}
+            >
+              {"الرجوع"}
+            </Button>
+          </Row>
         </Form>
       </MainScreen>
     </>

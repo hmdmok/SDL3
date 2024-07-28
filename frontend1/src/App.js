@@ -8,7 +8,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Dossiers from "./screens/dossiersScreens/Dossiers/Dossiers";
 import Login from "./screens/usersScreens/Login/Login";
 import AddUser from "./screens/usersScreens/AddUser/AddUser";
-import UpdateDossiers from "./screens/dossiersScreens/UpdateDossiers/UpdateDossiers";
+// import UpdateDossiers from "./screens/dossiersScreens/UpdateDossiers/UpdateDossiers";
 import HomeScreen from "./screens/HomeScreen/HomeScreen";
 import Users from "./screens/usersScreens/Users/Users";
 import ScanDossier from "./screens/dossiersScreens/ScanDossier/ScanDossier";
@@ -25,7 +25,7 @@ import Help from "./screens/Help/Help";
 import Contact from "./screens/Contact/Contact";
 import UpdateUser from "./screens/usersScreens/UpdateUser/UpdateUser";
 import UserProfile from "./screens/usersScreens/UserProfile/UserProfile";
-import UpdateDemandeur from "./screens/dossiersScreens/UpdateDemandeur/UpdateDemandeur";
+// import UpdateDemandeur from "./screens/dossiersScreens/UpdateDemandeur/UpdateDemandeur";
 import AddConjoin from "./screens/dossiersScreens/AddConjoin/AddConjoin";
 import System from "./screens/setingsScreens/System/System";
 import ImportationDemPhoto from "./screens/setingsScreens/ImportationDemPhoto/ImportationDemPhoto";
@@ -42,12 +42,18 @@ const App = () => (
       <Route path="/dossiers" element={<Dossiers />} />
       <Route path="/home" element={<HomeScreen />} />
       <Route path="/system" element={<System />} />
-      <Route path="/adddossiers/:id" element={<UpdateDossiers />} />
+      <Route path="/adddossiers/:id" element={<AddDemandeur type={"dema"} />} />
       <Route path="/scandossier" element={<ScanDossier />} />
-      <Route path="/demandeur" element={<AddDemandeur />} />
-      <Route path="/demandeur/:id" element={<UpdateDemandeur />} />
-      <Route path="/conjoin/:id" element={<AddConjoin />} />
-      <Route path="/updateConjoin/:id" element={<UpdateConjoin />} />
+      <Route path="/demandeur" element={<AddDemandeur type={"dema"} />} />
+      <Route path="/demandeur/:id" element={<AddDemandeur type={"dema"} />} />
+      <Route
+        path="/conjoin/:id/:ordre"
+        element={<AddDemandeur type={"conj"} />}
+      />
+      <Route
+        path="/updateConjoin/:id/:ordre"
+        element={<AddDemandeur type={"conj"} />}
+      />
       <Route path="/login" element={<Login />} />
       <Route path="/users" element={<Users />} />
       <Route path="/addUser" element={<AddUser />} />

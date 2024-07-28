@@ -140,34 +140,38 @@ const updateSystem = asyncHandler(async (req, res) => {
     onlineID,
     onlineCheckDate,
   } = req.body;
-
   const id = req.params.id;
-  const systemToUpdate = await System.findById(id);
+  try {
+    const systemToUpdate = await System.findById(id);
 
-  if (!systemToUpdate) {
-    res.status(400);
-    throw new Error("  غير موجود");
-  } else {
-    systemToUpdate.installDate = installDate || systemToUpdate.installDate;
-    systemToUpdate.installType = installType || systemToUpdate.installType;
+    if (!systemToUpdate) {
+      res.status(404);
+      throw new Error("System not found");
+    }
+
+    // Only update fields that are provided
+    systemToUpdate.installDate = installDate ?? systemToUpdate.installDate;
+    systemToUpdate.installType = installType ?? systemToUpdate.installType;
     systemToUpdate.administrationType =
-      administrationType || systemToUpdate.administrationType;
+      administrationType ?? systemToUpdate.administrationType;
     systemToUpdate.administrationName =
-      administrationName || systemToUpdate.administrationName;
+      administrationName ?? systemToUpdate.administrationName;
     systemToUpdate.administrationCode =
-      administrationCode || systemToUpdate.administrationCode;
-    systemToUpdate.communeName = communeName || systemToUpdate.communeName;
-    systemToUpdate.communeCode = communeCode || systemToUpdate.communeCode;
-    systemToUpdate.quotaDate = quotaDate || systemToUpdate.quotaDate;
-    systemToUpdate.quotaTitle = quotaTitle || systemToUpdate.quotaTitle;
-    systemToUpdate.quotaQuant = quotaQuant || systemToUpdate.quotaQuant;
-    systemToUpdate.machineCode = machineCode || systemToUpdate.machineCode;
-    systemToUpdate.onlineID = onlineID || systemToUpdate.onlineID;
+      administrationCode ?? systemToUpdate.administrationCode;
+    systemToUpdate.communeName = communeName ?? systemToUpdate.communeName;
+    systemToUpdate.communeCode = communeCode ?? systemToUpdate.communeCode;
+    systemToUpdate.quotaDate = quotaDate ?? systemToUpdate.quotaDate;
+    systemToUpdate.quotaTitle = quotaTitle ?? systemToUpdate.quotaTitle;
+    systemToUpdate.quotaQuant = quotaQuant ?? systemToUpdate.quotaQuant;
+    systemToUpdate.machineCode = machineCode ?? systemToUpdate.machineCode;
+    systemToUpdate.onlineID = onlineID ?? systemToUpdate.onlineID;
     systemToUpdate.onlineCheckDate =
-      onlineCheckDate || systemToUpdate.onlineCheckDate;
+      onlineCheckDate ?? systemToUpdate.onlineCheckDate;
 
     const updatedSystem = await systemToUpdate.save();
-    res.status(201).json(updatedSystem);
+    res.status(200).json(updatedSystem);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 

@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Communes = require("../models/communesModel");
+const CommunesDb = require("../config/algeria_cities.json");
 
 const getCommunes = asyncHandler(async (req, res) => {
   const communes = await Communes.find();
@@ -17,6 +18,43 @@ const getCommuneById = asyncHandler(async (req, res) => {
   else {
     res.status(400);
     throw new Error("البلدية غير موجودة");
+  }
+});
+
+const getCommuneByًDaira = asyncHandler(async (req, res) => {
+  try {
+    const { nomDaira } = req.body;
+
+    // find the list of commune names of the daira
+    const dairasCommuneNames = CommunesDb.filter(
+      (element) => element.daira_name_ascii === nomDaira
+    );
+
+    if (!dairasCommuneNames.length) {
+      res.status(400);
+      throw new Error("No communes found for the provided daira.");
+    }
+
+    // Use Promise.all to handle multiple asynchronous operations
+    const communesByDaira = await Promise.all(
+      dairasCommuneNames.map(async (x) => {
+        const commune = await Communes.findOne({ nomFr: x.commune_name_ascii });
+        return commune;
+      })
+    );
+
+    // Filter out any null or undefined communes
+    const validCommunes = communesByDaira.filter((commune) => commune !== null);
+
+    if (validCommunes.length > 0) {
+      res.json(validCommunes);
+    } else {
+      res.status(404);
+      throw new Error("No valid communes found for the provided daira.");
+    }
+  } catch (error) {
+    res.status(500);
+    res.json({ message: error.message });
   }
 });
 
@@ -109,6 +147,7 @@ module.exports = {
   getCommunes,
   getCommuneById,
   getCommuneByًWilya,
+  getCommuneByًDaira,
   updateCommune,
   deleteCommune,
 };

@@ -17,95 +17,33 @@ import {
   DEMANDEUR_UPDATE_SUCCESS,
 } from "../constants/demandeurConstants";
 
-export const addDemandeurAction =
-  (
-    prenom,
-    prenom_fr,
-    nom,
-    nom_fr,
-    gender,
-    num_act,
-    type_date_n,
-    date_n,
-    lieu_n,
-    lieu_n_fr,
-    wil_n,
-    com_n,
-    prenom_p,
-    prenom_p_fr,
-    prenom_m,
-    prenom_m_fr,
-    nom_m,
-    nom_m_fr,
-    num_i_n,
-    stuation_f,
-    type,
-    situation_p,
-    profession,
-    salaire,
-    creator,
-    remark
-  ) =>
-  async (dispatch, getState) => {
-    try {
-      dispatch({ type: DEMANDEUR_ADD_REQUEST });
-      const {
-        userLogin: { userInfo },
-      } = getState();
+export const addDemandeurAction = (formData) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: DEMANDEUR_ADD_REQUEST });
+    const {
+      userLogin: { userInfo },
+    } = getState();
 
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${userInfo.token}`,
+      },
+    };
 
-      const formData = {
-        prenom,
-        prenom_fr,
-        nom,
-        nom_fr,
-        gender,
-        num_act,
-        type_date_n,
-        date_n,
-        lieu_n,
-        lieu_n_fr,
-        wil_n,
-        com_n,
-        prenom_p,
-        prenom_p_fr,
-        prenom_m,
-        prenom_m_fr,
-        nom_m,
-        nom_m_fr,
-        num_i_n,
-        stuation_f,
-        type,
-        situation_p,
-        profession,
-        salaire,
-        creator,
-        remark,
-      };
+    const { data } = await axios.post("/api/persons/create", formData, config);
 
-      const { data } = await axios.post(
-        "/api/persons/create",
-        formData,
-        config
-      );
-
-      dispatch({ type: DEMANDEUR_ADD_SUCCESS, payload: data });
-    } catch (error) {
-      dispatch({
-        type: DEMANDEUR_ADD_FAIL,
-        payload:
-          error.response && error.response.data.message
-            ? error.response.data.message
-            : error.message,
-      });
-    }
-  };
+    dispatch({ type: DEMANDEUR_ADD_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({
+      type: DEMANDEUR_ADD_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
 
 export const listDemandeursAction = () => async (dispatch, getState) => {
   try {
@@ -154,36 +92,7 @@ export const getDemandeurAction = (id) => async (dispatch, getState) => {
 };
 
 export const updateDemandeurAction =
-  (
-    id,
-    prenom,
-    prenom_fr,
-    nom,
-    nom_fr,
-    gender,
-    num_act,
-    type_date_n,
-    date_n,
-    lieu_n,
-    lieu_n_fr,
-    wil_n,
-    com_n,
-    prenom_p,
-    prenom_p_fr,
-    prenom_m,
-    prenom_m_fr,
-    nom_m,
-    nom_m_fr,
-    num_i_n,
-    stuation_f,
-    type,
-    situation_p,
-    profession,
-    salaire,
-    creator,
-    remark
-  ) =>
-  async (dispatch, getState) => {
+  (id, formData) => async (dispatch, getState) => {
     try {
       dispatch({ type: DEMANDEUR_UPDATE_REQUEST });
       const {
@@ -195,35 +104,6 @@ export const updateDemandeurAction =
           "Content-Type": "application/json",
           Authorization: `Bearer ${userInfo.token}`,
         },
-      };
-
-      const formData = {
-        prenom,
-        prenom_fr,
-        nom,
-        nom_fr,
-        gender,
-        num_act,
-        type_date_n,
-        date_n,
-        lieu_n,
-        lieu_n_fr,
-        wil_n,
-        com_n,
-        prenom_p,
-        prenom_p_fr,
-        prenom_m,
-        prenom_m_fr,
-        nom_m,
-        nom_m_fr,
-        num_i_n,
-        stuation_f,
-        type,
-        situation_p,
-        profession,
-        salaire,
-        creator,
-        remark,
       };
 
       const { data } = await axios.put(`/api/persons/${id}`, formData, config);

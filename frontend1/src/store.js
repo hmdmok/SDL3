@@ -40,6 +40,7 @@ import {
   communeGetByWilayaReducer,
   communeListReducer,
   communeUpdateReducer,
+  communeGetByDairaReducer,
 } from "./reducers/communeReducers";
 import {
   dairaGetByWilayaReducer,
@@ -120,6 +121,7 @@ const reducer = combineReducers({
   communeDelete: communeDeleteReducer,
   communeGet: communeGetReducer,
   communeGetByWilaya: communeGetByWilayaReducer,
+  communeGetByDaira: communeGetByDairaReducer,
 
   dairaList: dairaListReducer,
   dairaGetByWilaya: dairaGetByWilayaReducer,
