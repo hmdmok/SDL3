@@ -104,7 +104,7 @@ function AddDemandeur({ type }) {
   const navigate = useNavigate();
 
   const backHandler = () => {
-    navigate("/dossiers");
+    // navigate("/dossiers");
   };
 
   const genderItems = [
@@ -264,27 +264,54 @@ function AddDemandeur({ type }) {
 
   useEffect(() => {
     if (addSuccess)
-      dispatch(
-        addDossierAction(
-          creator,
-          AddDemandeur._id,
-          [],
-          date_depo,
-          num_dos,
-          adress,
-          num_conj,
-          note_revenue,
-          note_habita,
-          note_situation_familiale,
-          note_anciennete,
-          "Saisi",
-          adress_fr,
-          remark,
-          saisi_conj,
-          null,
-          notes
-        )
-      );
+      if (type === "dema")
+        dispatch(
+          addDossierAction(
+            creator,
+            AddDemandeur._id,
+            [],
+            date_depo,
+            num_dos,
+            adress,
+            num_conj,
+            note_revenue,
+            note_habita,
+            note_situation_familiale,
+            note_anciennete,
+            "Saisi",
+            adress_fr,
+            remark,
+            saisi_conj,
+            null,
+            notes
+          )
+        );
+      else if (type === "conj") {
+        const conjoin = dossier.id_conjoin;
+        conjoin[ordre] = AddDemandeur._id;
+        dispatch(
+          updateDossierAction(
+            id,
+            creator,
+            dossier.id_demandeur,
+            conjoin,
+            date_depo,
+            num_dos,
+            adress,
+            num_conj,
+            note_revenue,
+            note_habita,
+            note_situation_familiale,
+            note_anciennete,
+            "Saisi",
+            adress_fr,
+            remark,
+            saisi_conj,
+            null,
+            notes
+          )
+        );
+      }
     if (updateSuccess) {
       if (id)
         dispatch(
@@ -332,7 +359,16 @@ function AddDemandeur({ type }) {
     notes,
   ]);
   useEffect(() => {
-    if (successDossierAdd || successDossierUpdate) navigate(`/dossiers`);
+    if (successDossierAdd || successDossierUpdate)
+      console.log(
+        "dossier:" +
+          dossier +
+          " ,successDossierAdd:" +
+          successDossierAdd +
+          " ,successDossierUpdate:" +
+          successDossierUpdate
+      );
+    // navigate(`/dossiers`);
   }, [navigate, successDossierAdd, successDossierUpdate]);
   const handleChange = (e) => {
     // console.log(e.target.value);
@@ -345,7 +381,9 @@ function AddDemandeur({ type }) {
       if (type === "dema")
         dispatch(updateDemandeurAction(dossier.id_demandeur, formData));
       if (type === "conj")
-        dispatch(updateDemandeurAction(dossier.id_conjoin[ordre], formData));
+        if (dossier.id_conjoin[ordre])
+          dispatch(updateDemandeurAction(dossier.id_conjoin[ordre], formData));
+        else dispatch(addDemandeurAction(formData));
     } else {
       dispatch(addDemandeurAction(formData));
     }
