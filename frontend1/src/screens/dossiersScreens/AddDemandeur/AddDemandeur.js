@@ -104,6 +104,7 @@ function AddDemandeur({ type }) {
   const navigate = useNavigate();
 
   const backHandler = () => {
+    console.log("back");
     navigate("/dossiers");
   };
 
@@ -318,8 +319,8 @@ function AddDemandeur({ type }) {
           updateDossierAction(
             id,
             creator,
-            UpdateDemandeur._id,
-            [],
+            null,
+            null,
             date_depo,
             num_dos,
             adress,
@@ -358,18 +359,21 @@ function AddDemandeur({ type }) {
     saisi_conj,
     notes,
   ]);
+
   useEffect(() => {
-    if (successDossierAdd || successDossierUpdate)
-      console.log(
-        "dossier:" +
-          dossier +
-          " ,successDossierAdd:" +
-          successDossierAdd +
-          " ,successDossierUpdate:" +
-          successDossierUpdate
-      );
-    // navigate(`/dossiers`);
-  }, [navigate, successDossierAdd, successDossierUpdate]);
+    console.log(
+      "dossier:" + dossier + " ,successDossierUpdate:" + successDossierUpdate
+    );
+    if (successDossierUpdate) navigate(`/dossiers`);
+  }, [navigate, successDossierUpdate]);
+
+  useEffect(() => {
+    console.log(
+      "dossier:" + dossier + " ,successDossierAdd:" + successDossierAdd
+    );
+    if (successDossierAdd) navigate(`/dossiers`);
+  }, [navigate, successDossierAdd]);
+
   const handleChange = (e) => {
     // console.log(e.target.value);
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -471,7 +475,6 @@ function AddDemandeur({ type }) {
                 items={genderItems}
                 value={gender || ""}
                 onChange={handleChange}
-                desabled={type === "conj"}
               />
 
               <label htmlFor="num_act">رقم عقد الميلاد</label>
@@ -711,7 +714,6 @@ function AddDemandeur({ type }) {
                 items={stuation_fItems || ""}
                 onChange={handleChange}
                 value={stuation_f}
-                desabled={type === "conj"}
               />
               <br />
               {stuation_f === "M" && gender === "M" && (
