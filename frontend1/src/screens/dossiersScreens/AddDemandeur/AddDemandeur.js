@@ -104,7 +104,7 @@ function AddDemandeur({ type }) {
   const navigate = useNavigate();
 
   const backHandler = () => {
-    // navigate("/dossiers");
+    navigate("/dossiers");
   };
 
   const genderItems = [

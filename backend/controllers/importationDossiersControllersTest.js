@@ -128,7 +128,7 @@ function extractDossierData(dossier, language) {
       prenom_m_dem: dossier["Prenom de la mére"],
       nom_m_dem: dossier["Nom de la mére"],
       stuation_f_dem: dossier["S F "],
-      Ordre_conj: dossier["Ordre Conjoint"],
+      Ordre_conj: dossier["Ordre Conjoint"] || 1,
       prenom_conj: dossier["Prenom DE CONJOINT"],
       nom_conj: dossier["Nom DE CONJOINT"],
       num_act_conj: dossier["N DE L ACT"],
@@ -156,7 +156,7 @@ function extractDossierData(dossier, language) {
       prenom_p_dem: dossier["اســــــــم الاب"],
       nom_m_dem: dossier["لقــــــب الام"],
       prenom_m_dem: dossier["اســــم الام"],
-      Ordre_conj: dossier["ترتيب الزوجة"],
+      Ordre_conj: dossier["ترتيب الزوجة"] || 1,
       prenom_conj: dossier["اســــم \nالـــزوج(ة)"],
       nom_conj: dossier["لقـــب الــزوج(ة)"],
       lieu_n_conj: dossier["بلـــدية ميــــــلاد الـــــــــــــزوج(ة)"],
@@ -167,7 +167,7 @@ function extractDossierData(dossier, language) {
       remark: dossier["الملاحظـــــــــــــــــــــــــــة"],
       gender_dem: dossier["الجنس"],
       address: dossier["العنـــــــــــــــــــــــــــــــــــــــــوان"],
-      stuation_f: dossier["الحالة العائلية"],
+      stuation_f_dem: dossier["الحالة العائلية"],
       num_act_dem: dossier["رقـم عقد الميـــــلاد"],
       date_n_dem: dossier["تاريخ الميلاد"],
       type_date_n_dem: dossier["طبيعة تاريخ الميلاد"],
@@ -176,7 +176,7 @@ function extractDossierData(dossier, language) {
       type_date_n_conj: dossier["طبيعة تاريخ ميلاد الزوج(ة)"],
       note_revenue: dossier["مستوى المداخيل"],
       note_habita: dossier["ظروف السكن"],
-      note_situation_familiale: dossier["الحالة العائلية"],
+      note_situation_familiale: dossier["نقطة الحالة العائلية"],
       note_anciennete: dossier["أقدمية طلب السكن"],
     };
   } else if (language === "numDos") {
@@ -248,12 +248,7 @@ async function updateExistingDossier(dossier, newData, creator, language) {
   }
 
   // Update conjoin if exists
-  if (
-    !(nom_conj === "") &&
-    !(nom_conj === "/") &&
-    !(nom_conj == null) &&
-    stuation_f_dem === ("M" || "V")
-  ) {
+  if (!(nom_conj === "") && !(nom_conj === "/") && !(nom_conj == null)) {
     if (dossier.id_conjoin) {
       if (dossier.id_conjoin[Ordre_conj - 1]) {
         // get conjoin
@@ -287,14 +282,15 @@ async function updateExistingDossier(dossier, newData, creator, language) {
         }
       } else {
         //create Conjoin
-        const conjoin = await createConjoin(dossier, language, creator);
+        const conjoin = await createConjoin(newData, language, creator);
 
         //add conjoin id
         dossier.id_conjoin[Ordre_conj - 1] = conjoin._id;
+        console.log("data: ", Ordre_conj - 1);
       }
     } else {
       //create Conjoin
-      const conjoin = await createConjoin(dossier, language, creator);
+      const conjoin = await createConjoin(newData, language, creator);
 
       // create id_conjoin table
       var id_conjoin = [];
@@ -414,12 +410,7 @@ async function createNewDossier(dossier, creator, language) {
   else if (stuation_f_dem === "M" || "V") nb_conj = 1;
 
   var id_conjoin = [];
-  if (
-    !(nom_conj === "") &&
-    !(nom_conj === "/") &&
-    !(nom_conj == null) &&
-    stuation_f_dem === ("M" || "V")
-  ) {
+  if (!(nom_conj === "") && !(nom_conj === "/") && !(nom_conj == null)) {
     //create Conjoin
     const conjoin = await createConjoin(dossier, language, creator);
 
@@ -453,7 +444,7 @@ async function createNewDossier(dossier, creator, language) {
   });
 }
 
-async function createConjoin(dossier, language, creator) {
+async function createConjoin(dossier1, language, creator) {
   const {
     prenom_conj,
     nom_conj,
@@ -465,7 +456,7 @@ async function createConjoin(dossier, language, creator) {
     prenom_p_conj,
     prenom_m_conj,
     nom_m_conj,
-  } = extractDossierData(dossier, language);
+  } = extractDossierData(dossier1, language);
 
   // determine conjoin gender
   var gender_conj = "";
