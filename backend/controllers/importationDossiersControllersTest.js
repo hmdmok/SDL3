@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const reader = require("xlsx");
+const reader = require("sheetjs-style");
 const Dossier = require("../models/dossierModel");
 const Person = require("../models/personModel");
 const { convertDateFormat, getFullDossier } = require("../config/functions");

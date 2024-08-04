@@ -1,4 +1,4 @@
-const XLSX = require("xlsx");
+const XLSX = require("sheetjs-style");
 const fs = require("fs");
 const archiver = require("archiver");
 const dossier = require("../models/dossierModel");

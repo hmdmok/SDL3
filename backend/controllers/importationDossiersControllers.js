@@ -3,7 +3,7 @@ const generateToken = require("../utils/generateToken");
 const jwt = require("jsonwebtoken");
 const Dossier = require("../models/dossierModel");
 const person = require("../models/personModel");
-const reader = require("xlsx");
+const reader = require("sheetjs-style");
 const { convertDateFormat } = require("../config/functions");
 
 const updateDossiers = asyncHandler(async (req, res) => {
