@@ -136,17 +136,15 @@ const SingleDossier = ({ dossierMap }) => {
           <Link to={`/adddossiers/${dossierMap._id}`}> تعديل الملف</Link>
         </Button>
 
-        {userInfo.usertype === "super" ? (
-          <Button
-            onClick={() => {
-              deleteHandler(dossierMap._id);
-            }}
-            variant="danger"
-            className="m-1"
-          >
-            حذف
-          </Button>
-        ) : null}
+        <Button
+          onClick={() => {
+            deleteHandler(dossierMap._id);
+          }}
+          variant="danger"
+          className="m-1"
+        >
+          حذف
+        </Button>
       </Card>
     </div>
   );
