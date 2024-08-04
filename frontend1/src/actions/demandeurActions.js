@@ -2,6 +2,7 @@ import axios from "axios";
 import {
   DEMANDEUR_ADD_FAIL,
   DEMANDEUR_ADD_REQUEST,
+  DEMANDEUR_ADD_RESET,
   DEMANDEUR_ADD_SUCCESS,
   DEMANDEUR_DELETE_FAIL,
   DEMANDEUR_DELETE_REQUEST,
@@ -17,6 +18,19 @@ import {
   DEMANDEUR_UPDATE_SUCCESS,
 } from "../constants/demandeurConstants";
 
+export const resetDemandeurAction = () => async (dispatch) => {
+  try {
+    dispatch({ type: DEMANDEUR_ADD_RESET });
+  } catch (error) {
+    dispatch({
+      type: DEMANDEUR_ADD_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    });
+  }
+};
 export const addDemandeurAction = (formData) => async (dispatch, getState) => {
   try {
     dispatch({ type: DEMANDEUR_ADD_REQUEST });

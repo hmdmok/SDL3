@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Form } from "react-bootstrap";
-import RadioGroup from "../../../Functions/RadioGroup";
+import RadioGroup from "../../../Functions/RadioGroupN";
 import Sort from "./Sort";
 
 const Filters = ({

@@ -1,6 +1,7 @@
 import {
   DEMANDEUR_ADD_FAIL,
   DEMANDEUR_ADD_REQUEST,
+  DEMANDEUR_ADD_RESET,
   DEMANDEUR_ADD_SUCCESS,
   DEMANDEUR_DELETE_FAIL,
   DEMANDEUR_DELETE_REQUEST,
@@ -13,9 +14,19 @@ import {
   DEMANDEUR_LIST_SUCCESS,
   DEMANDEUR_UPDATE_FAIL,
   DEMANDEUR_UPDATE_REQUEST,
+  DEMANDEUR_UPDATE_RESET,
   DEMANDEUR_UPDATE_SUCCESS,
 } from "../constants/demandeurConstants";
 
+export const demandeurResetReducer = (state = {}, actions) => {
+  switch (actions.type) {
+    case DEMANDEUR_ADD_RESET:
+      return {};
+
+    default:
+      return state;
+  }
+};
 export const demandeurAddReducer = (state = {}, actions) => {
   switch (actions.type) {
     case DEMANDEUR_ADD_REQUEST:
@@ -24,6 +35,8 @@ export const demandeurAddReducer = (state = {}, actions) => {
       return { loading: false, demandeur: actions.payload, success: true };
     case DEMANDEUR_ADD_FAIL:
       return { loading: false, error: actions.payload, success: true };
+    case DEMANDEUR_ADD_RESET:
+      return {};
 
     default:
       return state;
@@ -66,6 +79,8 @@ export const demandeurUpdateReducer = (state = {}, actions) => {
       return { loading: false, demandeur: actions.payload, success: true };
     case DEMANDEUR_UPDATE_FAIL:
       return { loading: false, error: actions.payload, success: false };
+    case DEMANDEUR_UPDATE_RESET:
+      return {};
 
     default:
       return state;

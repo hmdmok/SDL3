@@ -1,50 +1,44 @@
 import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import ErrorMessage from "../../../components/ErrorMessage";
+import { DevTool } from "@hookform/devtools";
 import Loading from "../../../components/Loading";
 import MainScreen from "../../../components/MainScreen/MainScreen";
 import { useDispatch, useSelector } from "react-redux";
-
 import "./Login.css";
 import { login } from "../../../actions/userActions";
 import { listCommunesByDairaAction } from "../../../actions/communeActions";
 import { checkSystem, updateSystem } from "../../../actions/systemActions";
 
 function Login() {
-  const [userName, setUserName] = useState("");
-  const [passWord, setPassWord] = useState("");
-  const [commune, setCommune] = useState({});
   const [daira, setDaira] = useState("");
-  const [systemInfo, setSystemInfo] = useState([]);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const userLogin = useSelector((state) => state.userLogin);
-  const { loading, error, userInfo } = userLogin;
-
-  const communeGetByWilaya = useSelector((state) => state.communeGetByDaira);
+  const { loading, error, userInfo } = useSelector((state) => state.userLogin);
+  const { systemInfo } = useSelector((state) => state.systemCheck);
   const {
     loading: loadingCommunes,
     communes,
     error: errorCommunes,
-  } = communeGetByWilaya;
+  } = useSelector((state) => state.communeGetByDaira);
 
-  let history = useNavigate();
+  const form = useForm({ defaultValues: { communeId: -1 } });
+  const { register, handleSubmit, control, formState, setError } = form;
+  const { errors, isSubmitting } = formState;
+
   useEffect(() => {
     if (error === "Initiate system file!!!") {
-      history("/system");
-    } else {
-      // const userInfo = localStorage.getItem("userInfo");
-      if (userInfo) {
-        history("/home");
-      }
+      navigate("/system");
+    } else if (userInfo) {
+      navigate("/home");
     }
-  }, [history, userInfo, error]);
+  }, [navigate, userInfo, error]);
 
   useEffect(() => {
     dispatch(checkSystem());
-    setSystemInfo(JSON.parse(localStorage.getItem("systemInfo")));
   }, [dispatch]);
 
   useEffect(() => {
@@ -54,100 +48,127 @@ function Login() {
   }, [systemInfo]);
 
   useEffect(() => {
-    if (daira !== "") dispatch(listCommunesByDairaAction(daira));
+    if (daira !== "") {
+      dispatch(listCommunesByDairaAction(daira));
+    }
   }, [dispatch, daira]);
 
-  const submitHandler = async (event) => {
-    event.preventDefault();
-    dispatch(
-      updateSystem(
-        systemInfo[0]._id,
-        null,
-        null,
-        null,
-        null,
-        null,
-        commune.nomFr,
-        commune.code,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      )
-    );
+  const onSubmit = async (data) => {
+    try {
+      const selectedCommune = communes.find(
+        ({ _id }) => _id === data.communeId
+      );
+      if (!selectedCommune) {
+        throw new Error("لم يتم تحميل البلدية");
+      }
 
-    dispatch(login(userName, passWord));
+      dispatch(
+        updateSystem(
+          systemInfo[0]._id,
+          null,
+          null,
+          null,
+          null,
+          null,
+          selectedCommune.nomFr,
+          selectedCommune.code,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        )
+      );
+
+      dispatch(login(data.userName, data.passWord));
+    } catch (error) {
+      setError("communeId", {
+        type: "manual",
+        message: error.message,
+      });
+    }
   };
-
   return (
-    <>
-      {errorCommunes && (
-        <ErrorMessage variant="danger">{errorCommunes}</ErrorMessage>
-      )}
-      {loadingCommunes && <Loading />}
-      {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
-      {loading && <Loading />}
-      <MainScreen title={"الرجاء تسجيل الدخول"}>
-        <div className="loginContainer">
-          <Form onSubmit={submitHandler}>
-            <Form.Group>
-              <Form.Label htmlFor="com_n">البلدية </Form.Label>
-              <Form.Select
-                onChange={(e) => {
-                  const result = communes?.find(
-                    ({ _id }) => _id === e.target.value
-                  );
-                  setCommune(result);
-                }}
-                id="com_n"
-                className="form-control text-right"
-                name="com_n"
-                defaultValue="-1"
-                required
-              >
-                <option value="-1" disabled hidden>
-                  اختر البلدية
+    <MainScreen title={"الرجاء تسجيل الدخول"}>
+      <div className="loginContainer">
+        <Form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <Form.Group className="text-right">
+            <Form.Label htmlFor="com_n">البلدية</Form.Label>
+            <Form.Select
+              {...register("communeId", {
+                required: "الرجاء اختيار البلدية",
+                validate: (fieldValue) =>
+                  fieldValue !== -1 || "الرجاء اختيار البلدية",
+              })}
+              id="com_n"
+              className="form-control text-right"
+            >
+              <option value="-1" disabled hidden>
+                اختر البلدية
+              </option>
+              {communes?.map((commune) => (
+                <option key={commune._id} value={commune._id}>
+                  {commune.nomAr}
                 </option>
-                {communes?.map((commune) => (
-                  <option key={commune._id} value={commune._id}>
-                    {commune.nomAr}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label htmlFor="inputUsername">اسم المستخدم</Form.Label>
-              <Form.Control
-                name="loginUsername"
-                type="username"
-                id="inputUsername"
-                placeholder="اسم المستخدم"
-                required
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label htmlFor="inputPassword">كلمة السر</Form.Label>
-              <Form.Control
-                name="loginPassword"
-                type="password"
-                id="inputPassword"
-                placeholder="كلمة السر"
-                value={passWord}
-                onChange={(e) => setPassWord(e.target.value)}
-              />
-            </Form.Group>
-            <hr />
-            <Button variant="primary" type="submit">
-              تسجيل الدخول
+              ))}
+            </Form.Select>
+            {errors.communeId && (
+              <p className="text-danger text-right">
+                {errors.communeId.message}
+              </p>
+            )}
+          </Form.Group>
+          <Form.Group className="text-right">
+            <Form.Label htmlFor="inputUsername">اسم المستخدم</Form.Label>
+            <Form.Control
+              type="text"
+              id="inputUsername"
+              {...register("userName", {
+                required: "الرجاء ادخال اسم المستخدم",
+              })}
+              className="text-right"
+            />
+            {errors.userName && (
+              <p className="text-danger text-right">
+                {errors.userName.message}
+              </p>
+            )}
+          </Form.Group>
+          <Form.Group className="text-right">
+            <Form.Label htmlFor="inputPassword">كلمة السر</Form.Label>
+            <Form.Control
+              type="password"
+              id="inputPassword"
+              {...register("passWord", { required: "الرجاء ادخال كلمة السر" })}
+              className="text-right"
+            />
+            {errors.passWord && (
+              <p className="text-danger text-right">
+                {errors.passWord.message}
+              </p>
+            )}
+          </Form.Group>
+          <Form.Group className="d-flex justify-content-center">
+            <Button
+              disabled={isSubmitting}
+              className="m-3"
+              variant="primary"
+              type="submit"
+            >
+              {isSubmitting || loading ? "جاري" : "تسجيل الدخول"}
             </Button>
-          </Form>
-        </div>
-      </MainScreen>
-    </>
+          </Form.Group>
+          {errorCommunes && (
+            <p className="text-danger text-right">{errorCommunes}</p>
+          )}
+          {loadingCommunes && <Loading />}
+          {error && <p className="text-danger text-right">{error}</p>}
+          {loading && <Loading />}
+        </Form>
+        <DevTool control={control} />
+      </div>
+    </MainScreen>
   );
 }
 

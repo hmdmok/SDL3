@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-import * as XLSX from "xlsx";
+import  XLSX from "sheetjs-style";
 
 function validateHeader(file, expectedHeader) {
   return new Promise((resolve, reject) => {
