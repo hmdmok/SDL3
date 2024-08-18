@@ -12,6 +12,7 @@ import {
   DOSSIER_LIST_FAIL,
   DOSSIER_LIST_REQUEST,
   DOSSIER_LIST_SUCCESS,
+  DOSSIER_RESET,
   DOSSIER_UPDATE_FAIL,
   DOSSIER_UPDATE_REQUEST,
   DOSSIER_UPDATE_SUCCESS,
@@ -287,4 +288,8 @@ export const deleteDossierAction = (id) => async (dispatch, getState) => {
           : error.message,
     });
   }
+};
+
+export const resetDossierAction = () => async (dispatch) => {
+  dispatch({ type: DOSSIER_RESET });
 };

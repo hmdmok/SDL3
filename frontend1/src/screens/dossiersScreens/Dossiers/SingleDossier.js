@@ -21,8 +21,8 @@ const SingleDossier = ({ dossierMap }) => {
   const { benefisiersInfo } = filesToBenifits;
   const { benefisiers } = benefisiersInfo;
 
-  const userLogin = useSelector((state) => state.userLogin);
-  const { userInfo } = userLogin;
+  // const userLogin = useSelector((state) => state.userLogin);
+  // const { userInfo } = userLogin;
 
   const deleteHandler = (id) => {
     dispatch(deleteDossierAction(id));

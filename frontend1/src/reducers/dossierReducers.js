@@ -11,6 +11,7 @@ import {
   DOSSIER_LIST_FAIL,
   DOSSIER_LIST_REQUEST,
   DOSSIER_LIST_SUCCESS,
+  DOSSIER_RESET,
   DOSSIER_UPDATE_FAIL,
   DOSSIER_UPDATE_REQUEST,
   DOSSIER_UPDATE_SUCCESS,
@@ -80,6 +81,16 @@ export const dossierDeleteReducer = (state = {}, actions) => {
       return { loading: false, success: true };
     case DOSSIER_DELETE_FAIL:
       return { loading: false, error: actions.payload, success: false };
+
+    default:
+      return state;
+  }
+};
+
+export const dossierResetReducer = (state = {}, actions) => {
+  switch (actions.type) {
+    case DOSSIER_RESET:
+      return {};
 
     default:
       return state;

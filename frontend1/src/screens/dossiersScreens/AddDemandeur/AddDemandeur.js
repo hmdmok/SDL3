@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Col, Form, Row } from "react-bootstrap";
+import Message from "../../../components/Message";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addDemandeurAction,
@@ -14,17 +15,20 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   addDossierAction,
   getDossierAction,
+  resetDossierAction,
   updateDossierAction,
 } from "../../../actions/dossierActions";
 import { listCommunesByWilayaAction } from "../../../actions/communeActions";
 import { listWilayasAction } from "../../../actions/wilayaActions";
 import { convertDateFormat } from "../../../Functions/functions";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import MultiTextInput from "../../../Functions/MultiTextInput";
 import TextInput from "../../../Functions/TextInput";
 import SelectGroup from "../../../Functions/SelectGroup";
 
 function AddDemandeur({ type }) {
+  const [successSub, setSuccessSub] = useState(null);
+  const [successPerson, setSuccessPerson] = useState(null);
   const form = useForm({
     defaultValues: {
       prenom: "",
@@ -70,13 +74,14 @@ function AddDemandeur({ type }) {
     register,
     handleSubmit,
     formState,
-    watch,
     getValues,
     setValue,
     reset,
     setError,
+    watch,
+    control,
   } = form;
-  const { errors, isSubmitting, dirtyFields } = formState;
+  const { errors, isSubmitting } = formState;
   const { id, ordre } = useParams();
 
   const dispatch = useDispatch();
@@ -146,11 +151,10 @@ function AddDemandeur({ type }) {
   useEffect(() => {
     dispatch(listWilayasAction());
     if (id) dispatch(getDossierAction(id));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
-    console.log("get dossier", dossier);
     if (dossier) {
       setValue("date_depo", convertDateFormat(dossier.date_depo, "T").jsDate, {
         shouldValidate: true,
@@ -187,7 +191,6 @@ function AddDemandeur({ type }) {
   }, [dispatch, dossier, ordre, reset, setValue, type, userInfo.username]);
 
   useEffect(() => {
-    console.log("get demandeur", success);
     if (demandeur) {
       setValue("photo_link", demandeur.photo_link, { shouldValidate: true });
       setValue("nom_fr", demandeur.nom_fr, { shouldValidate: true });
@@ -221,164 +224,154 @@ function AddDemandeur({ type }) {
   }, [dispatch, demandeur, success, setValue]);
 
   useEffect(() => {
-    console.log("add persone", addSuccess);
-    console.log("update persone", updateSuccess);
-
-    const subscribtion = watch((value) => {
+    if (successPerson != null) {
       if (addSuccess) {
         if (type === "dema")
           dispatch(
             addDossierAction(
-              value.creator,
+              getValues("creator"),
               AddDemandeur._id,
               [],
-              value.date_depo,
-              value.num_dos,
-              value.adress,
-              value.num_conj,
-              value.note_revenue,
-              value.note_habita,
-              value.note_situation_familiale,
-              value.note_anciennete,
+              getValues("date_depo"),
+              getValues("num_dos"),
+              getValues("adress"),
+              getValues("num_conj"),
+              getValues("note_revenue"),
+              getValues("note_habita"),
+              getValues("note_situation_familiale"),
+              getValues("note_anciennete"),
               "Saisi",
-              value.adress_fr,
-              value.remark,
-              value.saisi_conj,
+              getValues("adress_fr"),
+              getValues("remark"),
+              getValues("saisi_conj"),
               null,
-              value.notes
+              getValues("notes")
             )
           );
         else if (type === "conj") {
           const conjoin = dossier.id_conjoin;
           conjoin[ordre] = AddDemandeur._id;
+          setSuccessPerson("person updated successfully");
           dispatch(
             updateDossierAction(
               id,
-              value.creator,
+              getValues("creator"),
               dossier.id_demandeur,
               conjoin,
-              value.date_depo,
-              value.num_dos,
-              value.adress,
-              value.num_conj,
-              value.note_revenue,
-              value.note_habita,
-              value.note_situation_familiale,
-              value.note_anciennete,
+              getValues("date_depo"),
+              getValues("num_dos"),
+              getValues("adress"),
+              getValues("num_conj"),
+              getValues("note_revenue"),
+              getValues("note_habita"),
+              getValues("note_situation_familiale"),
+              getValues("note_anciennete"),
               "Saisi",
-              value.adress_fr,
-              value.remark,
-              value.saisi_conj,
+              getValues("adress_fr"),
+              getValues("remark"),
+              getValues("saisi_conj"),
               null,
-              value.notes
+              getValues("notes")
             )
           );
         }
       }
       if (updateSuccess) {
+        setSuccessPerson("person updated successfully");
         if (id)
           dispatch(
             updateDossierAction(
               id,
-              value.creator,
+              getValues("creator"),
               null,
               null,
-              value.date_depo,
-              value.num_dos,
-              value.adress,
-              value.num_conj,
-              value.note_revenue,
-              value.note_habita,
-              value.note_situation_familiale,
-              value.note_anciennete,
+              getValues("date_depo"),
+              getValues("num_dos"),
+              getValues("adress"),
+              getValues("num_conj"),
+              getValues("note_revenue"),
+              getValues("note_habita"),
+              getValues("note_situation_familiale"),
+              getValues("note_anciennete"),
               "Saisi",
-              value.adress_fr,
-              value.remark,
-              value.saisi_conj,
+              getValues("adress_fr"),
+              getValues("remark"),
+              getValues("saisi_conj"),
               null,
-              value.notes
+              getValues("notes")
             )
           );
       }
-    });
-    return () => {
-      subscribtion.unsubscribe();
-    };
+      setSuccessSub("dossier modified");
+    }
   }, [
     AddDemandeur,
     addSuccess,
     dispatch,
     dossier,
+    getValues,
     id,
     ordre,
+    successPerson,
+    successSub,
     type,
     updateSuccess,
     watch,
   ]);
 
+  // Reset success and error messages on form submission or other actions
   useEffect(() => {
-    if (successDossierUpdate) {
-      console.log("update dossier", successDossierUpdate);
-      reset();
-      try {
-        navigate(`/dossiers`);
-      } catch (error) {
-        setError("root", {
-          type: "manual",
-          message: error.message,
-        });
+    if (successSub != null)
+      if (successDossierAdd || successDossierUpdate) {
+        reset(); // Resets the form
+        dispatch(resetDossierAction());
+        navigate("/dossiers"); // Redirects to the dossiers page
       }
-    }
-  }, [navigate, reset, setError, successDossierUpdate]);
+  }, [
+    successDossierAdd,
+    successDossierUpdate,
+    reset,
+    navigate,
+    dispatch,
+    successSub,
+    successPerson,
+  ]);
+
+  // Watch the value of the select dropdown
+  const selectedWil_n = useWatch({
+    control,
+    name: "wil_n", // Name of the select input
+    defaultValue: "", // Default value
+  });
 
   useEffect(() => {
-    console.log("add dossier", successDossierAdd);
-    try {
-      if (successDossierAdd) {
-        reset();
-        navigate(`/dossiers`);
-      }
-    } catch (error) {
-      setError("root", {
-        type: "manual",
-        message: error.message,
-      });
-    }
-  }, [navigate, reset, setError, successDossierAdd]);
+    if (selectedWil_n) dispatch(listCommunesByWilayaAction(getValues("wil_n")));
+  }, [dispatch, getValues, selectedWil_n]);
 
-  useEffect(() => {
-    const subscription = watch((value) => {
-      console.log("set willaya", dirtyFields?.wil_n);
-      if (dirtyFields?.wil_n)
-        dispatch(listCommunesByWilayaAction(getValues("wil_n")));
-    });
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [dirtyFields, dispatch, getValues, watch]);
   const submitHandler = async (data) => {
-    console.log(data);
     try {
       if (id) {
-        if (type === "dema")
-          dispatch(updateDemandeurAction(dossier.id_demandeur, data));
-        if (type === "conj")
-          if (dossier.id_conjoin[ordre])
-            dispatch(updateDemandeurAction(dossier.id_conjoin[ordre], data));
-          else dispatch(addDemandeurAction(data));
+        if (type === "dema") {
+          await dispatch(updateDemandeurAction(dossier.id_demandeur, data));
+        } else if (type === "conj" && dossier.id_conjoin[ordre]) {
+          await dispatch(
+            updateDemandeurAction(dossier.id_conjoin[ordre], data)
+          );
+        } else {
+          await dispatch(addDemandeurAction(data));
+        }
       } else {
-        dispatch(addDemandeurAction(data));
+        await dispatch(addDemandeurAction(data));
       }
+      setSuccessPerson("person modified.");
     } catch (error) {
-      setError("root", {
-        type: "manual",
-        message: error.message,
-      });
+      setError("root", { type: "manual", message: error.message });
     }
   };
 
   return (
     <>
+      {success && <Message variant="success">{success}</Message>}
       {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
       {addError && <ErrorMessage variant="danger">{addError}</ErrorMessage>}
       {errorDossierUpdate && (
@@ -401,7 +394,6 @@ function AddDemandeur({ type }) {
       {loadingWilayas && <Loading />}
       {loadingCommunes && <Loading />}
       {loadingDossier && <Loading />}
-
       <MainScreen
         title={`ادخال معلومات ${type === "dema" ? " طالب السكن" : " الزوجة"} ${
           ordre ? ordre + 1 : ""
@@ -468,6 +460,7 @@ function AddDemandeur({ type }) {
             </Col>
             <Col sm={{ order: "first" }}>
               <SelectGroup
+                control={control}
                 errors={errors}
                 label={"ولاية الميلاد"}
                 name={"wil_n"}

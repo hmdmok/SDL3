@@ -1,7 +1,7 @@
 import React from "react";
 import { Form } from "react-bootstrap";
 
-function SelectGroup({ label, name, others, items,errors }) {
+function SelectGroup({ label, name, others, items, errors, control }) {
   return (
     <div>
       <Form.Label htmlFor={name}>{label}</Form.Label>
