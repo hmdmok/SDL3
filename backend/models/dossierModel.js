@@ -5,6 +5,9 @@ const dossierSchema = mongoose.Schema(
     creator: {
       type: String,
     },
+    id_commune: {
+      type: String,
+    },
     id_demandeur: {
       type: String,
     },

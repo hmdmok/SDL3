@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const dossier = require("../models/dossierModel");
 const person = require("../models/personModel");
-const Notes = require("../models/notesModel");
+const system = require("../models/systemModel");
 const generateToken = require("../utils/generateToken");
 const { calculate } = require("./CalculeNotesDossier");
 const {
@@ -199,7 +199,9 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
 
       if (fromDate !== "") {
         fdCheck = !(
-          new Date(convertDateFormat(dossier.date_depo, "S").jsDate).getTime() <=
+          new Date(
+            convertDateFormat(dossier.date_depo, "S").jsDate
+          ).getTime() <=
           new Date(convertDateFormat(fromDate, "S").jsDate).getTime()
         );
       }
@@ -411,8 +413,11 @@ const createDossier = asyncHandler(async (req, res) => {
     throw new Error("الشخص يمتلك ملف من قبل");
   }
 
+  const systemInfo = await system.findOne();
+
   const dossierToAdd = await dossier.create({
     creator,
+    id_commune: systemInfo.communeCode,
     id_demandeur,
     id_conjoin,
     date_depo,
@@ -465,6 +470,7 @@ const updateDossier = asyncHandler(async (req, res) => {
 
   const id = req.params.id;
   const dossierToUpdate = await dossier.findById(id);
+  const systemInfo = await system.findOne();
 
   if (!dossierToUpdate) {
     res.status(400);
@@ -489,6 +495,7 @@ const updateDossier = asyncHandler(async (req, res) => {
     dossierToUpdate.saisi_conj = saisi_conj || dossierToUpdate.saisi_conj;
     dossierToUpdate.scan_dossier = scan_dossier || dossierToUpdate.scan_dossier;
     dossierToUpdate.notes = notes || dossierToUpdate.notes;
+    dossierToUpdate.id_commune = systemInfo.communeCode;
 
     const updatedDossier = await dossierToUpdate.save();
     res.status(201).json(updatedDossier);
@@ -497,19 +504,13 @@ const updateDossier = asyncHandler(async (req, res) => {
 
 const deleteDossier = asyncHandler(async (req, res) => {
   const dossierId = req.params.id;
-  const dossierData = await dossier.findById(dossierId);
-
-  if (req.user.usertype !== "super") {
-    res.status(400);
-    throw new Error("المستخدم غير مرخص");
-  }
+  const dossierData = await dossier.findByIdAndDelete(dossierId);
 
   if (!dossierData) {
     res.status(400);
     throw new Error("هذا الملف غير موجود");
   } else {
     //do somethink
-    await dossierData.remove();
     res.json({ message: "تم حذف الملف" });
   }
 });

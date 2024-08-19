@@ -53,6 +53,7 @@ function AddDemandeur({ type }) {
       stuation_f: "",
       situation_p: "chomeur",
       profession: "",
+      profession_fr: "",
       salaire: "",
       creator: "",
       remark: "",
@@ -209,6 +210,7 @@ function AddDemandeur({ type }) {
       setValue("lieu_n", demandeur.lieu_n, { shouldValidate: true });
       setValue("salaire", demandeur.salaire, { shouldValidate: true });
       setValue("profession", demandeur.profession, { shouldValidate: true });
+      setValue("profession_fr", demandeur.profession_fr, { shouldValidate: true });
       setValue("situation_p", demandeur.situation_p, { shouldValidate: true });
       setValue("stuation_f", demandeur.stuation_f, { shouldValidate: true });
       setValue("num_i_n", demandeur.num_i_n, { shouldValidate: true });

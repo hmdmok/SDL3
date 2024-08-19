@@ -71,6 +71,9 @@ const personSchema = mongoose.Schema(
     profession: {
       type: String,
     },
+    profession_fr: {
+      type: String,
+    },
     salaire: {
       type: String,
     },

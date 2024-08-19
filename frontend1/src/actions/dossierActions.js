@@ -248,7 +248,6 @@ export const updateDossierAction =
         scan_dossier,
         notes,
       };
-      console.log("update dossier dispatch", formData);
       const { data } = await axios.put(`/api/dossiers/${id}`, formData, config);
       dispatch({ type: DOSSIER_UPDATE_SUCCESS, payload: data });
     } catch (error) {

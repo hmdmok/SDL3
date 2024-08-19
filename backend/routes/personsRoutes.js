@@ -6,7 +6,7 @@ const {
   createPerson,
   updatePerson,
   deletePerson,
-} = require("../controllers/personsControllers");
+} = require("../controllers/PersonsControllers");
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ router
   .route("/:id")
   .get(getPersonById)
   .put(updatePerson)
-  .delete(protect, deletePerson);
+  .delete(deletePerson);
 router.route("/create").post(createPerson);
 
 module.exports = router;

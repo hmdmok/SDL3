@@ -47,6 +47,7 @@ const createPerson = asyncHandler(async (req, res) => {
     stuation_f,
     situation_p,
     profession,
+    profession_fr,
     salaire,
     creator,
   } = req.body;
@@ -75,6 +76,7 @@ const createPerson = asyncHandler(async (req, res) => {
     stuation_f,
     situation_p,
     profession,
+    profession_fr,
     salaire,
     creator,
   });
@@ -115,6 +117,7 @@ const updatePerson = asyncHandler(async (req, res) => {
     stuation_f,
     situation_p,
     profession,
+    profession_fr,
     salaire,
     creator,
   } = req.body;
@@ -148,6 +151,7 @@ const updatePerson = asyncHandler(async (req, res) => {
     personToUpdate.stuation_f = stuation_f || personToUpdate.stuation_f;
     personToUpdate.situation_p = situation_p || personToUpdate.situation_p;
     personToUpdate.profession = profession || personToUpdate.profession;
+    personToUpdate.profession_fr = profession_fr || personToUpdate.profession_fr;
     personToUpdate.salaire = salaire || personToUpdate.salaire;
     personToUpdate.creator = creator || personToUpdate.creator;
 
@@ -160,10 +164,7 @@ const deletePerson = asyncHandler(async (req, res) => {
   const personId = req.params.id;
   const personData = await person.findById(personId);
 
-  if (req.user.usertype !== "super") {
-    res.status(400);
-    throw new Error("المستخدم غير مرخص");
-  }
+  
 
   if (!personData) {
     res.status(400);

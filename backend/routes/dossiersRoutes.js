@@ -66,7 +66,7 @@ router
   .route("/:id")
   .get(getDossierById)
   .put(updateDossier)
-  .delete(protect, deleteDossier);
+  .delete(deleteDossier);
 router
   .route("/num/:num_dos")
   .post(uploadPersonPhoto.single("photo_link"), getDossierByNumDoss);
