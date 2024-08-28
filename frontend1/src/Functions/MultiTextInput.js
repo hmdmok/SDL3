@@ -10,7 +10,6 @@ function MultiTextInput({ label, others, name, errors }) {
         id={name}
         className="text-right"
         {...others(name, {
-          required: `الرجاء ادخال ${label}`,
           pattern: {
             value: /^[\u0600-\u06FF0-9\s]+$/,
             message: "يرجى ادخال حروف عربية فقط",

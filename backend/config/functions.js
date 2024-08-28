@@ -3,6 +3,7 @@ const fs = require("fs");
 const archiver = require("archiver");
 const dossier = require("../models/dossierModel");
 const person = require("../models/personModel");
+const system = require("../models/systemModel");
 
 function validateHeader(file, expectedHeader) {
   return new Promise((resolve, reject) => {
@@ -231,7 +232,10 @@ function compressFolderToZip(folderPath) {
 
 async function getFullDossier() {
   const people = await person.find();
+  const systemInfo = await system.findOne();
+  // const dossies = await dossier.find({ id_commune: systemInfo.communeCode });
   const dossies = await dossier.find();
+
   // Create a map of person ID to person data
   const personMap = people.reduce((map, person) => {
     map[person._id] = person;

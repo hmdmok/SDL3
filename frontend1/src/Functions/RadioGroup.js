@@ -13,9 +13,7 @@ function RadioGroup({ label, name, items, onChange, errors, desabled }) {
             className="d-flex flex-row-reverse"
             value={item.value}
             id={name + item.value}
-            {...onChange(name, {
-              required: `الرجاء ادخال ${label}`,
-            })}
+            {...onChange(name)}
           />
           <Form.Label
             className="d-flex flex-row-reverse mx-5"
