@@ -2,13 +2,14 @@ const asyncHandler = require("express-async-handler");
 const reader = require("sheetjs-style");
 const Dossier = require("../models/dossierModel");
 const Person = require("../models/personModel");
+const system = require("../models/systemModel");
+
 const { convertDateFormat, getFullDossier } = require("../config/functions");
 
 const updateDossiers = asyncHandler(async (req, res) => {
   try {
     const { creator, remark } = req.body;
     const importation_File = req.file?.path;
-
     if (!importation_File) {
       return res.status(400).send("No file uploaded");
     }
@@ -19,16 +20,17 @@ const updateDossiers = asyncHandler(async (req, res) => {
     });
 
     const sheetName = file.SheetNames[0];
+
     const stream = reader.stream.to_json(file.Sheets[sheetName], {
       raw: false,
     });
     const excelData = [];
 
-    stream.on("data", (data) => {
+    await stream.on("data", (data) => {
       excelData.push(data);
     });
 
-    stream.on("end", async () => {
+    if (excelData.length > 0) {
       if (remark === "French Fichier Imported") {
         await processDossiers(excelData, creator, res, "French");
       } else if (remark === "Arabic Fichier Imported") {
@@ -38,12 +40,9 @@ const updateDossiers = asyncHandler(async (req, res) => {
       } else {
         res.status(400).send("Invalid remark provided");
       }
-    });
-
-    stream.on("error", (err) => {
-      console.error("Error reading file:", err);
-      res.status(500).send("Error reading file");
-    });
+    } else {
+      res.status(200).send("لا يمكن قراءة الملف");
+    }
   } catch (error) {
     console.error("Error processing request:", error);
     res.status(500).send("Server error");
@@ -286,7 +285,6 @@ async function updateExistingDossier(dossier, newData, creator, language) {
 
         //add conjoin id
         dossier.id_conjoin[Ordre_conj - 1] = conjoin._id;
-        console.log("data: ", Ordre_conj - 1);
       }
     } else {
       //create Conjoin
@@ -304,9 +302,12 @@ async function updateExistingDossier(dossier, newData, creator, language) {
     if (dossier.num_conj) dossier.num_conj = 0;
   }
 
+  // get system info
+  const systemInfo = await system.findOne();
+
   // Update dossier
   dossier.date_depo = date_depo || dossier.date_depo;
-
+  dossier.id_commune = systemInfo.communeCode || dossier.id_commune;
   dossier.num_conj = num_conj || dossier.num_conj;
   dossier.note_revenue = note_revenue || dossier.note_revenue;
   dossier.note_habita = note_habita || dossier.note_habita;
@@ -421,9 +422,12 @@ async function createNewDossier(dossier, creator, language) {
   var gender_conj = "";
   if (gender_dem === "M") gender_conj = "F";
   else gender_conj = "M";
+  // get system data
+  const systemInfo = await system.findOne();
 
   await Dossier.create({
     creator,
+    id_commune: systemInfo.communeCode,
     id_demandeur: demandeur._id,
     id_conjoin: id_conjoin,
     date_depo: date_depo,

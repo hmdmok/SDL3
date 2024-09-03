@@ -10,7 +10,12 @@ import {
 import { getCivility } from "../../../Functions/functions";
 import { Link } from "react-router-dom";
 
-const SingleDossier = ({ dossierMap }) => {
+const SingleDossier = ({
+  dossierMap,
+  setShowPopup,
+  deleteHandler,
+  setIdToDel,
+}) => {
   const dispatch = useDispatch();
 
   const filesToCheck = useSelector((state) => state.filesToCheck);
@@ -20,18 +25,12 @@ const SingleDossier = ({ dossierMap }) => {
   const filesToBenifits = useSelector((state) => state.filesToBenifits);
   const { benefisiersInfo } = filesToBenifits;
   const { benefisiers } = benefisiersInfo;
-  const [showPopup, setShowPopup] = useState(false); // State to control popup visibility
 
   // const userLogin = useSelector((state) => state.userLogin);
   // const { userInfo } = userLogin;
-  const handleDeleteClick = () => {
+  const handleDeleteClick = (id) => {
+    setIdToDel(id);
     setShowPopup(true); // Show the confirmation popup
-  };
-  const handleCancelDelete = () => {
-    setShowPopup(false); // Close the popup without deleting
-  };
-  const deleteHandler = (id) => {
-    dispatch(deleteDossierAction(id));
   };
 
   const addDossierToCheck = (fileTo) => {
@@ -142,25 +141,14 @@ const SingleDossier = ({ dossierMap }) => {
           <Link to={`/adddossiers/${dossierMap._id}`}> تعديل الملف</Link>
         </Button>
 
-        <Button onClick={handleDeleteClick} variant="danger" className="m-1">
+        <Button
+          onClick={() => handleDeleteClick(dossierMap._id)}
+          variant="danger"
+          className="m-1"
+        >
           حذف
         </Button>
       </Card>
-      {showPopup && (
-        <div className="popup">
-          <div className="popup-content">
-            <p>هل انت متاكد من حذف هذا الملف؟</p>
-            <button
-              onClick={() => {
-                deleteHandler(dossierMap._id);
-              }}
-            >
-              نعم
-            </button>
-            <button onClick={handleCancelDelete}>لا</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

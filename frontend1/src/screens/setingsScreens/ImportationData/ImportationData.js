@@ -11,7 +11,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Button } from "react-bootstrap";
 import fileDownload from "js-file-download";
 import { addList, deleteList } from "../../../actions/filesActions";
-import { addBenefisierList, deleteBenefisierList } from "../../../actions/benifisierActions";
+import {
+  addBenefisierList,
+  deleteBenefisierList,
+} from "../../../actions/benifisierActions";
 
 function ImportationData() {
   // const validHeader = [
@@ -170,7 +173,6 @@ function ImportationData() {
   // };
   useEffect(() => {
     if (!fichierInfo?.includes("dossiers")) setNumDosIds(fichierInfo);
-    console.log(fichierInfo);
   }, [fichierInfo]);
 
   const onChangeAr = (event) => {
@@ -314,10 +316,14 @@ function ImportationData() {
               >
                 رفع ملف جدول المعلومات
               </Button>
+
               {/* <label className="custom-file-label" htmlFor="inputGroupFileAddon02">
               {fileName}
             </label> */}
             </div>
+            <Button className="" id="fixDB">
+              اصلاح قاعدة البيانات
+            </Button>
             {numDosIds?.length > 0 && (
               <>
                 <Button

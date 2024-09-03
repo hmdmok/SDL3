@@ -7,7 +7,10 @@ import Tools from "./Tools";
 import Filters from "./Filters";
 import SingleDossier from "./SingleDossier";
 import { ListGroup } from "react-bootstrap";
-import { listDossiersAction } from "../../../actions/dossierActions";
+import {
+  deleteDossierAction,
+  listDossiersAction,
+} from "../../../actions/dossierActions";
 
 function Dossiers() {
   const dispatch = useDispatch();
@@ -20,7 +23,13 @@ function Dossiers() {
     loading: loadingDossierDelete,
     error: errorDossierDelete,
   } = dossierDelete;
-
+  const deleteHandler = (id) => {
+    dispatch(deleteDossierAction(id));
+    setShowPopup(false); // Close the popup after deleting
+  };
+  const handleCancelDelete = () => {
+    setShowPopup(false); // Close the popup without deleting
+  };
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [search, setSearch] = useState("");
@@ -31,6 +40,8 @@ function Dossiers() {
   const [p_m_35_de, setP_m_35_de] = useState({ dateEtude: "", type: "" });
   const [situationFamiliale, setSituationFamiliale] = useState("");
   const [dateEtude, setDateEtude] = useState("");
+  const [showPopup, setShowPopup] = useState(false); // State to control popup visibility
+  const [idToDel , setIdToDel ] = useState(null); // State to control popup visibility
 
   useEffect(() => {
     dispatch(
@@ -70,6 +81,21 @@ function Dossiers() {
           <ErrorMessage variant="danger">{errorDossierDelete}</ErrorMessage>
         )}
         {loadingDossierDelete && <Loading />}
+        {showPopup && (
+          <div className="popup">
+            <div className="popup-content">
+              <p>هل انت متاكد من حذف هذا الملف؟</p>
+              <button
+                onClick={() => {
+                  deleteHandler(idToDel);
+                }}
+              >
+                نعم
+              </button>
+              <button onClick={handleCancelDelete}>لا</button>
+            </div>
+          </div>
+        )}
       </div>
       <ListGroup>
         <Tools
@@ -111,7 +137,13 @@ function Dossiers() {
         <ListGroup>
           {dossiers?.data?.map((dossierMap) => {
             return (
-              <SingleDossier dossierMap={dossierMap} key={dossierMap._id} />
+              <SingleDossier
+                dossierMap={dossierMap}
+                key={dossierMap._id}
+                setShowPopup={setShowPopup}
+                deleteHandler={deleteHandler}
+                setIdToDel={setIdToDel}
+              />
             );
           })}
         </ListGroup>
