@@ -3,8 +3,10 @@ const generateToken = require("../utils/generateToken");
 const jwt = require("jsonwebtoken");
 const Dossier = require("../models/dossierModel");
 const person = require("../models/personModel");
+const system = require("../models/systemModel");
+
 const reader = require("sheetjs-style");
-const { convertDateFormat } = require("../config/functions");
+const { convertDateFormat, getFullDossier } = require("../config/functions");
 
 const updateDossiers = asyncHandler(async (req, res) => {
   const { creator, remark } = req.body;
@@ -569,34 +571,17 @@ const updateDossiers = asyncHandler(async (req, res) => {
 });
 
 const correctionDB = asyncHandler(async (req, res) => {
-  // find list of persons with no name
-  const personsWithNoNameList = await person.find({
-    $or: [{ prenom_fr: "" }, { prenom_fr: "/" }],
-  });
+  const allDossiers = await getFullDossier();
+  //get system data
+  const systemInfo = await system.findOne();
 
-  // find the list of dossiers for this persons as demandeurs
-  const dossiersWithNoNameDemList = [];
-  const data = personsWithNoNameList.map(
-    asyncHandler(async (personNoName) => {
-      const dossierNoNameDem = await Dossier.find({
-        id_demandeur: personNoName?._id,
-      });
-      if (dossierNoNameDem.length > 0)
-        dossiersWithNoNameDemList.push(dossierNoNameDem[0]);
-    })
+  //fix the dossiers that dont have id_commune set
+  const updateResult = await Dossier.updateMany(
+    { id_commune: { $exists: false } }, // Filter for documents without 'Id_commune'
+    { $set: { id_commune: systemInfo.communeCode } } // Set 'Id_commune' to your default value
   );
-  const data2 = Promise.all(data)
-    .then(() => {
-      // delete the list of dossiers for this persons as demandeurs
-      // find the list of dossiers for these persons as conjoin
-      // delete the id_conjoin for this dossiers
-      // delete the list of persons found with no name
 
-      res.json(dossiersWithNoNameDemList);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+  res.json(`${updateResult.modifiedCount} documents were updated.`);
 });
 
 module.exports = {

@@ -29,6 +29,6 @@ router
   );
 
 
-router.route("/correctionDB").post(importationDossiersControllers.correctionDB);
+router.route("/correctionDB").post(importationDossiersControllersTest.correctionDB);
 
 module.exports = router;

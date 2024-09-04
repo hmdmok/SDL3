@@ -6,6 +6,20 @@ const system = require("../models/systemModel");
 
 const { convertDateFormat, getFullDossier } = require("../config/functions");
 
+const correctionDB = asyncHandler(async (req, res) => {
+  const allDossiers = await getFullDossier();
+  //get system data
+  const systemInfo = await system.findOne();
+
+  //fix the dossiers that dont have id_commune set
+  const updateResult = await Dossier.updateMany(
+    { id_commune: { $exists: false } }, // Filter for documents without 'Id_commune'
+    { $set: { id_commune: systemInfo.communeCode } } // Set 'Id_commune' to your default value
+  );
+
+  res.json(`${updateResult.modifiedCount} documents were updated.`);
+});
+
 const updateDossiers = asyncHandler(async (req, res) => {
   try {
     const { creator, remark } = req.body;
@@ -529,4 +543,4 @@ async function createConjoin(dossier1, language, creator) {
   return null;
 }
 
-module.exports = { updateDossiers };
+module.exports = { updateDossiers, correctionDB };
