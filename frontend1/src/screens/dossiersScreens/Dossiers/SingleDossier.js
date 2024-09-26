@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { Badge, Button, Card, ListGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteDossierAction } from "../../../actions/dossierActions";
 import { addFile, deleteFile } from "../../../actions/filesActions";
 import {
   addBenefisier,
@@ -10,12 +9,7 @@ import {
 import { getCivility } from "../../../Functions/functions";
 import { Link } from "react-router-dom";
 
-const SingleDossier = ({
-  dossierMap,
-  setShowPopup,
-  deleteHandler,
-  setIdToDel,
-}) => {
+const SingleDossier = ({ dossierMap, setShowPopup, setIdToDel }) => {
   const dispatch = useDispatch();
 
   const filesToCheck = useSelector((state) => state.filesToCheck);
@@ -53,52 +47,39 @@ const SingleDossier = ({
     <div className="">
       <Card style={{ display: "flex", flexDirection: "row-reverse" }}>
         <ListGroup variant="flush" style={{ width: "9rem" }}>
-          <Badge bg="warning" text="dark">
-            {" Nom:"}
+          <Badge style={{ height: "40px" }}>
+            {dossierMap.demandeur?.nom_fr}
           </Badge>
-          <Badge>{dossierMap.demandeur?.nom_fr}</Badge>
         </ListGroup>
 
         <ListGroup variant="flush" style={{ width: "9rem" }}>
-          <Badge bg="warning" text="dark">
-            Prenom:
+          <Badge style={{ height: "40px" }}>
+            {dossierMap.demandeur?.prenom_fr}
           </Badge>
-          <Badge>{dossierMap.demandeur?.prenom_fr}</Badge>
         </ListGroup>
 
         <ListGroup variant="flush" style={{ width: "9rem" }}>
-          <Badge bg="warning" text="dark">
-            Date naissance:
+          <Badge style={{ height: "40px" }}>
+            {dossierMap.demandeur?.date_n}
           </Badge>
-          <Badge>{dossierMap.demandeur?.date_n}</Badge>
         </ListGroup>
 
         <ListGroup variant="flush" style={{ width: "7rem" }}>
-          <Badge bg="warning" text="dark">
-            {"Num Doss:"}
-          </Badge>
-          <Badge>{dossierMap.num_dos}</Badge>
+          <Badge style={{ height: "40px" }}>{dossierMap.num_dos}</Badge>
         </ListGroup>
 
         <ListGroup variant="flush" style={{ width: "5rem" }}>
-          <Badge bg="warning" text="dark">
-            {"Notes:"}
-          </Badge>
-          <Badge>{dossierMap.notes}</Badge>
+          <Badge style={{ height: "40px" }}>{dossierMap.notes}</Badge>
         </ListGroup>
 
         <ListGroup variant="flush" style={{ width: "7rem" }}>
-          <Badge bg="warning" text="dark">
-            {"Situation:"}
+          <Badge style={{ height: "40px" }}>
+            {getCivility(dossierMap?.demandeur?.stuation_f, "f")}
           </Badge>
-          <Badge>{getCivility(dossierMap?.demandeur?.stuation_f, "f")}</Badge>
         </ListGroup>
 
         <ListGroup variant="flush" style={{ width: "8rem" }}>
-          <Badge bg="warning" text="dark">
-            {"Date depot:"}
-          </Badge>
-          <Badge>{dossierMap?.date_depo}</Badge>
+          <Badge style={{ height: "40px" }}>{dossierMap?.date_depo}</Badge>
         </ListGroup>
 
         {files?.some((f) => f._id === dossierMap._id) ? (

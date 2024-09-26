@@ -6,7 +6,7 @@ import Loading from "../../../components/Loading";
 import Tools from "./Tools";
 import Filters from "./Filters";
 import SingleDossier from "./SingleDossier";
-import { ListGroup } from "react-bootstrap";
+import { Badge, Card, ListGroup } from "react-bootstrap";
 import {
   deleteDossierAction,
   listDossiersAction,
@@ -41,7 +41,7 @@ function Dossiers() {
   const [situationFamiliale, setSituationFamiliale] = useState("");
   const [dateEtude, setDateEtude] = useState("");
   const [showPopup, setShowPopup] = useState(false); // State to control popup visibility
-  const [idToDel , setIdToDel ] = useState(null); // State to control popup visibility
+  const [idToDel, setIdToDel] = useState(null); // State to control popup visibility
 
   useEffect(() => {
     dispatch(
@@ -135,6 +135,49 @@ function Dossiers() {
         </div>
 
         <ListGroup>
+          <div className="">
+            <Card style={{ display: "flex", flexDirection: "row-reverse" }}>
+              <ListGroup variant="flush" style={{ width: "9rem" }}>
+                <Badge bg="warning" text="dark" style={{ height: "40px" }}>
+                  {" Nom:"}
+                </Badge>
+              </ListGroup>
+              <ListGroup variant="flush" style={{ width: "9rem" }}>
+                <Badge bg="warning" text="dark" style={{ height: "40px" }}>
+                  Prenom:
+                </Badge>
+              </ListGroup>
+              <ListGroup variant="flush" style={{ width: "9rem" }}>
+                <Badge bg="warning" text="dark" style={{ height: "40px" }}>
+                  Date naissance:
+                </Badge>
+              </ListGroup>
+
+              <ListGroup variant="flush" style={{ width: "7rem" }}>
+                <Badge bg="warning" text="dark" style={{ height: "40px" }}>
+                  {"Num Doss:"}
+                </Badge>
+              </ListGroup>
+
+              <ListGroup variant="flush" style={{ width: "5rem" }}>
+                <Badge bg="warning" text="dark" style={{ height: "40px" }}>
+                  {"Notes:"}
+                </Badge>
+              </ListGroup>
+
+              <ListGroup variant="flush" style={{ width: "7rem" }}>
+                <Badge bg="warning" text="dark" style={{ height: "40px" }}>
+                  {"Situation:"}
+                </Badge>
+              </ListGroup>
+
+              <ListGroup variant="flush" style={{ width: "8rem" }}>
+                <Badge bg="warning" text="dark" style={{ height: "40px" }}>
+                  {"Date depot:"}
+                </Badge>
+              </ListGroup>
+            </Card>
+          </div>
           {dossiers?.data?.map((dossierMap) => {
             return (
               <SingleDossier
