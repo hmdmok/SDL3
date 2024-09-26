@@ -233,8 +233,8 @@ function compressFolderToZip(folderPath) {
 async function getFullDossier() {
   const people = await person.find();
   const systemInfo = await system.findOne();
-  // const dossies = await dossier.find({ id_commune: systemInfo.communeCode });
-  const dossies = await dossier.find();
+  const dossies = await dossier.find({ id_commune: systemInfo.communeCode });
+  // const dossies = await dossier.find();
 
   // Create a map of person ID to person data
   const personMap = people.reduce((map, person) => {

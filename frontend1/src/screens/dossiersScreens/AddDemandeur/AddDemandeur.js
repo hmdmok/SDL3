@@ -18,17 +18,23 @@ import {
   resetDossierAction,
   updateDossierAction,
 } from "../../../actions/dossierActions";
-import { listCommunesByWilayaAction } from "../../../actions/communeActions";
+import {
+  listCommunesByDairaAction,
+  listCommunesByWilayaAction,
+} from "../../../actions/communeActions";
 import { listWilayasAction } from "../../../actions/wilayaActions";
 import { convertDateFormat } from "../../../Functions/functions";
 import { useForm, useWatch } from "react-hook-form";
 import MultiTextInput from "../../../Functions/MultiTextInput";
 import TextInput from "../../../Functions/TextInput";
 import SelectGroup from "../../../Functions/SelectGroup";
+import { checkSystem } from "../../../actions/systemActions";
 
 function AddDemandeur({ type }) {
   const [successSub, setSuccessSub] = useState(null);
   const [successPerson, setSuccessPerson] = useState(null);
+  const [daira, setDaira] = useState("");
+
   const form = useForm({
     defaultValues: {
       prenom: "",
@@ -66,6 +72,7 @@ function AddDemandeur({ type }) {
       note_revenue: 0,
       note_habita: 0,
       note_situation_familiale: 0,
+      id_commune: "",
       note_anciennete: 0,
       notes: 0,
       type: type,
@@ -129,6 +136,11 @@ function AddDemandeur({ type }) {
   const { loading: loadingWilayas, wilayas } = useSelector(
     (state) => state.wilayaList
   );
+  const {
+    loading: loading_id_Communes,
+    communes: id_communes,
+    error: errorCommunes,
+  } = useSelector((state) => state.communeGetByDaira);
   const { loading: loadingCommunes, communes } = useSelector(
     (state) => state.communeGetByWilaya
   );
@@ -148,15 +160,29 @@ function AddDemandeur({ type }) {
     error: errorDossierUpdate,
   } = useSelector((state) => state.dossierUpdate);
   const { userInfo } = useSelector((state) => state.userLogin);
-
+  const { systemInfo } = useSelector((state) => state.systemCheck);
+  useEffect(() => {
+    dispatch(checkSystem());
+  }, [dispatch]);
   useEffect(() => {
     dispatch(listWilayasAction());
     if (id) dispatch(getDossierAction(id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  useEffect(() => {
+    if (systemInfo?.length > 0 && systemInfo[0]?.administrationName) {
+      setDaira(systemInfo[0].administrationName);
+    }
+  }, [systemInfo]);
 
   useEffect(() => {
+    if (daira !== "") {
+      dispatch(listCommunesByDairaAction(daira));
+    }
+  }, [dispatch, daira]);
+  useEffect(() => {
     if (dossier) {
+      console.log("id_commune",dossier.id_commune);
       setValue("date_depo", convertDateFormat(dossier.date_depo, "T").jsDate, {
         shouldValidate: true,
       });
@@ -175,6 +201,7 @@ function AddDemandeur({ type }) {
       setValue("note_revenue", dossier.note_revenue, { shouldValidate: true });
       setValue("num_conj", dossier.num_conj, { shouldValidate: true });
       setValue("adress", dossier.adress, { shouldValidate: true });
+      setValue("id_commune", dossier.id_commune, { shouldValidate: true });
       setValue("id_demandeur", dossier.id_demandeur);
       setValue("id_conjoin", dossier.id_conjoin);
       setValue("gender_conj", dossier.gender_conj);
@@ -210,7 +237,9 @@ function AddDemandeur({ type }) {
       setValue("lieu_n", demandeur.lieu_n, { shouldValidate: true });
       setValue("salaire", demandeur.salaire, { shouldValidate: true });
       setValue("profession", demandeur.profession, { shouldValidate: true });
-      setValue("profession_fr", demandeur.profession_fr, { shouldValidate: true });
+      setValue("profession_fr", demandeur.profession_fr, {
+        shouldValidate: true,
+      });
       setValue("situation_p", demandeur.situation_p, { shouldValidate: true });
       setValue("stuation_f", demandeur.stuation_f, { shouldValidate: true });
       setValue("num_i_n", demandeur.num_i_n, { shouldValidate: true });
@@ -660,6 +689,19 @@ function AddDemandeur({ type }) {
               />
               <br />
             </Col>
+            <Col sm={{ order: "first" }}>
+              <SelectGroup
+                errors={errors}
+                items={id_communes?.map((commune) => ({
+                  value: commune.code,
+                  label: commune.nomAr,
+                }))}
+                name={"id_commune"}
+                label={"بلدية الملف"}
+                others={register}
+              />
+            </Col>
+
             <Col sm={{ order: "first" }}>
               <TextInput
                 errors={errors}

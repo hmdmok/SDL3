@@ -4,7 +4,10 @@ import ErrorMessage from "../../../components/ErrorMessage";
 import Message from "../../../components/Message";
 import Loading from "../../../components/Loading";
 
-import { sendImportationFichierAction } from "../../../actions/importationFichierActions";
+import {
+  sendImportationFichierAction,
+  fixingDBAction,
+} from "../../../actions/importationFichierActions";
 // import { validateHeaderAction } from "../../../actions/validateHeaderActions";
 import { downloadImportationFichierTemplateAction } from "../../../actions/templatesActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -321,7 +324,13 @@ function ImportationData() {
               {fileName}
             </label> */}
             </div>
-            <Button className="" id="fixDB">
+            <Button
+              className=""
+              id="fixDB"
+              onClick={() => {
+                dispatch(fixingDBAction(creator, "fixing Data Base"));
+              }}
+            >
               اصلاح قاعدة البيانات
             </Button>
             {numDosIds?.length > 0 && (
