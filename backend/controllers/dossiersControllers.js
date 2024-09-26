@@ -363,6 +363,47 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
   }
 });
 
+const getDossierByBrothers = asyncHandler(async (req, res) => {
+  try {
+    const fullDossiers = await getFullDossier();
+
+    // Create a map to group persons by their father's name, birth date, and birth location
+    const groupedByFather = fullDossiers.reduce((acc, dossier) => {
+      // Construct a unique key for the father based on name, birth date, and location
+      const fatherKey = `${dossier["demandeur"]?.prenom_p_fr}_${dossier["demandeur"]?.prenom_m_fr}_${dossier["demandeur"]?.nom_m_fr}`;
+
+      if (!acc[fatherKey]) {
+        acc[fatherKey] = [];
+      }
+      acc[fatherKey].push(dossier);
+      return acc;
+    }, {});
+
+    // Convert the grouped data to an array of arrays (each array representing brothers)
+    const groupedPersons = Object.values(groupedByFather);
+
+    // Optionally, you can flatten the result into a single array if needed
+   // Or return groupedPersons if you need them grouped.
+   // define the response
+   ###
+   const response = {
+    error: false,
+    total,
+    page: page + 1,
+    limit,
+    data: groupedPersons,
+    totalArray: totalArray,
+  };
+
+  res.status(200).json(response);
+  ###
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: true, message: "Internal Server Error2" });
+    throw new Error(error.message);
+  }
+});
+
 const createDossier = asyncHandler(async (req, res) => {
   const {
     creator,
