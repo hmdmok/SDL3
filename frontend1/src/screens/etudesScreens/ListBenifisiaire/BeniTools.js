@@ -8,7 +8,7 @@ import { listQuotas } from "../../../actions/quotaActions";
 import { checkSystem, updateSystem } from "../../../actions/systemActions";
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
-import RadioGroup from "../../../Functions/RadioGroup";
+import RadioGroup from "../../../Functions/RadioGroupN";
 import { getIDList } from "../../../Functions/functions";
 
 const BeniTools = () => {

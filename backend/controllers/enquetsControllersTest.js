@@ -419,7 +419,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         imagePath = "usersPicUpload/Women_icon.png";
       } else
         imagePath =
-          record.demandeur?.photo_link || "usersPicUpload/default.png";
+          record?.demandeur?.photo_link || "usersPicUpload/default.png";
       const rowCount = isDateBeforeQuota(record)
         ? worksheetPlus?._rows.length - 6
         : worksheetMoin?._rows.length - 6;

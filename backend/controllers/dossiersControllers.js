@@ -383,20 +383,20 @@ const getDossierByBrothers = asyncHandler(async (req, res) => {
     const groupedPersons = Object.values(groupedByFather);
 
     // Optionally, you can flatten the result into a single array if needed
-   // Or return groupedPersons if you need them grouped.
-   // define the response
-   ###
-   const response = {
-    error: false,
-    total,
-    page: page + 1,
-    limit,
-    data: groupedPersons,
-    totalArray: totalArray,
-  };
+    // Or return groupedPersons if you need them grouped.
+    // define the response
+    //  ###
+    //  const response = {
+    //   error: false,
+    //   total,
+    //   page: page + 1,
+    //   limit,
+    //   data: groupedPersons,
+    //   totalArray: totalArray,
+    // };
 
-  res.status(200).json(response);
-  ###
+    // res.status(200).json(response);
+    // ###
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: true, message: "Internal Server Error2" });

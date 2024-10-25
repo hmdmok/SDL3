@@ -160,8 +160,8 @@ function extractDossierData(dossier, language) {
     };
   } else if (language === "Arabic") {
     return {
-      num_dos: dossier["رقـــم \nالملــــــف"],
-      date_depo: dossier["تاريــــخ \nالايـــداع"],
+      num_dos: dossier["رقـــم الملــــــف"],
+      date_depo: dossier["تاريــــخ الايـــداع"],
       nom_dem: dossier["اللقــــب"],
       prenom_dem: dossier["الاســــم"],
       num_conj: dossier["عدد الزوجات"],

@@ -58,20 +58,20 @@ function Login() {
       const selectedCommune = communes.find(
         ({ _id }) => _id === data.communeId
       );
-      if (!selectedCommune) {
-        throw new Error("لم يتم تحميل البلدية");
-      }
+      // if (!selectedCommune && data.userName !== "Admin") {
+      //   throw new Error("لم يتم تحميل البلدية");
+      // }
 
       dispatch(
         updateSystem(
-          systemInfo[0]._id,
+          systemInfo[0]?._id,
           null,
           null,
           null,
           null,
           null,
-          selectedCommune.nomFr,
-          selectedCommune.code,
+          selectedCommune?.nomFr,
+          selectedCommune?.code,
           null,
           null,
           null,
@@ -96,11 +96,7 @@ function Login() {
           <Form.Group className="text-right">
             <Form.Label htmlFor="com_n">البلدية</Form.Label>
             <Form.Select
-              {...register("communeId", {
-                required: "الرجاء اختيار البلدية",
-                validate: (fieldValue) =>
-                  fieldValue !== -1 || "الرجاء اختيار البلدية",
-              })}
+              {...register("communeId")}
               id="com_n"
               className="form-control text-right"
             >
