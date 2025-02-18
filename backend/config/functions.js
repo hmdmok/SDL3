@@ -119,10 +119,13 @@ function convertDateFormat(dateStr, outputType) {
   }
 
   // Regular expressions to match dd/mm/yyyy, dd-mm-yyyy, yyyy/mm/dd, and yyyy-mm-dd formats
-  const dateRegex1 = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/; // dd/mm/yyyy or dd-mm-yyyy
-  const dateRegex2 = /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/; // yyyy/mm/dd or yyyy-mm-dd
+  const dateRegex1 = /^(\d{1,2}|"00")[\/\-](\d{1,2}|"00")[\/\-](\d{4})$/; // dd/mm/yyyy or dd-mm-yyyy
+  const dateRegex2 = /^(\d{4})[\/\-](\d{1,2}|00)[\/\-](\d{1,2}|00)$/; // yyyy/mm/dd or yyyy-mm-dd
+
   let match1 = dateRegex1.exec(dateStr);
   let match2 = dateRegex2.exec(dateStr);
+
+  
 
   let day, month, year;
   let type = "E"; // Default to "E" for error
@@ -145,8 +148,8 @@ function convertDateFormat(dateStr, outputType) {
       } else {
         // If day or month is 00
         if (day == 0 || month == 0) {
-          day = 31;
-          month = 12;
+          day = 0;
+          month = 0;
           type = "P";
         } else {
           type = "E"; // Still an error
@@ -169,8 +172,8 @@ function convertDateFormat(dateStr, outputType) {
     let yearMatch = /\b(\d{4})\b/.exec(dateStr);
     if (yearMatch) {
       year = parseInt(yearMatch[1], 10);
-      day = 31;
-      month = 12;
+      day = 0;
+      month = 0;
       type = "P"; // Presumed date
     } else {
       // If no valid year is found, return the fixed error date

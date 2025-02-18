@@ -360,7 +360,9 @@ async function createNewDossier(dossier, creator, language) {
     note_anciennete,
     notes,
     remark,
+    date_n_conj,
   } = extractDossierData(dossier, language);
+
   var demandeur = {};
   if (prenom_dem && nom_dem) {
     if (language === "French") {
@@ -476,7 +478,6 @@ async function createConjoin(dossier1, language, creator) {
     prenom_m_conj,
     nom_m_conj,
   } = extractDossierData(dossier1, language);
-
   // determine conjoin gender
   var gender_conj = "";
   if (gender_dem === "M") gender_conj = "F";
