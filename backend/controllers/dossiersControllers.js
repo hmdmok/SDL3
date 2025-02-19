@@ -545,8 +545,20 @@ const updateDossier = asyncHandler(async (req, res) => {
 
 const deleteDossier = asyncHandler(async (req, res) => {
   const dossierId = req.params.id;
-  const dossierData = await dossier.findByIdAndDelete(dossierId);
+  const dossierData = await dossier.findById(dossierId);
 
+  const personData = await person.findByIdAndDelete(dossierData.id_demandeur);
+
+  let conjoinData = [];
+  if (dossierData.id_conjoin.length > 0) {
+    for (let i = 0; i < dossierData.id_conjoin.length; i++) {
+      conjoinData[i] = await person.findByIdAndDelete(
+        dossierData.id_conjoin[i]
+      );
+    }
+  }
+
+  await dossier.findByIdAndDelete(dossierId);
   if (!dossierData) {
     res.status(400);
     throw new Error("هذا الملف غير موجود");
