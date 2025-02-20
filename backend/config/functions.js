@@ -125,8 +125,6 @@ function convertDateFormat(dateStr, outputType) {
   let match1 = dateRegex1.exec(dateStr);
   let match2 = dateRegex2.exec(dateStr);
 
-  
-
   let day, month, year;
   let type = "E"; // Default to "E" for error
 
@@ -190,12 +188,36 @@ function convertDateFormat(dateStr, outputType) {
   day = padZero(day);
   month = padZero(month);
 
+  // Format the date as 01/01/yyyy if day or month is 00
+  let day01 = padZero(day) === "00" ? "01" : padZero(day);
+  let month01 = padZero(month) === "00" ? "01" : padZero(month);
+
+  // Format the date as  31/12/yyyy if day or month is 00
+  let day31 = padZero(day) === "00" ? "31" : padZero(day);
+  let month12 = padZero(month) === "00" ? "12" : padZero(month);
+
+  // Format the date as  31/12/yyyy if day or month is 00
+  let preDateAr =
+    padZero(day) === "00" || padZero(month) === "00"
+      ? "خلال "
+      : `${padZero(day)}${separator}${padZero(month)}${separator}`;
+
   // Determine the separator based on outputType
   let separator = outputType === "T" ? "-" : "/";
   let formattedDate = `${day}${separator}${month}${separator}${year}`;
   let jsFormattedDate = `${month}${separator}${day}${separator}${year}`;
+  let formattedDate0101 = `${day01}${separator}${month01}${separator}${year}`;
+  let formattedDate3112 = `${day31}${separator}${month12}${separator}${year}`;
+  let formattedDatePreAr = `${preDateAr}${year}`;
 
-  return { date: formattedDate, type: type, jsDate: jsFormattedDate };
+  return {
+    date: formattedDate,
+    type: type,
+    jsDate: jsFormattedDate,
+    date0101: formattedDate0101,
+    date3112: formattedDate3112,
+    preDateAr: formattedDatePreAr,
+  };
 }
 
 function sanitizeInput(input) {
