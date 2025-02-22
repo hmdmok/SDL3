@@ -31,7 +31,7 @@ const createRecord = (dossier, newData, type) => {
     CODE_P: prefix === "CASNOS" ? newData.length + 1 : "",
     NOM_P: sanitizeInput(person.nom_fr || ""),
     PRENOM_P: sanitizeInput(person.prenom_fr || ""),
-    DDN_P: convertDateFormat(person.date_n, "S").formattedDate3112 || "",
+    DDN_P: convertDateFormat(person.date_n, "S").date3112 || "",
     ADR_P: sanitizeInput(address || ""),
     NUM_ACT_P: sanitizeInput(numAct || ""),
     PP: sanitizeInput(person.prenom_p_fr || ""),

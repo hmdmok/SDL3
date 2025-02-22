@@ -193,8 +193,11 @@ function convertDateFormat(dateStr, outputType) {
   let month01 = padZero(month) === "00" ? "01" : padZero(month);
 
   // Format the date as  31/12/yyyy if day or month is 00
-  let day31 = padZero(day) === "00" ? "31" : padZero(day);
-  let month12 = padZero(month) === "00" ? "12" : padZero(month);
+  let day31 = day === "00" ? "31" : day;
+  let month12 = month === "00" ? "12" : month;
+
+  // Determine the separator based on outputType
+  let separator = outputType === "T" ? "-" : "/";
 
   // Format the date as  31/12/yyyy if day or month is 00
   let preDateAr =
@@ -202,8 +205,6 @@ function convertDateFormat(dateStr, outputType) {
       ? "خلال "
       : `${padZero(day)}${separator}${padZero(month)}${separator}`;
 
-  // Determine the separator based on outputType
-  let separator = outputType === "T" ? "-" : "/";
   let formattedDate = `${day}${separator}${month}${separator}${year}`;
   let jsFormattedDate = `${month}${separator}${day}${separator}${year}`;
   let formattedDate0101 = `${day01}${separator}${month01}${separator}${year}`;
