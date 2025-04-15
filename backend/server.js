@@ -17,7 +17,6 @@ const importDossiersRoutes = require("./routes/importDossiersRoutes");
 const templatesRoutes = require("./routes/templatesRoutes");
 const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
 const cors = require("cors");
-
 const app = express();
 dotenv.config();
 connectDB();
