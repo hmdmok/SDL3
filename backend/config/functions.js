@@ -62,17 +62,29 @@ const getCivility = (status, language) => {
   let civility = "";
 
   switch (status) {
-    case "C":
-      civility = language === "a" ? "أعزب/عزباء" : "Célibataire";
+    case "CM":
+      civility = language === "a" ? "أعزب" : "Célibataire";
       break;
-    case "M":
-      civility = language === "a" ? "متزوج/متزوجة" : "Marié(e)";
+    case "MM":
+      civility = language === "a" ? "متزوج" : "Marié";
       break;
-    case "D":
-      civility = language === "a" ? "مطلق/مطلقة" : "Divorcé(e)";
+    case "DM":
+      civility = language === "a" ? "مطلق" : "Divorcé";
       break;
-    case "V":
-      civility = language === "a" ? "أرمل/أرملة" : "Veuf/Veuve";
+    case "VM":
+      civility = language === "a" ? "أرمل" : "Veuf";
+      break;
+    case "CF":
+      civility = language === "a" ? "عزباء" : "Célibataire";
+      break;
+    case "MF":
+      civility = language === "a" ? "متزوجة" : "Mariée";
+      break;
+    case "DF":
+      civility = language === "a" ? "مطلقة" : "Divorcée";
+      break;
+    case "VF":
+      civility = language === "a" ? "أرملة" : "Veuve";
       break;
     default:
       civility = "Unknown marital status";

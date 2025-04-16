@@ -430,7 +430,10 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             record.demandeur?.prenom_fr,
             record.demandeur?.date_n,
             record.demandeur?.lieu_n_fr,
-            getCivility(record.demandeur?.stuation_f, "f"),
+            getCivility(
+              record.demandeur?.stuation_f + record.demandeur?.gender,
+              "f"
+            ),
             record.demandeur?.prenom_p_fr,
             record.demandeur?.nom_m_fr,
             record.demandeur?.prenom_m_fr,
@@ -445,7 +448,10 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             record.demandeur?.prenom,
             record.demandeur?.date_n,
             record.demandeur?.lieu_n,
-            getCivility(record.demandeur?.stuation_f, "a"),
+            getCivility(
+              record.demandeur?.stuation_f + record.demandeur?.gender,
+              "a"
+            ),
             record.demandeur?.prenom_p,
             record.demandeur?.nom_m,
             record.demandeur?.prenom_m,
@@ -464,7 +470,10 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         record.demandeur?.date_n,
         record.demandeur?.num_act,
         record.demandeur?.lieu_n,
-        getCivility(record.demandeur?.stuation_f, "a"),
+        getCivility(
+          record.demandeur?.stuation_f + record.demandeur?.gender,
+          "a"
+        ),
         record.demandeur?.prenom_p,
         record.demandeur?.nom_m,
         record.demandeur?.prenom_m,

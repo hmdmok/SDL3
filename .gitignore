@@ -2,6 +2,13 @@
 
 # dependencies
 /node_modules
+/dossiersEnqUpload  
+/dossiersScanUpload  
+/importationFileUpload  
+/personsPicUpload  
+/quotasPicUpload  
+/usersPicUpload  
+frontend1/**/node_modules
 /.pnp
 .pnp.js
 
