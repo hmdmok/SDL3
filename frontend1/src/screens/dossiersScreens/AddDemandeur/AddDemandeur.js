@@ -34,7 +34,54 @@ function AddDemandeur({ type }) {
   const [successSub, setSuccessSub] = useState(null);
   const [successPerson, setSuccessPerson] = useState(null);
   const [daira, setDaira] = useState("");
-
+  const [codeCommune1, setCodeCommune1] = useState([]);
+  const { userInfo } = useSelector((state) => state.userLogin);
+  const { systemInfo } = useSelector((state) => state.systemCheck);
+  useEffect(() => {
+    if (systemInfo?.length > 0 && systemInfo[0]?.administrationName) {
+      setDaira(systemInfo[0].administrationName);
+    }
+  }, [systemInfo]);
+  const { loading, demandeur, success, error } = useSelector(
+    (state) => state.demandeurGet
+  );
+  const {
+    loading: addLoading,
+    demandeur: AddDemandeur,
+    success: addSuccess,
+    error: addError,
+  } = useSelector((state) => state.demandeurAdd);
+  const {
+    loading: updateLoading,
+    success: updateSuccess,
+    error: updateError,
+  } = useSelector((state) => state.demandeurUpdate);
+  const { loading: loadingWilayas, wilayas } = useSelector(
+    (state) => state.wilayaList
+  );
+  const {
+    loading: loading_id_Communes,
+    communes: id_communes,
+    error: errorCommunes,
+  } = useSelector((state) => state.communeGetByDaira);
+  const { loading: loadingCommunes, communes } = useSelector(
+    (state) => state.communeGetByWilaya
+  );
+  const {
+    loading: loadingDossier,
+    dossier,
+    error: errorDossier,
+  } = useSelector((state) => state.dossierGet);
+  const {
+    loading: loadingDossierAdd,
+    success: successDossierAdd,
+    error: errorDossierAdd,
+  } = useSelector((state) => state.dossierAdd);
+  const {
+    loading: loadingDossierUpdate,
+    success: successDossierUpdate,
+    error: errorDossierUpdate,
+  } = useSelector((state) => state.dossierUpdate);
   const form = useForm({
     defaultValues: {
       prenom: "",
@@ -72,7 +119,7 @@ function AddDemandeur({ type }) {
       note_revenue: 0,
       note_habita: 0,
       note_situation_familiale: 0,
-      id_commune: "",
+      id_commune: systemInfo === undefined ? "" : systemInfo[0]?.communeCode,
       note_anciennete: 0,
       notes: 0,
       type: type,
@@ -119,48 +166,17 @@ function AddDemandeur({ type }) {
     { value: "V", label: "أرمل(ة)" },
   ];
 
-  const { loading, demandeur, success, error } = useSelector(
-    (state) => state.demandeurGet
-  );
-  const {
-    loading: addLoading,
-    demandeur: AddDemandeur,
-    success: addSuccess,
-    error: addError,
-  } = useSelector((state) => state.demandeurAdd);
-  const {
-    loading: updateLoading,
-    success: updateSuccess,
-    error: updateError,
-  } = useSelector((state) => state.demandeurUpdate);
-  const { loading: loadingWilayas, wilayas } = useSelector(
-    (state) => state.wilayaList
-  );
-  const {
-    loading: loading_id_Communes,
-    communes: id_communes,
-    error: errorCommunes,
-  } = useSelector((state) => state.communeGetByDaira);
-  const { loading: loadingCommunes, communes } = useSelector(
-    (state) => state.communeGetByWilaya
-  );
-  const {
-    loading: loadingDossier,
-    dossier,
-    error: errorDossier,
-  } = useSelector((state) => state.dossierGet);
-  const {
-    loading: loadingDossierAdd,
-    success: successDossierAdd,
-    error: errorDossierAdd,
-  } = useSelector((state) => state.dossierAdd);
-  const {
-    loading: loadingDossierUpdate,
-    success: successDossierUpdate,
-    error: errorDossierUpdate,
-  } = useSelector((state) => state.dossierUpdate);
-  const { userInfo } = useSelector((state) => state.userLogin);
-  const { systemInfo } = useSelector((state) => state.systemCheck);
+  // Watch the value of the select dropdown
+  const selectedWil_n = useWatch({
+    control,
+    name: "wil_n", // Name of the select input
+    defaultValue: "", // Default value
+  });
+
+  useEffect(() => {
+    if (selectedWil_n) dispatch(listCommunesByWilayaAction(getValues("wil_n")));
+  }, [dispatch, getValues, selectedWil_n]);
+
   useEffect(() => {
     dispatch(checkSystem());
   }, [dispatch]);
@@ -169,20 +185,21 @@ function AddDemandeur({ type }) {
     if (id) dispatch(getDossierAction(id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  useEffect(() => {
-    if (systemInfo?.length > 0 && systemInfo[0]?.administrationName) {
-      setDaira(systemInfo[0].administrationName);
-    }
-  }, [systemInfo]);
 
   useEffect(() => {
     if (daira !== "") {
       dispatch(listCommunesByDairaAction(daira));
     }
   }, [dispatch, daira]);
+
+  useEffect(() => {
+    if (id_communes?.length > 0) {
+      setCodeCommune1(id_communes);
+    }
+  }, [dispatch, id_communes]);
+
   useEffect(() => {
     if (dossier) {
-      console.log("id_commune",dossier.id_commune);
       setValue("date_depo", convertDateFormat(dossier.date_depo, "T").jsDate, {
         shouldValidate: true,
       });
@@ -276,7 +293,8 @@ function AddDemandeur({ type }) {
               getValues("remark"),
               getValues("saisi_conj"),
               null,
-              getValues("notes")
+              getValues("notes"),
+              getValues("id_commune")
             )
           );
         else if (type === "conj") {
@@ -302,7 +320,8 @@ function AddDemandeur({ type }) {
               getValues("remark"),
               getValues("saisi_conj"),
               null,
-              getValues("notes")
+              getValues("notes"),
+              getValues("id_commune")
             )
           );
         }
@@ -329,7 +348,8 @@ function AddDemandeur({ type }) {
               getValues("remark"),
               getValues("saisi_conj"),
               null,
-              getValues("notes")
+              getValues("notes"),
+              getValues("id_commune")
             )
           );
       }
@@ -367,17 +387,6 @@ function AddDemandeur({ type }) {
     successSub,
     successPerson,
   ]);
-
-  // Watch the value of the select dropdown
-  const selectedWil_n = useWatch({
-    control,
-    name: "wil_n", // Name of the select input
-    defaultValue: "", // Default value
-  });
-
-  useEffect(() => {
-    if (selectedWil_n) dispatch(listCommunesByWilayaAction(getValues("wil_n")));
-  }, [dispatch, getValues, selectedWil_n]);
 
   const submitHandler = async (data) => {
     try {
@@ -504,13 +513,13 @@ function AddDemandeur({ type }) {
               <br />
               <SelectGroup
                 errors={errors}
+                label={"بلدية الميلاد"}
+                name={"com_n"}
+                others={register}
                 items={communes?.map((commune) => ({
                   value: commune.nomFr,
                   label: commune.nomAr,
                 }))}
-                name={"com_n"}
-                label={"بلدية الميلاد"}
-                others={register}
               />
               <br />
               <MultiTextInput
@@ -692,7 +701,7 @@ function AddDemandeur({ type }) {
             <Col sm={{ order: "first" }}>
               <SelectGroup
                 errors={errors}
-                items={id_communes?.map((commune) => ({
+                items={codeCommune1?.map((commune) => ({
                   value: commune.code,
                   label: commune.nomAr,
                 }))}

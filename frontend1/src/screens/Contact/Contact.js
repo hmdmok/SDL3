@@ -8,13 +8,11 @@ function Contact() {
       <Card style={{ width: "17rem" }}>
         <Card.Header as="h3">يمكنكم التواصل معنا عبر هذه القنوات:</Card.Header>
         <Card.Body>
-          <Card.Title>العنوان تقرت</Card.Title>
+          <Card.Title>العنوان: ص.ب 652 تقرت</Card.Title>
 
           <Card.Title>+ 213 ** ** ** ** **</Card.Title>
 
-          <a href="mailto:hmd.moknine@gmail.com">
-            hmd.moknine@gmail.com
-          </a>
+          <a href="mailto:hmd.moknine@gmail.com">hmd.moknine@gmail.com</a>
         </Card.Body>
       </Card>
     </MainScreen>

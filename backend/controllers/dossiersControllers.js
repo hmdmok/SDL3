@@ -212,7 +212,6 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
           ).getTime() >=
           new Date(convertDateFormat(toDate, "S").jsDate).getTime()
         );
-       
       }
       return fdCheck && tdCheck;
     });
@@ -499,6 +498,7 @@ const updateDossier = asyncHandler(async (req, res) => {
     saisi_conj,
     scan_dossier,
     notes,
+    id_commune,
   } = req.body;
 
   const id = req.params.id;
@@ -528,7 +528,7 @@ const updateDossier = asyncHandler(async (req, res) => {
     dossierToUpdate.saisi_conj = saisi_conj || dossierToUpdate.saisi_conj;
     dossierToUpdate.scan_dossier = scan_dossier || dossierToUpdate.scan_dossier;
     dossierToUpdate.notes = notes || dossierToUpdate.notes;
-    dossierToUpdate.id_commune = systemInfo.communeCode;
+    dossierToUpdate.id_commune = id_commune || systemInfo.communeCode;
 
     const updatedDossier = await dossierToUpdate.save();
     res.status(201).json(updatedDossier);

@@ -15,7 +15,7 @@ const LandingPage = () => {
   }, [history]);
   return (
     <div className="main">
-      <Container >
+      <Container>
         <Row className="d-flex justify-content-center">
           <div className="intro-text">
             <div>
@@ -26,12 +26,12 @@ const LandingPage = () => {
               </p>
             </div>
           </div>
-          <Card  style={{ width: "17rem" }}>
+          <Card style={{ width: "17rem" }}>
             <Card.Header as="h3" className="text-center">
               يمكنكم التواصل معنا عبر هذه القنوات
             </Card.Header>
             <Card.Body>
-              <Card.Title>العنوان تقرت</Card.Title>
+              <Card.Title>العنوان: ص.ب 652 تقرت</Card.Title>
 
               <Card.Title>+ 213 ** ** ** ** **</Card.Title>
 

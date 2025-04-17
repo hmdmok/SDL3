@@ -36,7 +36,8 @@ export const addDossierAction =
     remark,
     saisi_conj,
     scan_dossier,
-    notes
+    notes,
+    id_commune
   ) =>
   async (dispatch, getState) => {
     try {
@@ -70,6 +71,7 @@ export const addDossierAction =
         saisi_conj,
         scan_dossier,
         notes,
+        id_commune,
       };
 
       const data = await axios.post("/api/dossiers/create", formData, config);
@@ -213,7 +215,8 @@ export const updateDossierAction =
     remark,
     saisi_conj,
     scan_dossier,
-    notes
+    notes,
+    id_commune
   ) =>
   async (dispatch, getState) => {
     try {
@@ -247,6 +250,7 @@ export const updateDossierAction =
         saisi_conj,
         scan_dossier,
         notes,
+        id_commune,
       };
       const { data } = await axios.put(`/api/dossiers/${id}`, formData, config);
       dispatch({ type: DOSSIER_UPDATE_SUCCESS, payload: data });
