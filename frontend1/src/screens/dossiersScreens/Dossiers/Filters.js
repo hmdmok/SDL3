@@ -20,6 +20,8 @@ const Filters = ({
   dateEtude,
   sort,
   setSort,
+  setShowBrothetherList,
+  showBrothersList,
 }) => {
   const PlusMoinRadioItems = [
     { value: "p", label: "اكثر من 35 سنة من تاريخ الدراسة" },
@@ -34,6 +36,23 @@ const Filters = ({
   const [tDate, setSetTDate] = useState("");
   return (
     <div className="filters">
+      {showBrothersList ? (
+        <Button
+          onClick={() => {
+            setShowBrothetherList(false);
+          }}
+        >
+          {"قائمة الاخوة"}
+        </Button>
+      ) : (
+        <Button
+          onClick={() => {
+            setShowBrothetherList(true);
+          }}
+        >
+          {"قائمة الملفات"}
+        </Button>
+      )}
       <hr />
       <Form.Label>{"عدد الملفات في الصفحة"}</Form.Label>
       <Form.Control

@@ -58,6 +58,7 @@ import {
   dossierDeleteReducer,
   dossierGetReducer,
   dossierListReducer,
+  dossierBrothersListReducer,
   dossierUpdateReducer,
 } from "./reducers/dossierReducers";
 import {
@@ -134,6 +135,7 @@ const reducer = combineReducers({
 
   dossierAdd: dossierAddReducer,
   dossierList: dossierListReducer,
+  dossierBrothersList: dossierBrothersListReducer,
   dossierUpdate: dossierUpdateReducer,
   dossierDelete: dossierDeleteReducer,
   dossierGet: dossierGetReducer,

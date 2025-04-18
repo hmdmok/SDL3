@@ -9,15 +9,14 @@ const {
   updateDossier,
   deleteDossier,
   getDossierByFilters,
+  getDossierBrothersByFilters,
   getDossierByNumDoss,
 } = require("../controllers/dossiersControllers");
 const {
-  
-
   getEnquetCNLFileTest,
   getEnquetCNASFileTest,
   getEnquetCASNOSFileTest,
-  
+
   getDossierByDates,
 } = require("../controllers/enquetsControllers");
 const {
@@ -62,6 +61,7 @@ const router = express.Router();
 
 router.route("/").get(getDossiers);
 router.route("/filtred").get(getDossierByFilters);
+router.route("/brothers/filtred").get(getDossierBrothersByFilters);
 router
   .route("/:id")
   .get(getDossierById)

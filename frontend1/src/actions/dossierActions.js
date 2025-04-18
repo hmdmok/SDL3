@@ -12,6 +12,9 @@ import {
   DOSSIER_LIST_FAIL,
   DOSSIER_LIST_REQUEST,
   DOSSIER_LIST_SUCCESS,
+  BROTERS_DOSSIER_LIST_FAIL,
+  BROTERS_DOSSIER_LIST_REQUEST,
+  BROTERS_DOSSIER_LIST_SUCCESS,
   DOSSIER_RESET,
   DOSSIER_UPDATE_FAIL,
   DOSSIER_UPDATE_REQUEST,
@@ -127,6 +130,53 @@ export const listDossiersAction =
     } catch (error) {
       dispatch({
         type: DOSSIER_LIST_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
+
+export const listBrothersDossiersAction =
+  (
+    page,
+    limit,
+    search,
+    sort,
+    fromDate,
+    toDate,
+    p_m_35_dd,
+    p_m_35_de,
+    situationFamiliale
+  ) =>
+  async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: BROTERS_DOSSIER_LIST_REQUEST,
+      });
+
+      const {
+        userLogin: { userInfo },
+      } = getState();
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      const url = `/api/dossiers/brothers/filtred?page=${page}&limit=${limit}&search=${search}&sort=${sort?.sort},${sort?.order}&fromDate=${fromDate}&toDate=${toDate}&p_m_35_de=${p_m_35_de?.dateEtude},${p_m_35_de?.type}&p_m_35_dd=${p_m_35_dd}&stuation_f=${situationFamiliale}`;
+
+      const { data } = await axios.get(url, config);
+      dispatch({
+        type: BROTERS_DOSSIER_LIST_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: BROTERS_DOSSIER_LIST_FAIL,
         payload:
           error.response && error.response.data.message
             ? error.response.data.message

@@ -332,6 +332,93 @@ function reverseDayAndMonth(dateStr) {
     return "";
   }
 }
+
+function countParentKeyMatches(targetEntry, tableEntries, lowPercentage = 0.8) {
+  // Initialize counters
+  const results = {
+    fatherMatches: [],
+    motherMatches: [],
+    totalFatherMatches: 0,
+    totalMotherMatches: 0,
+  };
+
+  // Improved fuzzy match function (Levenshtein-based)
+  function calculateSimilarity(str1 = "", str2 = "") {
+    if (str1 === str2) return 1;
+    if (!str1 || !str2) return 0;
+
+    const len1 = str1.length;
+    const len2 = str2.length;
+    const matrix = [];
+
+    // Initialize matrix
+    for (let i = 0; i <= len1; i++) matrix[i] = [i];
+    for (let j = 0; j <= len2; j++) matrix[0][j] = j;
+
+    // Fill matrix
+    for (let i = 1; i <= len1; i++) {
+      for (let j = 1; j <= len2; j++) {
+        const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1, // Deletion
+          matrix[i][j - 1] + 1, // Insertion
+          matrix[i - 1][j - 1] + cost // Substitution
+        );
+      }
+    }
+
+    // Calculate similarity percentage
+    const maxLen = Math.max(len1, len2);
+    return 1 - matrix[len1][len2] / maxLen;
+  }
+
+  // Ensure we have valid target and table entries
+  if (!targetEntry?.demandeur || !Array.isArray(tableEntries)) {
+    return results;
+  }
+
+  const targetFather = targetEntry.demandeur.fatherkey;
+  const targetMother = targetEntry.demandeur.motherkey;
+
+  // Compare against all table entries
+  tableEntries.forEach((entry) => {
+    if (!entry?.demandeur || entry._id === targetEntry._id) return;
+
+    const currentFather = entry.demandeur.fatherkey;
+    const currentMother = entry.demandeur.motherkey;
+
+    // Check fatherkey match
+    if (targetFather && currentFather) {
+      const similarity = calculateSimilarity(targetFather, currentFather);
+      if (similarity >= lowPercentage) {
+        results.fatherMatches.push({
+          matchId: entry._id,
+          num_dos: entry.num_dos,
+          similarity: similarity,
+          matchingKey: currentFather,
+        });
+        results.totalFatherMatches++;
+      }
+    }
+
+    // Check motherkey match
+    if (targetMother && currentMother) {
+      const similarity = calculateSimilarity(targetMother, currentMother);
+      if (similarity >= lowPercentage) {
+        results.motherMatches.push({
+          matchId: entry._id,
+          num_dos: entry.num_dos,
+          similarity: similarity,
+          matchingKey: currentMother,
+        });
+        results.totalMotherMatches++;
+      }
+    }
+  });
+
+  return results;
+}
+
 module.exports = {
   isValidDate,
   validateHeader,
@@ -347,4 +434,5 @@ module.exports = {
   getFullDossier,
   sortByName,
   reverseDayAndMonth,
+  countParentKeyMatches,
 };

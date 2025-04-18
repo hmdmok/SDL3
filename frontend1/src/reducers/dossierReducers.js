@@ -11,6 +11,9 @@ import {
   DOSSIER_LIST_FAIL,
   DOSSIER_LIST_REQUEST,
   DOSSIER_LIST_SUCCESS,
+  BROTERS_DOSSIER_LIST_FAIL,
+  BROTERS_DOSSIER_LIST_REQUEST,
+  BROTERS_DOSSIER_LIST_SUCCESS,
   DOSSIER_RESET,
   DOSSIER_UPDATE_FAIL,
   DOSSIER_UPDATE_REQUEST,
@@ -38,6 +41,23 @@ export const dossierListReducer = (state = { dossiers: [] }, actions) => {
     case DOSSIER_LIST_SUCCESS:
       return { loading: false, dossiers: actions.payload };
     case DOSSIER_LIST_FAIL:
+      return { loading: false, error: actions.payload };
+
+    default:
+      return state;
+  }
+};
+
+export const dossierBrothersListReducer = (
+  state = { brothers: [] },
+  actions
+) => {
+  switch (actions.type) {
+    case BROTERS_DOSSIER_LIST_REQUEST:
+      return { loading: true };
+    case BROTERS_DOSSIER_LIST_SUCCESS:
+      return { loading: false, brothers: actions.payload };
+    case BROTERS_DOSSIER_LIST_FAIL:
       return { loading: false, error: actions.payload };
 
     default:

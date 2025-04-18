@@ -8,6 +8,7 @@ const {
   getFullDossier,
   sortByName,
   convertDateFormat,
+  countParentKeyMatches,
 } = require("../config/functions");
 
 const getDossiers = asyncHandler(async (req, res) => {
@@ -354,6 +355,320 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
   }
 });
 
+const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
+  try {
+    const page = Number(req.query.page) - 1 || 0;
+    const limit = Number(req.query.limit) || 20;
+    const search = req.query.search || "";
+    let Sort = req.query.sort || "notes";
+    let fromDate = req.query.fromDate || "";
+    let toDate = req.query.toDate || "";
+    let p_m_35_dd = req.query.p_m_35_dd || "";
+    let p_m_35_de = req.query.p_m_35_de || "";
+    let stuation_f = req.query.stuation_f || "";
+
+    // const {
+    //   dossiersCount,
+    //   numDoss,
+    //   nomFr,
+    //   prenomFr,
+    //   birthDate,
+
+    //   situationFamiliale,
+    //   dateEtude,
+    //   plusMoin35Value,
+    // } = req.body;
+
+    const dossierByNotes = await getFullDossier();
+
+    var keyArray1 = dossierByNotes.map(function (item) {
+      const demandeur = item.demandeur || {};
+      return {
+        _id: item._id,
+        num_dos: item.num_dos,
+        date_depo: item.date_depo,
+        notes: item.notes,
+        demandeur: {
+          ...demandeur?._doc, // Spread existing demandeur properties
+          fatherkey:
+            item.demandeur?.nom_fr + item.demandeur?.prenom_p_fr || null, // Add fatherkey with fallback
+          motherkey:
+            item.demandeur?.nom_m_fr + item.demandeur?.prenom_m_fr || null, // Add motherkey with fallback
+        },
+      };
+    });
+
+    // filter by search
+    var filterBySearch = keyArray1.filter(function (item) {
+      
+      return (
+        item.num_dos?.toLowerCase().includes(search.toLowerCase()) ||
+        item.demandeur?.nom_fr.toLowerCase().includes(search.toLowerCase()) ||
+        item.demandeur?.prenom_fr
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        item.demandeur?.nom.toLowerCase().includes(search.toLowerCase()) ||
+        item.demandeur?.prenom.toLowerCase().includes(search.toLowerCase()) ||
+        item.demandeur?.date_n.toLowerCase().includes(search.toLowerCase()) ||
+        item.notes === parseInt(search.toLowerCase())
+      );
+    });
+
+    //filter by plus or moins 35 from date etude
+    let p_m_35_de_value = {};
+    p_m_35_de = p_m_35_de.split(",");
+    p_m_35_de_value = {
+      date_etude: p_m_35_de[0],
+      type: p_m_35_de[1],
+    };
+
+    filterBySearch = filterBySearch.filter((dossier) => {
+      if (p_m_35_de_value.type === "m") {
+        return (
+          new Date(
+            convertDateFormat(dossier.demandeur?.date_n).jsDate
+          ).getTime() >
+          new Date(
+            new Date(
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+            ).getFullYear() - 35,
+            new Date(
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+            ).getMonth(),
+            new Date(
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+            ).getDate()
+          ).getTime()
+        );
+      } else if (p_m_35_de_value.type === "p") {
+        return (
+          new Date(
+            convertDateFormat(dossier.demandeur?.date_n).jsDate
+          ).getTime() <=
+          new Date(
+            new Date(
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+            ).getFullYear() - 35,
+            new Date(
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+            ).getMonth(),
+            new Date(
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+            ).getDate()
+          ).getTime()
+        );
+      } else {
+        return true;
+      }
+    });
+    //filter by plus or moins 35 from date depo
+    filterBySearch = filterBySearch.filter((dossier) => {
+      if (p_m_35_dd === "m") {
+        return (
+          new Date(
+            convertDateFormat(dossier.demandeur?.date_n).jsDate
+          ).getTime() >
+          new Date(
+            new Date(
+              convertDateFormat(dossier.date_depo).jsDate
+            ).getFullYear() - 35,
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getMonth(),
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate()
+          ).getTime()
+        );
+      } else if (p_m_35_dd === "p") {
+        return (
+          new Date(
+            convertDateFormat(dossier.demandeur?.date_n).jsDate
+          ).getTime() <=
+          new Date(
+            new Date(
+              convertDateFormat(dossier.date_depo).jsDate
+            ).getFullYear() - 35,
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getMonth(),
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate()
+          ).getTime()
+        );
+      } else {
+        return true;
+      }
+    });
+
+    //filter by situation familial
+
+    filterBySearch = filterBySearch.filter((dossier) => {
+      if (stuation_f !== "")
+        return dossier.demandeur?.stuation_f === stuation_f;
+      else return true;
+    });
+    //filter by fromDate and toDate
+    filterBySearch = filterBySearch.filter((dossier) => {
+      let fdCheck = true;
+      let tdCheck = true;
+
+      if (fromDate !== "") {
+        fdCheck = !(
+          new Date(
+            convertDateFormat(dossier.date_depo, "S").jsDate
+          ).getTime() <=
+          new Date(convertDateFormat(fromDate, "S").jsDate).getTime()
+        );
+      }
+      if (toDate) {
+        tdCheck = !(
+          new Date(
+            convertDateFormat(dossier.date_depo, "S").jsDate
+          ).getTime() >=
+          new Date(convertDateFormat(toDate, "S").jsDate).getTime()
+        );
+      }
+      return fdCheck && tdCheck;
+    });
+
+    // Sort by methode
+    let sort = {};
+    Sort = Sort.split(",");
+    if (Sort[1]) {
+      sort.name = Sort[0];
+      sort.type = Sort[1];
+    } else {
+      sort.name = Sort[0];
+      sort.type = "desc";
+    }
+    switch (sort.name) {
+      case "nom":
+        filterBySearch = filterBySearch.sort(function (a, b) {
+          return sortByName(a, b, "nom_fr", sort.type);
+        });
+        break;
+
+      case "prenom":
+        filterBySearch = filterBySearch.sort(function (a, b) {
+          return sortByName(a, b, "prenom_fr", sort.type);
+        });
+        break;
+
+      case "date_n":
+        filterBySearch = filterBySearch.sort(function (a, b) {
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
+          if (sort.type === "asc") {
+            return (
+              new Date(
+                convertDateFormat(b.demandeur.date_n, "S").jsDate
+              ).getTime() -
+              new Date(
+                convertDateFormat(a.demandeur.date_n, "S").jsDate
+              ).getTime()
+            );
+          } else if (sort.type === "desc") {
+            return (
+              new Date(
+                convertDateFormat(a.demandeur.date_n, "S").jsDate
+              ).getTime() -
+              new Date(
+                convertDateFormat(b.demandeur.date_n, "S").jsDate
+              ).getTime()
+            );
+          }
+        });
+        break;
+
+      case "date_depo":
+        filterBySearch = filterBySearch.sort(function (a, b) {
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
+          if (sort.type === "asc") {
+            return (
+              new Date(convertDateFormat(a.date_depo, "S")?.jsDate).getTime() -
+              new Date(convertDateFormat(b.date_depo, "S")?.jsDate).getTime()
+            );
+          } else if (sort.type === "desc") {
+            return (
+              new Date(convertDateFormat(b.date_depo, "S")?.jsDate).getTime() -
+              new Date(convertDateFormat(a.date_depo, "S")?.jsDate).getTime()
+            );
+          }
+        });
+        break;
+
+      case "notes":
+        filterBySearch = filterBySearch.sort(function (a, b) {
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
+          if (sort.type === "asc") {
+            return a.notes - b.notes;
+          } else if (sort.type === "desc") {
+            return b.notes - a.notes;
+          }
+          return b.notes - a.notes;
+        });
+        break;
+    }
+
+    // calculate total
+    const total = filterBySearch.length;
+    var totalArray = filterBySearch.map(function (item) {
+      return {
+        _id: item._id,
+        num_dos: item.num_dos,
+        date_depo: item.date_depo,
+        notes: item.notes,
+        demandeur: {
+          nom_fr: item["demandeur"]?.nom_fr,
+          prenom_fr: item["demandeur"]?.prenom_fr,
+          date_n: item["demandeur"]?.date_n,
+          stuation_f: item["demandeur"]?.stuation_f,
+          stuation_f: item["demandeur"]?.prenom_p_fr,
+          stuation_f: item["demandeur"]?.prenom_m_fr,
+          stuation_f: item["demandeur"]?.nom_m_fr,
+        },
+      };
+    });
+
+    // Skip page * limit and limit
+    filterBySearch = filterBySearch.filter((x, i) => {
+      if (i > page * limit - 1 && i < page * limit + limit) {
+        return true;
+      }
+    });
+
+    var keyArray = filterBySearch.map(function (item) {
+      return {
+        _id: item._id,
+        num_dos: item.num_dos,
+        date_depo: item.date_depo,
+        notes: item.notes,
+        demandeur: {
+          nom_fr: item["demandeur"]?.nom_fr,
+          prenom_fr: item["demandeur"]?.prenom_fr,
+          date_n: item["demandeur"]?.date_n,
+          stuation_f: item["demandeur"]?.stuation_f,
+          stuation_f: item["demandeur"]?.prenom_p_fr,
+          stuation_f: item["demandeur"]?.prenom_m_fr,
+          stuation_f: item["demandeur"]?.nom_m_fr,
+        },
+      };
+    });
+
+    // define the response
+    const response = {
+      error: false,
+      total,
+      page: page + 1,
+      limit,
+      data: keyArray,
+      totalArray: totalArray,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: true, message: "Internal Server Error2" });
+    throw new Error(error.message);
+  }
+});
+
 const getDossierByBrothers = asyncHandler(async (req, res) => {
   try {
     const fullDossiers = await getFullDossier();
@@ -568,4 +883,5 @@ module.exports = {
   deleteDossier,
   getDossierByFilters,
   getDossierByNumDoss,
+  getDossierBrothersByFilters,
 };
