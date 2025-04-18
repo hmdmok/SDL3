@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Navbar,
@@ -22,10 +22,16 @@ import {
 import DropdownMenu from "react-bootstrap/esm/DropdownMenu";
 import { deleteFile } from "../../actions/filesActions";
 import { deleteBenefisier } from "../../actions/benifisierActions";
+import { listCommunesByDairaAction } from "../../actions/communeActions";
+import { checkSystem, updateSystem } from "../../actions/systemActions";
+import { useForm, useWatch } from "react-hook-form";
+import SelectGroup from "../../Functions/SelectGroup";
 
 const Navigation = () => {
   let history = useNavigate();
+
   const dispatch = useDispatch();
+  const [daira, setDaira] = useState("");
 
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
@@ -54,6 +60,91 @@ const Navigation = () => {
   function loginHandler() {
     history("/login");
   }
+  const { systemInfo } = useSelector((state) => state.systemCheck);
+
+  const { communes } = useSelector((state) => state.communeGetByDaira);
+  const form = useForm({ defaultValues: { communeId: -1 } });
+  const { register, setValue, control, formState, setError } = form;
+  const { errors } = formState;
+
+  // useEffect(() => {
+  //   if (error === "Initiate system file!!!") {
+  //     navigate("/system");
+  //   } else if (userInfo) {
+  //     navigate("/home");
+  //   }
+  // }, [navigate, userInfo, error]);
+
+  // Watch the value of the select dropdown
+  const selectedWil_n = useWatch({
+    control,
+    name: "communeId", // Name of the select input
+    defaultValue: "", // Default value
+  });
+
+  useEffect(() => {
+    dispatch(checkSystem());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (systemInfo?.length > 0 && systemInfo[0]?.administrationName) {
+      setDaira(systemInfo[0].administrationName);
+    }
+  }, [systemInfo]);
+
+  useEffect(() => {
+    if (daira !== "") {
+      dispatch(listCommunesByDairaAction(daira));
+    }
+  }, [dispatch, daira, setValue, systemInfo]);
+
+  useEffect(() => {
+    if (communes?.length > 0) {
+      if (systemInfo !== undefined) {
+        setValue("communeId", systemInfo[0].communeCode, {
+          shouldValidate: true,
+        });
+      }
+    }
+  }, [communes, setValue, systemInfo]);
+
+  const onSubmitIdCommune = async (data) => {
+    try {
+      const selectedCommune = communes.find(
+        ({ code }) => code === data.communeId
+      );
+      // if (!selectedCommune && data.userName !== "Admin") {
+      //   throw new Error("لم يتم تحميل البلدية");
+      // }
+      dispatch(
+        updateSystem(
+          systemInfo[0]?._id,
+          null,
+          null,
+          null,
+          null,
+          null,
+          selectedCommune?.nomFr,
+          selectedCommune?.code,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        )
+      );
+    } catch (error) {
+      setError("root", {
+        type: "manual",
+        message: error.message,
+      });
+    }
+  };
+  useEffect(() => {
+    if (selectedWil_n) onSubmitIdCommune({ communeId: selectedWil_n });
+    // eslint-disable-next-line
+  }, [selectedWil_n]);
 
   return (
     <Navbar
@@ -92,10 +183,7 @@ const Navigation = () => {
                         تسجيل خروج
                       </NavDropdown.Item>
                     </NavDropdown>
-                    <NavDropdown
-                      title="تسيير الحصص"
-                      id="basic-nav-dropdown"
-                    >
+                    <NavDropdown title="تسيير الحصص" id="basic-nav-dropdown">
                       <NavDropdown.Item href="/quotas">
                         قائمة الحصص
                       </NavDropdown.Item>
@@ -234,7 +322,16 @@ const Navigation = () => {
               </Nav>
             </Navbar.Collapse>
           </Nav>
-        )}
+        )}{" "}
+        <SelectGroup
+          errors={errors}
+          items={communes?.map((commune) => ({
+            value: commune.code,
+            label: commune.nomAr,
+          }))}
+          name={"communeId"}
+          others={register}
+        />
         <Form className="d-flex">
           {userInfo ? (
             <Button

@@ -31,57 +31,71 @@ import SelectGroup from "../../../Functions/SelectGroup";
 import { checkSystem } from "../../../actions/systemActions";
 
 function AddDemandeur({ type }) {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [successSub, setSuccessSub] = useState(null);
   const [successPerson, setSuccessPerson] = useState(null);
   const [daira, setDaira] = useState("");
-  const [codeCommune1, setCodeCommune1] = useState([]);
+  const [communeCode, setCommuneCode] = useState("");
+
   const { userInfo } = useSelector((state) => state.userLogin);
   const { systemInfo } = useSelector((state) => state.systemCheck);
   useEffect(() => {
     if (systemInfo?.length > 0 && systemInfo[0]?.administrationName) {
       setDaira(systemInfo[0].administrationName);
+      setCommuneCode(systemInfo[0].communeCode);
     }
   }, [systemInfo]);
+
   const { loading, demandeur, success, error } = useSelector(
     (state) => state.demandeurGet
   );
+
   const {
     loading: addLoading,
     demandeur: AddDemandeur,
     success: addSuccess,
     error: addError,
   } = useSelector((state) => state.demandeurAdd);
+
   const {
     loading: updateLoading,
     success: updateSuccess,
     error: updateError,
   } = useSelector((state) => state.demandeurUpdate);
+
   const { loading: loadingWilayas, wilayas } = useSelector(
     (state) => state.wilayaList
   );
+
   const {
     loading: loading_id_Communes,
     communes: id_communes,
     error: errorCommunes,
   } = useSelector((state) => state.communeGetByDaira);
+
   const { loading: loadingCommunes, communes } = useSelector(
     (state) => state.communeGetByWilaya
   );
+
   const {
     loading: loadingDossier,
     dossier,
     error: errorDossier,
   } = useSelector((state) => state.dossierGet);
+
   const {
     loading: loadingDossierAdd,
     success: successDossierAdd,
     error: errorDossierAdd,
   } = useSelector((state) => state.dossierAdd);
+
   const {
     loading: loadingDossierUpdate,
     success: successDossierUpdate,
     error: errorDossierUpdate,
   } = useSelector((state) => state.dossierUpdate);
+
   const form = useForm({
     defaultValues: {
       prenom: "",
@@ -119,7 +133,7 @@ function AddDemandeur({ type }) {
       note_revenue: 0,
       note_habita: 0,
       note_situation_familiale: 0,
-      id_commune: systemInfo === undefined ? "" : systemInfo[0]?.communeCode,
+      id_commune: "",
       note_anciennete: 0,
       notes: 0,
       type: type,
@@ -138,9 +152,6 @@ function AddDemandeur({ type }) {
   } = form;
   const { errors, isSubmitting } = formState;
   const { id, ordre } = useParams();
-
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const backHandler = () => {
     navigate("/dossiers");
@@ -180,6 +191,7 @@ function AddDemandeur({ type }) {
   useEffect(() => {
     dispatch(checkSystem());
   }, [dispatch]);
+
   useEffect(() => {
     dispatch(listWilayasAction());
     if (id) dispatch(getDossierAction(id));
@@ -191,12 +203,6 @@ function AddDemandeur({ type }) {
       dispatch(listCommunesByDairaAction(daira));
     }
   }, [dispatch, daira]);
-
-  useEffect(() => {
-    if (id_communes?.length > 0) {
-      setCodeCommune1(id_communes);
-    }
-  }, [dispatch, id_communes]);
 
   useEffect(() => {
     if (dossier) {
@@ -230,10 +236,24 @@ function AddDemandeur({ type }) {
         if (dossier?.id_conjoin[ordre])
           dispatch(getDemandeurAction(dossier?.id_conjoin[ordre]));
         else reset();
+    } else if (communeCode !== undefined) {
+      setValue("id_commune", communeCode, {
+        shouldValidate: true,
+      });
     }
     // Load the existing record for editing
     // Replace this with a specific action to fetch the record details if needed
-  }, [dispatch, dossier, ordre, reset, setValue, type, userInfo.username]);
+  }, [
+    dispatch,
+    dossier,
+    ordre,
+    reset,
+    setValue,
+    type,
+    userInfo.username,
+    id_communes,
+    communeCode,
+  ]);
 
   useEffect(() => {
     if (demandeur) {
@@ -269,7 +289,7 @@ function AddDemandeur({ type }) {
     }
     // Load the existing record for editing
     // Replace this with a specific action to fetch the record details if needed
-  }, [dispatch, demandeur, success, setValue]);
+  }, [dispatch, demandeur, success, setValue, communes]);
 
   useEffect(() => {
     if (successPerson != null) {
@@ -426,6 +446,9 @@ function AddDemandeur({ type }) {
       {errorDossier && (
         <ErrorMessage variant="danger">{errorDossier}</ErrorMessage>
       )}
+      {errorCommunes && (
+        <ErrorMessage variant="danger">{errorCommunes}</ErrorMessage>
+      )}
       {loading && <Loading />}
       {loadingDossierAdd && <Loading />}
       {loadingDossierUpdate && <Loading />}
@@ -433,6 +456,7 @@ function AddDemandeur({ type }) {
       {updateLoading && <Loading />}
       {loadingWilayas && <Loading />}
       {loadingCommunes && <Loading />}
+      {loading_id_Communes && <Loading />}
       {loadingDossier && <Loading />}
       <MainScreen
         title={`ادخال معلومات ${type === "dema" ? " طالب السكن" : " الزوجة"} ${
@@ -701,7 +725,7 @@ function AddDemandeur({ type }) {
             <Col sm={{ order: "first" }}>
               <SelectGroup
                 errors={errors}
-                items={codeCommune1?.map((commune) => ({
+                items={id_communes?.map((commune) => ({
                   value: commune.code,
                   label: commune.nomAr,
                 }))}

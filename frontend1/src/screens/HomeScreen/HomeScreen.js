@@ -5,13 +5,15 @@ import file from "./file.png";
 import update from "./update.png";
 import { Container, Row } from "react-bootstrap";
 
+
 function HomeScreen() {
+
   const creatorData = localStorage.getItem("userInfo");
   const creatorInfo = JSON.parse(creatorData);
   const logedUsername = creatorInfo.username;
   const logedPhotoLink = creatorInfo.photo_link;
   const logedUserType = creatorInfo.usertype;
-
+ 
   return (
     <MainScreen title={"الصفحة الرئيسة"}>
       <Row className="d-flex">
@@ -25,6 +27,7 @@ function HomeScreen() {
       </Row>
       <Row className="d-flex  flex-row-reverse">
         <Container className="d-flex justify-content-center">
+         
           <Logo root={"/dossiers"} title={"قائمة الملفات"} pic={file} />
           <Logo root={"/adddossiers"} title={"تحرير ملف"} pic={update} />
           <Logo root={"/tableNotes"} title={"جدول النقاط"} pic={update} />

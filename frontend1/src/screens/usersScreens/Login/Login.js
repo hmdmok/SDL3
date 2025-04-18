@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import "./Login.css";
 import { login } from "../../../actions/userActions";
 import { listCommunesByDairaAction } from "../../../actions/communeActions";
-import { checkSystem, updateSystem } from "../../../actions/systemActions";
+import { checkSystem } from "../../../actions/systemActions";
 
 function Login() {
   const [daira, setDaira] = useState("");
@@ -19,11 +19,6 @@ function Login() {
 
   const { loading, error, userInfo } = useSelector((state) => state.userLogin);
   const { systemInfo } = useSelector((state) => state.systemCheck);
-  const {
-    loading: loadingCommunes,
-    communes,
-    error: errorCommunes,
-  } = useSelector((state) => state.communeGetByDaira);
 
   const form = useForm({ defaultValues: { communeId: -1 } });
   const { register, handleSubmit, control, formState, setError } = form;
@@ -55,32 +50,6 @@ function Login() {
 
   const onSubmit = async (data) => {
     try {
-      const selectedCommune = communes.find(
-        ({ _id }) => _id === data.communeId
-      );
-      // if (!selectedCommune && data.userName !== "Admin") {
-      //   throw new Error("لم يتم تحميل البلدية");
-      // }
-
-      dispatch(
-        updateSystem(
-          systemInfo[0]?._id,
-          null,
-          null,
-          null,
-          null,
-          null,
-          selectedCommune?.nomFr,
-          selectedCommune?.code,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null
-        )
-      );
-
       dispatch(login(data.userName, data.passWord));
     } catch (error) {
       setError("communeId", {
@@ -93,28 +62,6 @@ function Login() {
     <MainScreen title={"الرجاء تسجيل الدخول"}>
       <div className="loginContainer">
         <Form onSubmit={handleSubmit(onSubmit)} noValidate>
-          <Form.Group className="text-right">
-            <Form.Label htmlFor="com_n">البلدية</Form.Label>
-            <Form.Select
-              {...register("communeId")}
-              id="com_n"
-              className="form-control text-right"
-            >
-              <option value="-1" disabled hidden>
-                اختر البلدية
-              </option>
-              {communes?.map((commune) => (
-                <option key={commune._id} value={commune._id}>
-                  {commune.nomAr}
-                </option>
-              ))}
-            </Form.Select>
-            {errors.communeId && (
-              <p className="text-danger text-right">
-                {errors.communeId.message}
-              </p>
-            )}
-          </Form.Group>
           <Form.Group className="text-right">
             <Form.Label htmlFor="inputUsername">اسم المستخدم</Form.Label>
             <Form.Control
@@ -155,10 +102,7 @@ function Login() {
               {isSubmitting || loading ? "جاري" : "تسجيل الدخول"}
             </Button>
           </Form.Group>
-          {errorCommunes && (
-            <p className="text-danger text-right">{errorCommunes}</p>
-          )}
-          {loadingCommunes && <Loading />}
+         
           {error && <p className="text-danger text-right">{error}</p>}
           {loading && <Loading />}
         </Form>
