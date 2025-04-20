@@ -71,13 +71,37 @@ const correctionDB = asyncHandler(async (req, res) => {
       $project: {
         _id: 1,
         num_dos: 1,
+        type: 1,
       },
     },
   ]);
 
-  console.log("voidNameDocuments: ", voidNameDocuments);
-  //
-  //
+  // find the dossiers of the persons that have no name
+  const dossiersToUpdate = allDossiers.filter(async (dossier) => {
+    return voidNameDocuments.forEach(async (person) => {
+      if (person.type === "dema") {
+        if (person._id.toString() === dossier.id_demandeur.toString()) {
+          await Person.findByIdAndDelete(person._id);
+          await Dossier.findByIdAndDelete(dossier._id);
+        }
+      }
+      if (person.type === "conj") {
+        if (person._id.toString() === dossier.id_conjoin.toString()) {
+          await Person.findByIdAndDelete(person._id.toString());
+          const dossierToUpdate = await Dossier.findById(dossier._id);
+
+          const index = dossierToUpdate.id_conjoin?.indexOf(5);
+          if (index > -1) {
+            // only splice array when item is found
+            dossierToUpdate.id_conjoin?.splice(index, 1); // 2nd parameter means remove one item only
+          }
+          dossierToUpdate.num_conj = dossierToUpdate.num_conj - 1;
+          await dossierToUpdate.save();
+        }
+      }
+    });
+  });
+
   //  fix the database from dossiers that are duplicated.
   // First, identify duplicates using both fields
   const keepIds = await Dossier.aggregate([
@@ -106,7 +130,6 @@ const correctionDB = asyncHandler(async (req, res) => {
     },
   ]);
 
-  console.log("keepIds", keepIds);
   // Delete all documents with duplicate (num_dos + id_commune) except the ones we're keeping
   const deleteResult =
     keepIds.length > 0

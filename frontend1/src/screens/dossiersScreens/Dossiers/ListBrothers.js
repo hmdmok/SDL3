@@ -12,9 +12,10 @@ function ListBrothers({
 }) {
   return (
     <ListGroup>
-      <h3 style={{ display: "flex", flexDirection: "row-reverse" }}>{title}</h3>
-
       <div className="">
+        <h3 style={{ display: "flex", flexDirection: "row-reverse" }}>
+          {title}
+        </h3>
         <Card style={{ display: "flex", flexDirection: "row-reverse" }}>
           <ListGroup variant="flush" style={{ width: "9rem" }}>
             <Badge bg="warning" text="dark" style={{ height: "40px" }}>
@@ -53,45 +54,56 @@ function ListBrothers({
       {dossiers?.data?.map((dossierMap, index) => {
         return (
           <>
-            <SingleBrothergroup
-              key={dossierMap._id + index}
-              dossierMap={dossierMap}
-              setShowPopup={setShowPopup}
-              deleteHandler={deleteHandler}
-              setIdToDel={setIdToDel}
-            />
-
             {showBrothersList === "FatherBrothers" &&
-              dossierMap?.demandeur?.listOfFatherBrothers?.map(
-                (brother, index2) => {
-                  console.log("brother: ",brother);
-                  return (
-                    <SingleBrothergroup
-                      key={brother.matchId + index2}
-                      dossierMap={brother}
-                      setShowPopup={setShowPopup}
-                      deleteHandler={deleteHandler}
-                      setIdToDel={setIdToDel}
-                    />
-                  );
-                }
+              dossierMap?.demandeur?.listOfFatherBrothers?.length > 0 && (
+                <div className="" key={index}>
+                  <SingleBrothergroup
+                    dossierMap={dossierMap}
+                    setShowPopup={setShowPopup}
+                    deleteHandler={deleteHandler}
+                    setIdToDel={setIdToDel}
+                  />
+                  {dossierMap?.demandeur?.listOfFatherBrothers?.map(
+                    (brother, index2) => {
+                      return (
+                        <SingleBrothergroup
+                          dossierMap={brother}
+                          setShowPopup={setShowPopup}
+                          deleteHandler={deleteHandler}
+                          setIdToDel={setIdToDel}
+                        />
+                      );
+                    }
+                  )}
+                  <hr />
+                </div>
               )}
 
             {showBrothersList === "MotherBrothers" &&
-              dossierMap?.demandeur?.listOfMotherBrothers?.map(
-                (brother, index3) => {
-                  return (
-                    <SingleBrothergroup
-                      key={brother.matchId + index3}
-                      dossierMap={brother}
-                      setShowPopup={setShowPopup}
-                      deleteHandler={deleteHandler}
-                      setIdToDel={setIdToDel}
-                    />
-                  );
-                }
+              dossierMap?.demandeur?.listOfMotherBrothers?.length > 0 && (
+                <div className="" key={index}>
+                  <SingleBrothergroup
+                    dossierMap={dossierMap}
+                    setShowPopup={setShowPopup}
+                    deleteHandler={deleteHandler}
+                    setIdToDel={setIdToDel}
+                  />
+                  )
+                  {dossierMap?.demandeur?.listOfMotherBrothers?.map(
+                    (brother, index3) => {
+                      return (
+                        <SingleBrothergroup
+                          dossierMap={brother}
+                          setShowPopup={setShowPopup}
+                          deleteHandler={deleteHandler}
+                          setIdToDel={setIdToDel}
+                        />
+                      );
+                    }
+                  )}
+                  <hr />
+                </div>
               )}
-            <hr />
           </>
         );
       })}
