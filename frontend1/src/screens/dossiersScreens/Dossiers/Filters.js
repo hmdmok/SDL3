@@ -36,22 +36,65 @@ const Filters = ({
   const [tDate, setSetTDate] = useState("");
   return (
     <div className="filters">
-      {showBrothersList ? (
-        <Button
-          onClick={() => {
-            setShowBrothetherList(false);
-          }}
-        >
-          {"قائمة الاخوة"}
-        </Button>
+      {showBrothersList === "List" ? (
+        <>
+          <Button
+            onClick={() => {
+              setShowBrothetherList("FatherBrothers");
+            }}
+          >
+            {"قائمة الاخوة من الاب"}
+          </Button>
+          <Button
+            onClick={() => {
+              setShowBrothetherList("MotherBrothers");
+            }}
+          >
+            {"قائمة الاخوة من الام"}
+          </Button>
+        </>
       ) : (
-        <Button
-          onClick={() => {
-            setShowBrothetherList(true);
-          }}
-        >
-          {"قائمة الملفات"}
-        </Button>
+        <>
+          {showBrothersList === "FatherBrothers" ? (
+            <>
+              <Button
+                onClick={() => {
+                  setShowBrothetherList("List");
+                }}
+              >
+                {"قائمة الملفات"}
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowBrothetherList("MotherBrothers");
+                }}
+              >
+                {"قائمة الاخوة من الام"}
+              </Button>
+            </>
+          ) : (
+            <>
+              {showBrothersList === "MotherBrothers" ? (
+                <>
+                  <Button
+                    onClick={() => {
+                      setShowBrothetherList("List");
+                    }}
+                  >
+                    {"قائمة الملفات"}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowBrothetherList("FatherBrothers");
+                    }}
+                  >
+                    {"قائمة الاخوة من الاب"}
+                  </Button>
+                </>
+              ) : null}
+            </>
+          )}
+        </>
       )}
       <hr />
       <Form.Label>{"عدد الملفات في الصفحة"}</Form.Label>

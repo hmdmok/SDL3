@@ -381,7 +381,7 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
 
     const dossierByNotes = await getFullDossier();
 
-    var keyArray1 = dossierByNotes.map(function (item) {
+    var keyArray2 = dossierByNotes.map(function (item) {
       const demandeur = item.demandeur || {};
       return {
         _id: item._id,
@@ -397,10 +397,26 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
         },
       };
     });
+    var keyArray1 = keyArray2.map(function (item) {
+      const demandeur = item.demandeur || {};
+      const parentKeyMatches = countParentKeyMatches(item, keyArray2);
+      return {
+        _id: item._id,
+        num_dos: item.num_dos,
+        date_depo: item.date_depo,
+        notes: item.notes,
+        demandeur: {
+          ...demandeur, // Spread existing demandeur properties
+          numberOfFatherBrothers: parentKeyMatches.totalFatherMatches || 0,
+          numberOfMotherBrothers: parentKeyMatches.totalMotherMatches || 0,
+          listOfFatherBrothers: parentKeyMatches.fatherMatches || [],
+          listOfMotherBrothers: parentKeyMatches.motherMatches || [],
+        },
+      };
+    });
 
     // filter by search
     var filterBySearch = keyArray1.filter(function (item) {
-      
       return (
         item.num_dos?.toLowerCase().includes(search.toLowerCase()) ||
         item.demandeur?.nom_fr.toLowerCase().includes(search.toLowerCase()) ||
@@ -619,9 +635,13 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
           prenom_fr: item["demandeur"]?.prenom_fr,
           date_n: item["demandeur"]?.date_n,
           stuation_f: item["demandeur"]?.stuation_f,
-          stuation_f: item["demandeur"]?.prenom_p_fr,
-          stuation_f: item["demandeur"]?.prenom_m_fr,
-          stuation_f: item["demandeur"]?.nom_m_fr,
+          prenom_p_fr: item["demandeur"]?.prenom_p_fr,
+          prenom_m_fr: item["demandeur"]?.prenom_m_fr,
+          nom_m_fr: item["demandeur"]?.nom_m_fr,
+          totalFatherMatches: item["demandeur"]?.numberOfFatherBrothers,
+          totalMotherMatches: item["demandeur"]?.numberOfMotherBrothers,
+          listOfFatherBrothers: item["demandeur"]?.listOfFatherBrothers,
+          listOfMotherBrothers: item["demandeur"]?.listOfMotherBrothers,
         },
       };
     });
@@ -644,9 +664,13 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
           prenom_fr: item["demandeur"]?.prenom_fr,
           date_n: item["demandeur"]?.date_n,
           stuation_f: item["demandeur"]?.stuation_f,
-          stuation_f: item["demandeur"]?.prenom_p_fr,
-          stuation_f: item["demandeur"]?.prenom_m_fr,
-          stuation_f: item["demandeur"]?.nom_m_fr,
+          prenom_p_fr: item["demandeur"]?.prenom_p_fr,
+          prenom_m_fr: item["demandeur"]?.prenom_m_fr,
+          nom_m_fr: item["demandeur"]?.nom_m_fr,
+          totalFatherMatches: item["demandeur"]?.numberOfFatherBrothers,
+          totalMotherMatches: item["demandeur"]?.numberOfMotherBrothers,
+          listOfFatherBrothers: item["demandeur"]?.listOfFatherBrothers,
+          listOfMotherBrothers: item["demandeur"]?.listOfMotherBrothers,
         },
       };
     });

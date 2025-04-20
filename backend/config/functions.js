@@ -382,7 +382,7 @@ function countParentKeyMatches(targetEntry, tableEntries, lowPercentage = 0.8) {
 
   // Compare against all table entries
   tableEntries.forEach((entry) => {
-    if (!entry?.demandeur || entry._id === targetEntry._id) return;
+    if (!entry?.demandeur) return;
 
     const currentFather = entry.demandeur.fatherkey;
     const currentMother = entry.demandeur.motherkey;
@@ -394,8 +394,19 @@ function countParentKeyMatches(targetEntry, tableEntries, lowPercentage = 0.8) {
         results.fatherMatches.push({
           matchId: entry._id,
           num_dos: entry.num_dos,
-          similarity: similarity,
+          date_depo: entry.date_depo,
+          notes: entry.notes,
+          similarity: similarity * 100,
           matchingKey: currentFather,
+          demandeur: {
+            nom_fr: entry["demandeur"]?.nom_fr,
+            prenom_fr: entry["demandeur"]?.prenom_fr,
+            date_n: entry["demandeur"]?.date_n,
+            stuation_f: entry["demandeur"]?.stuation_f,
+            prenom_p_fr: entry["demandeur"]?.prenom_p_fr,
+            prenom_m_fr: entry["demandeur"]?.prenom_m_fr,
+            nom_m_fr: entry["demandeur"]?.nom_m_fr,
+          },
         });
         results.totalFatherMatches++;
       }
@@ -408,8 +419,19 @@ function countParentKeyMatches(targetEntry, tableEntries, lowPercentage = 0.8) {
         results.motherMatches.push({
           matchId: entry._id,
           num_dos: entry.num_dos,
-          similarity: similarity,
-          matchingKey: currentMother,
+          date_depo: entry.date_depo,
+          notes: entry.notes,
+          similarity: similarity * 100,
+          matchingKey: currentFather,
+          demandeur: {
+            nom_fr: entry["demandeur"]?.nom_fr,
+            prenom_fr: entry["demandeur"]?.prenom_fr,
+            date_n: entry["demandeur"]?.date_n,
+            stuation_f: entry["demandeur"]?.stuation_f,
+            prenom_p_fr: entry["demandeur"]?.prenom_p_fr,
+            prenom_m_fr: entry["demandeur"]?.prenom_m_fr,
+            nom_m_fr: entry["demandeur"]?.nom_m_fr,
+          },
         });
         results.totalMotherMatches++;
       }

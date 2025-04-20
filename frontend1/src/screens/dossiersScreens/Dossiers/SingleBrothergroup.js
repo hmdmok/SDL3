@@ -6,10 +6,9 @@ import {
   addBenefisier,
   deleteBenefisier,
 } from "../../../actions/benifisierActions";
-import { getCivility } from "../../../Functions/functions";
 import { Link } from "react-router-dom";
 
-const SingleDossier = ({ dossierMap, setShowPopup, setIdToDel }) => {
+const SingleBrothergroup = ({ dossierMap, setShowPopup, setIdToDel }) => {
   const dispatch = useDispatch();
 
   const filesToCheck = useSelector((state) => state.filesToCheck);
@@ -45,44 +44,53 @@ const SingleDossier = ({ dossierMap, setShowPopup, setIdToDel }) => {
 
   return (
     <div className="">
-      <Card style={{ display: "flex", flexDirection: "row-reverse" }}>
+      <Card
+        style={{
+          display: "flex",
+          flexDirection: "row-reverse",
+        }}
+        key={dossierMap._id + "dossierMap"}
+      >
         <ListGroup variant="flush" style={{ width: "9rem" }}>
           <Badge style={{ height: "40px" }}>
-            {dossierMap?.demandeur?.nom_fr}
+            {dossierMap.demandeur?.nom_fr}
           </Badge>
         </ListGroup>
 
         <ListGroup variant="flush" style={{ width: "9rem" }}>
           <Badge style={{ height: "40px" }}>
-            {dossierMap?.demandeur?.prenom_fr}
+            {dossierMap.demandeur?.prenom_fr}
           </Badge>
         </ListGroup>
 
         <ListGroup variant="flush" style={{ width: "9rem" }}>
           <Badge style={{ height: "40px" }}>
-            {dossierMap?.demandeur?.date_n}
+            {dossierMap.demandeur?.date_n}
           </Badge>
         </ListGroup>
 
-        <ListGroup variant="flush" style={{ width: "7rem" }}>
-          <Badge style={{ height: "40px" }}>{dossierMap?.num_dos}</Badge>
-        </ListGroup>
-
-        <ListGroup variant="flush" style={{ width: "5rem" }}>
-          <Badge style={{ height: "40px" }}>{dossierMap?.notes}</Badge>
-        </ListGroup>
-
-        <ListGroup variant="flush" style={{ width: "7rem" }}>
+        <ListGroup variant="flush" style={{ width: "11rem" }}>
           <Badge style={{ height: "40px" }}>
-            {getCivility(dossierMap?.demandeur?.stuation_f, "f")}
+            {dossierMap.demandeur?.prenom_p_fr +
+              " " +
+              dossierMap.demandeur?.nom_fr}
+          </Badge>
+        </ListGroup>
+        <ListGroup variant="flush" style={{ width: "11rem" }}>
+          <Badge style={{ height: "40px" }}>
+            {dossierMap.demandeur?.prenom_m_fr +
+              " " +
+              dossierMap.demandeur?.nom_m_fr}
           </Badge>
         </ListGroup>
 
         <ListGroup variant="flush" style={{ width: "8rem" }}>
-          <Badge style={{ height: "40px" }}>{dossierMap?.date_depo}</Badge>
+          <Badge style={{ height: "40px" }}>{`${
+            dossierMap.similarity || "---"
+          } %`}</Badge>
         </ListGroup>
 
-        {files?.some((f) => f._id === dossierMap?._id) ? (
+        {files?.some((f) => f._id === dossierMap._id) ? (
           <Button
             variant="success"
             className="m-1"
@@ -100,7 +108,7 @@ const SingleDossier = ({ dossierMap, setShowPopup, setIdToDel }) => {
           </Button>
         )}
 
-        {benefisiers?.some((f) => f._id === dossierMap?._id) ? (
+        {benefisiers?.some((f) => f._id === dossierMap._id) ? (
           <Button
             variant="success"
             className="m-1"
@@ -119,11 +127,11 @@ const SingleDossier = ({ dossierMap, setShowPopup, setIdToDel }) => {
         )}
 
         <Button variant="success" className="m-1">
-          <Link to={`/adddossiers/${dossierMap?._id}`}> تعديل الملف</Link>
+          <Link to={`/adddossiers/${dossierMap._id}`}> تعديل الملف</Link>
         </Button>
 
         <Button
-          onClick={() => handleDeleteClick(dossierMap?._id)}
+          onClick={() => handleDeleteClick(dossierMap._id)}
           variant="danger"
           className="m-1"
         >
@@ -134,4 +142,4 @@ const SingleDossier = ({ dossierMap, setShowPopup, setIdToDel }) => {
   );
 };
 
-export default SingleDossier;
+export default SingleBrothergroup;
