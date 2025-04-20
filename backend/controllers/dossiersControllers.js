@@ -94,15 +94,15 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
     // filter by search
     var filterBySearch = keyArray1.filter(function (item) {
       return (
-        item.num_dos?.toLowerCase().includes(search.toLowerCase()) ||
-        item.demandeur?.nom_fr.toLowerCase().includes(search.toLowerCase()) ||
+        item.num_dos?.toLowerCase().includes(search?.toLowerCase()) ||
+        item.demandeur?.nom_fr?.toLowerCase().includes(search?.toLowerCase()) ||
         item.demandeur?.prenom_fr
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        item.demandeur?.nom.toLowerCase().includes(search.toLowerCase()) ||
-        item.demandeur?.prenom.toLowerCase().includes(search.toLowerCase()) ||
-        item.demandeur?.date_n.toLowerCase().includes(search.toLowerCase()) ||
-        item.notes === parseInt(search.toLowerCase())
+          ?.toLowerCase()
+          .includes(search?.toLowerCase()) ||
+        item.demandeur?.nom?.toLowerCase().includes(search?.toLowerCase()) ||
+        item.demandeur?.prenom?.toLowerCase().includes(search?.toLowerCase()) ||
+        item.demandeur?.date_n?.toLowerCase().includes(search?.toLowerCase()) ||
+        item.notes === parseInt(search?.toLowerCase())
       );
     });
 
@@ -418,15 +418,15 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
     // filter by search
     var filterBySearch = keyArray1.filter(function (item) {
       return (
-        item.num_dos?.toLowerCase().includes(search.toLowerCase()) ||
-        item.demandeur?.nom_fr.toLowerCase().includes(search.toLowerCase()) ||
+        item.num_dos?.toLowerCase().includes(search?.toLowerCase()) ||
+        item.demandeur?.nom_fr?.toLowerCase().includes(search?.toLowerCase()) ||
         item.demandeur?.prenom_fr
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        item.demandeur?.nom.toLowerCase().includes(search.toLowerCase()) ||
-        item.demandeur?.prenom.toLowerCase().includes(search.toLowerCase()) ||
-        item.demandeur?.date_n.toLowerCase().includes(search.toLowerCase()) ||
-        item.notes === parseInt(search.toLowerCase())
+          ?.toLowerCase()
+          .includes(search?.toLowerCase()) ||
+        item.demandeur?.nom?.toLowerCase().includes(search?.toLowerCase()) ||
+        item.demandeur?.prenom?.toLowerCase().includes(search?.toLowerCase()) ||
+        item.demandeur?.date_n?.toLowerCase().includes(search?.toLowerCase()) ||
+        item.notes === parseInt(search?.toLowerCase())
       );
     });
 

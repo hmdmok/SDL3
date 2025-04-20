@@ -43,102 +43,95 @@ const SingleBrothergroup = ({ dossierMap, setShowPopup, setIdToDel }) => {
   };
 
   return (
-    <div className="">
-      <Card
-        style={{
-          display: "flex",
-          flexDirection: "row-reverse",
-        }}
-        key={dossierMap._id + "dossierMap"}
-      >
-        <ListGroup variant="flush" style={{ width: "9rem" }}>
-          <Badge style={{ height: "40px" }}>
-            {dossierMap.demandeur?.nom_fr}
-          </Badge>
-        </ListGroup>
+    <Card
+      style={{
+        display: "flex",
+        flexDirection: "row-reverse",
+      }}
+    >
+      <ListGroup variant="flush" style={{ width: "9rem" }}>
+        <Badge style={{ height: "40px" }}>{dossierMap.demandeur?.nom_fr}</Badge>
+      </ListGroup>
 
-        <ListGroup variant="flush" style={{ width: "9rem" }}>
-          <Badge style={{ height: "40px" }}>
-            {dossierMap.demandeur?.prenom_fr}
-          </Badge>
-        </ListGroup>
+      <ListGroup variant="flush" style={{ width: "9rem" }}>
+        <Badge style={{ height: "40px" }}>
+          {dossierMap.demandeur?.prenom_fr}
+        </Badge>
+      </ListGroup>
 
-        <ListGroup variant="flush" style={{ width: "9rem" }}>
-          <Badge style={{ height: "40px" }}>
-            {dossierMap.demandeur?.date_n}
-          </Badge>
-        </ListGroup>
+      <ListGroup variant="flush" style={{ width: "9rem" }}>
+        <Badge style={{ height: "40px" }}>{dossierMap.demandeur?.date_n}</Badge>
+      </ListGroup>
 
-        <ListGroup variant="flush" style={{ width: "11rem" }}>
-          <Badge style={{ height: "40px" }}>
-            {dossierMap.demandeur?.prenom_p_fr +
-              " " +
-              dossierMap.demandeur?.nom_fr}
-          </Badge>
-        </ListGroup>
-        <ListGroup variant="flush" style={{ width: "11rem" }}>
-          <Badge style={{ height: "40px" }}>
-            {dossierMap.demandeur?.prenom_m_fr +
-              " " +
-              dossierMap.demandeur?.nom_m_fr}
-          </Badge>
-        </ListGroup>
+      <ListGroup variant="flush" style={{ width: "11rem" }}>
+        <Badge style={{ height: "40px" }}>
+          {dossierMap.demandeur?.prenom_p_fr +
+            " " +
+            dossierMap.demandeur?.nom_fr}
+        </Badge>
+      </ListGroup>
+      <ListGroup variant="flush" style={{ width: "11rem" }}>
+        <Badge style={{ height: "40px" }}>
+          {dossierMap.demandeur?.prenom_m_fr +
+            " " +
+            dossierMap.demandeur?.nom_m_fr}
+        </Badge>
+      </ListGroup>
 
-        <ListGroup variant="flush" style={{ width: "8rem" }}>
-          <Badge style={{ height: "40px" }}>{`${
-            dossierMap.similarity || "---"
-          } %`}</Badge>
-        </ListGroup>
+      <ListGroup variant="flush" style={{ width: "8rem" }}>
+        <Badge style={{ height: "40px" }}>{`${
+          dossierMap.similarity || "---"
+        } %`}</Badge>
+      </ListGroup>
 
-        {files?.some((f) => f._id === dossierMap._id) ? (
-          <Button
-            variant="success"
-            className="m-1"
-            onClick={() => dellDossierFromCheck(dossierMap)}
-          >
-            حذف الملف من التحقيق
-          </Button>
-        ) : (
-          <Button
-            variant="success"
-            className="m-1"
-            onClick={() => addDossierToCheck(dossierMap)}
-          >
-            اظافة الملف للتحقيق
-          </Button>
-        )}
-
-        {benefisiers?.some((f) => f._id === dossierMap._id) ? (
-          <Button
-            variant="success"
-            className="m-1"
-            onClick={() => dellDossierFromBenefisiers(dossierMap)}
-          >
-            حذف الملف من المستفيدين
-          </Button>
-        ) : (
-          <Button
-            variant="success"
-            className="m-1"
-            onClick={() => addDossierToBenefisiers(dossierMap)}
-          >
-            اظافة الملف للمستفيدين
-          </Button>
-        )}
-
-        <Button variant="success" className="m-1">
-          <Link to={`/adddossiers/${dossierMap._id}`}> تعديل الملف</Link>
-        </Button>
-
+      {files?.some((f) => f._id === dossierMap.matchId || dossierMap._id) ? (
         <Button
-          onClick={() => handleDeleteClick(dossierMap._id)}
-          variant="danger"
+          variant="success"
           className="m-1"
+          onClick={() => dellDossierFromCheck(dossierMap)}
         >
-          حذف
+          حذف الملف من التحقيق
         </Button>
-      </Card>
-    </div>
+      ) : (
+        <Button
+          variant="success"
+          className="m-1"
+          onClick={() => addDossierToCheck(dossierMap)}
+        >
+          اظافة الملف للتحقيق
+        </Button>
+      )}
+
+      {benefisiers?.some((f) => f._id === dossierMap.matchId || dossierMap._id) ? (
+        <Button
+          variant="success"
+          className="m-1"
+          onClick={() => dellDossierFromBenefisiers(dossierMap)}
+        >
+          حذف الملف من المستفيدين
+        </Button>
+      ) : (
+        <Button
+          variant="success"
+          className="m-1"
+          onClick={() => addDossierToBenefisiers(dossierMap)}
+        >
+          اظافة الملف للمستفيدين
+        </Button>
+      )}
+
+      <Button variant="success" className="m-1">
+        <Link to={`/adddossiers/${dossierMap.matchId || dossierMap._id}`}> تعديل الملف</Link>
+      </Button>
+
+      <Button
+        onClick={() => handleDeleteClick(dossierMap.matchId || dossierMap._id)}
+        variant="danger"
+        className="m-1"
+      >
+        حذف
+      </Button>
+    </Card>
   );
 };
 

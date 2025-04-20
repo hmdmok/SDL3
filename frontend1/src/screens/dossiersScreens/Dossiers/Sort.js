@@ -3,8 +3,7 @@ import { Button, ButtonGroup, Dropdown, DropdownButton } from "react-bootstrap";
 
 const Sort = ({ sort, setSort }) => {
   const onSelectChange = (e) => {
-    console.log(e);
-    setSort({
+     setSort({
       sort: e,
       order: sort.order,
     });

@@ -17,7 +17,112 @@ const correctionDB = asyncHandler(async (req, res) => {
     { $set: { id_commune: systemInfo.communeCode } } // Set 'Id_commune' to your default value
   );
 
-  res.json(`${updateResult.modifiedCount} documents were updated.`);
+  //fix the database from dossiers that have no demandeur
+  const deleteDossWithNoDemResult = await Dossier.deleteMany(
+    { id_demandeur: { $exists: false } } // Delete documents without 'id_demandeur'
+  );
+  console.log("fixing:", deleteDossWithNoDemResult);
+
+  // fix the database from dossiers that the demandeur has no name
+
+  // AND (prenom is void OR missing) AND (prenom_fr is void OR missing)
+  const voidNameDocuments = await Person.aggregate([
+    {
+      $match: {
+        // Case 1: One of the name fields are missing
+        $or: [
+          {
+            $or: [
+              { nom: { $exists: false } },
+              { nom_fr: { $exists: false } },
+              { prenom: { $exists: false } },
+              { prenom_fr: { $exists: false } },
+            ],
+          },
+          // Case 2: All name fields are void (null, empty, or whitespace)
+          {
+            $and: [
+              {
+                $or: [{ nom: null }, { nom: "" }, { nom: " " }],
+              },
+              {
+                $or: [{ nom_fr: null }, { nom_fr: "" }, { nom_fr: " " }],
+              },
+            ],
+          },
+          {
+            $and: [
+              {
+                $or: [{ prenom: null }, { prenom: "" }, { prenom: " " }],
+              },
+              {
+                $or: [
+                  { prenom_fr: null },
+                  { prenom_fr: "" },
+                  { prenom_fr: " " },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        num_dos: 1,
+      },
+    },
+  ]);
+
+  console.log("voidNameDocuments: ", voidNameDocuments);
+  //
+  //
+  //  fix the database from dossiers that are duplicated.
+  // First, identify duplicates using both fields
+  const keepIds = await Dossier.aggregate([
+    {
+      $group: {
+        _id: {
+          num_dos: "$num_dos",
+          id_commune: "$id_commune",
+        },
+        firstId: { $first: "$_id" }, // Keep the first document
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $match: {
+        count: { $gt: 1 }, // Only consider duplicates
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        keepId: "$firstId",
+        num_dos: "$_id.num_dos",
+        id_commune: "$_id.id_commune",
+      },
+    },
+  ]);
+
+  console.log("keepIds", keepIds);
+  // Delete all documents with duplicate (num_dos + id_commune) except the ones we're keeping
+  const deleteResult =
+    keepIds.length > 0
+      ? await Dossier.deleteMany({
+          $or: keepIds.map((item) => ({
+            num_dos: item.num_dos,
+            id_commune: item.id_commune,
+            _id: { $ne: item.keepId },
+          })),
+        })
+      : { deletedCount: 0 };
+
+  console.log(`Deleted ${deleteResult.deletedCount} duplicate documents`);
+  res.json(
+    `${updateResult.modifiedCount} id_commune documents were updated, and ${deleteDossWithNoDemResult.deletedCount} documents were deleted.`
+  );
 });
 
 const updateDossiers = asyncHandler(async (req, res) => {
@@ -123,426 +228,449 @@ async function processDossiers(data, creator, res, language) {
 }
 
 function extractDossierData(dossier, language) {
-  // Extract fields from the dossier based on the language
-  if (language === "French") {
-    return {
-      num_dos: dossier["Ref demande"],
-      date_depo: dossier["Date demande"],
-      nom_dem: dossier["Nom"],
-      prenom_dem: dossier["Prenom"],
-      gender_dem: dossier["sexe"],
-      date_n_dem: dossier["Date de naissance"],
-      type_date_n_dem: dossier["Type date de naissance"],
-      num_act_dem: dossier["Num ACT"],
-      lieu_n_dem: dossier["Lieu de naissance"],
-      num_conj: dossier["Nombre Conjoin"],
-      prenom_p_dem: dossier["Prénom du pére"],
-      prenom_m_dem: dossier["Prenom de la mére"],
-      nom_m_dem: dossier["Nom de la mére"],
-      address: dossier["Adress"],
-      stuation_f_dem: dossier["Situation Familiale"],
-      Ordre_conj: dossier["Ordre Conjoint"] || 1,
-      nom_conj: dossier["Nom DE CONJOINT"],
-      prenom_conj: dossier["Prenom DE CONJOINT"],
-      date_n_conj: dossier["Date de naissance Conjoint"],
-      num_act_conj: dossier["Num ACT Conjoint"],
-      type_date_n_conj: dossier["Type date de naissance Conjoint"],
-      lieu_n_conj: dossier["Lieu de naissance Conjoint"],
-      prenom_p_conj: dossier["Prénom du pére Conjoint"],
-      nom_m_conj: dossier["Nom de la mére Conjoint"],
-      prenom_m_conj: dossier["Prénom de la mére Conjoint"],
-      category: dossier["Catégorie ( Plus/ Moin)"],
-      note_revenue: dossier["Note Revenue"],
-      note_habita: dossier["Note Habita"],
-      note_situation_familiale: dossier["Note Situation Familiale"],
-      note_anciennete: dossier["Note Anciennete"],
-      notes: dossier["Notes"],
-      remark: dossier["Remarque"],
-    };
-  } else if (language === "Arabic") {
-    return {
-      num_dos: dossier["رقم الملف"],
-      date_depo: dossier["تاريخ الايداع"],
-      nom_dem: dossier["اللقب"],
-      prenom_dem: dossier["الاسم"],
-      gender_dem: dossier["الجنس"],
-      date_n_dem: dossier["تاريخ الميلاد"],
-      type_date_n_dem: dossier["طبيعة تاريخ الميلاد"],
-      num_act_dem: dossier["رقم عقد الميلاد"],
-      lieu_n_dem: dossier["بلدية الميلاد"],
-      stuation_f_dem: dossier["الحالة العائلية"],
-      num_conj: dossier["عدد الزوجات"],
-      prenom_p_dem: dossier["اسم الاب"],
-      nom_m_dem: dossier["لقب الام"],
-      prenom_m_dem: dossier["اسم الام"],
-      address: dossier["العنوان"],
-      Ordre_conj: dossier["ترتيب الزوجة"] || 1,
-      prenom_conj: dossier["اسم الزوج(ة)"],
-      nom_conj: dossier["لقب الزوج(ة)"],
-      date_n_conj: dossier["تاريخ ميلاد الزوج(ة)"],
-      type_date_n_conj: dossier["طبيعة تاريخ ميلاد الزوج(ة)"],
-      num_act_conj: dossier["رقم عقد ميلاد الزوج(ة)"],
-      lieu_n_conj: dossier["بلدية ميلاد الزوج(ة)"],
-      prenom_p_conj: dossier["اسم أب الزوج(ة)"],
-      prenom_m_conj: dossier["اسم أم الزوج(ة)"],
-      nom_m_conj: dossier["لقب أم الزوج(ة)"],
-      note_revenue: dossier["مستوى المداخيل"],
-      note_habita: dossier["ظروف السكن"],
-      note_situation_familiale: dossier["الحالة العائلية"],
-      note_anciennete: dossier["أقدمية طلب السكن"],
-      notes: dossier["المجموع"],
-      remark: dossier["الملاحظة"],
-    };
-  } else if (language === "numDos") {
-    return {
-      num_dos: dossier["Ordre"],
-    };
+  try {
+    // Extract fields from the dossier based on the language
+    if (language === "French") {
+      return {
+        num_dos: dossier["Ref demande"],
+        date_depo: dossier["Date demande"],
+        nom_dem: dossier["Nom"],
+        prenom_dem: dossier["Prenom"],
+        gender_dem: dossier["sexe"],
+        date_n_dem: dossier["Date de naissance"],
+        type_date_n_dem: dossier["Type date de naissance"],
+        num_act_dem: dossier["Num ACT"],
+        lieu_n_dem: dossier["Lieu de naissance"],
+        num_conj: dossier["Nombre Conjoin"],
+        prenom_p_dem: dossier["Prénom du pére"],
+        prenom_m_dem: dossier["Prenom de la mére"],
+        nom_m_dem: dossier["Nom de la mére"],
+        address: dossier["Adress"],
+        stuation_f_dem: dossier["Situation Familiale"],
+        Ordre_conj: dossier["Ordre Conjoint"] || 1,
+        nom_conj: dossier["Nom DE CONJOINT"],
+        prenom_conj: dossier["Prenom DE CONJOINT"],
+        date_n_conj: dossier["Date de naissance Conjoint"],
+        num_act_conj: dossier["Num ACT Conjoint"],
+        type_date_n_conj: dossier["Type date de naissance Conjoint"],
+        lieu_n_conj: dossier["Lieu de naissance Conjoint"],
+        prenom_p_conj: dossier["Prénom du pére Conjoint"],
+        nom_m_conj: dossier["Nom de la mére Conjoint"],
+        prenom_m_conj: dossier["Prénom de la mére Conjoint"],
+        category: dossier["Catégorie ( Plus/ Moin)"],
+        note_revenue: dossier["Note Revenue"],
+        note_habita: dossier["Note Habita"],
+        note_situation_familiale: dossier["Note Situation Familiale"],
+        note_anciennete: dossier["Note Anciennete"],
+        notes: dossier["Notes"],
+        remark: dossier["Remarque"],
+      };
+    } else if (language === "Arabic") {
+      return {
+        num_dos: dossier["رقم الملف"],
+        date_depo: dossier["تاريخ الايداع"],
+        nom_dem: dossier["اللقب"],
+        prenom_dem: dossier["الاسم"],
+        gender_dem: dossier["الجنس"],
+        date_n_dem: dossier["تاريخ الميلاد"],
+        type_date_n_dem: dossier["طبيعة تاريخ الميلاد"],
+        num_act_dem: dossier["رقم عقد الميلاد"],
+        lieu_n_dem: dossier["بلدية الميلاد"],
+        stuation_f_dem: dossier["الحالة العائلية"],
+        num_conj: dossier["عدد الزوجات"],
+        prenom_p_dem: dossier["اسم الاب"],
+        nom_m_dem: dossier["لقب الام"],
+        prenom_m_dem: dossier["اسم الام"],
+        address: dossier["العنوان"],
+        Ordre_conj: dossier["ترتيب الزوجة"] || 1,
+        prenom_conj: dossier["اسم الزوج(ة)"],
+        nom_conj: dossier["لقب الزوج(ة)"],
+        date_n_conj: dossier["تاريخ ميلاد الزوج(ة)"],
+        type_date_n_conj: dossier["طبيعة تاريخ ميلاد الزوج(ة)"],
+        num_act_conj: dossier["رقم عقد ميلاد الزوج(ة)"],
+        lieu_n_conj: dossier["بلدية ميلاد الزوج(ة)"],
+        prenom_p_conj: dossier["اسم أب الزوج(ة)"],
+        prenom_m_conj: dossier["اسم أم الزوج(ة)"],
+        nom_m_conj: dossier["لقب أم الزوج(ة)"],
+        note_revenue: dossier["مستوى المداخيل"],
+        note_habita: dossier["ظروف السكن"],
+        note_situation_familiale: dossier["الحالة العائلية"],
+        note_anciennete: dossier["أقدمية طلب السكن"],
+        notes: dossier["المجموع"],
+        remark: dossier["الملاحظة"],
+      };
+    } else if (language === "numDos") {
+      return {
+        num_dos: dossier["Ordre"],
+      };
+    }
+  } catch (error) {
+    console.error("Error extractDossierData:", error);
+    res.status(500).send("Error extractDossierData");
   }
 }
 
 async function updateExistingDossier(dossier, newData, creator, language) {
-  const {
-    nom_dem,
-    prenom_dem,
-    num_act_dem,
-    date_n_dem,
-    type_date_n_dem,
-    lieu_n_dem,
-    prenom_p_dem,
-    prenom_m_dem,
-    nom_m_dem,
-    stuation_f_dem,
-    Ordre_conj,
-    prenom_conj,
-    nom_conj,
-    num_act_conj,
-    type_date_n_conj,
-    date_n_conj,
-    lieu_n_conj,
-    prenom_p_conj,
-    prenom_m_conj,
-    nom_m_conj,
-    date_depo,
-    address,
-    num_conj,
-    note_revenue,
-    note_habita,
-    note_situation_familiale,
-    note_anciennete,
-    notes,
-    remark,
-  } = extractDossierData(newData, language);
+  try {
+    // Extract data from the newData object based on the language
+    const {
+      nom_dem,
+      prenom_dem,
+      num_act_dem,
+      date_n_dem,
+      type_date_n_dem,
+      lieu_n_dem,
+      prenom_p_dem,
+      prenom_m_dem,
+      nom_m_dem,
+      stuation_f_dem,
+      Ordre_conj,
+      prenom_conj,
+      nom_conj,
+      num_act_conj,
+      type_date_n_conj,
+      date_n_conj,
+      lieu_n_conj,
+      prenom_p_conj,
+      prenom_m_conj,
+      nom_m_conj,
+      date_depo,
+      address,
+      num_conj,
+      note_revenue,
+      note_habita,
+      note_situation_familiale,
+      note_anciennete,
+      notes,
+      remark,
+    } = extractDossierData(newData, language);
 
-  // Update demandeur if exists
-  const demandeur = await Person.findById(dossier.id_demandeur);
+    // Update demandeur if exists
+    const demandeur = await Person.findById(dossier.id_demandeur);
 
-  if (demandeur) {
-    if (language === "French") {
-      dossier.adress_fr = address || dossier.adress_fr;
-      demandeur.prenom_fr = prenom_dem || demandeur.prenom_fr;
-      demandeur.nom_fr = nom_dem || demandeur.nom_fr;
-      demandeur.lieu_n_fr = lieu_n_dem || demandeur.lieu_n_fr;
-      demandeur.prenom_p_fr = prenom_p_dem || demandeur.prenom_p_fr;
-      demandeur.prenom_m_fr = prenom_m_dem || demandeur.prenom_m_fr;
-      demandeur.nom_m_fr = nom_m_dem || demandeur.nom_m_fr;
-    } else if (language === "Arabic") {
-      dossier.adress = address || dossier.adress;
-      demandeur.prenom = prenom_dem || demandeur.prenom;
-      demandeur.nom = nom_dem || demandeur.nom;
-      demandeur.lieu_n = lieu_n_dem || demandeur.lieu_n;
-      demandeur.prenom_p = prenom_p_dem || demandeur.prenom_p;
-      demandeur.prenom_m = prenom_m_dem || demandeur.prenom_m;
-      demandeur.nom_m = nom_m_dem || demandeur.nom_m;
+    if (demandeur) {
+      if (language === "French") {
+        dossier.adress_fr = address || dossier.adress_fr;
+        demandeur.prenom_fr = prenom_dem || demandeur.prenom_fr;
+        demandeur.nom_fr = nom_dem || demandeur.nom_fr;
+        demandeur.lieu_n_fr = lieu_n_dem || demandeur.lieu_n_fr;
+        demandeur.prenom_p_fr = prenom_p_dem || demandeur.prenom_p_fr;
+        demandeur.prenom_m_fr = prenom_m_dem || demandeur.prenom_m_fr;
+        demandeur.nom_m_fr = nom_m_dem || demandeur.nom_m_fr;
+      } else if (language === "Arabic") {
+        dossier.adress = address || dossier.adress;
+        demandeur.prenom = prenom_dem || demandeur.prenom;
+        demandeur.nom = nom_dem || demandeur.nom;
+        demandeur.lieu_n = lieu_n_dem || demandeur.lieu_n;
+        demandeur.prenom_p = prenom_p_dem || demandeur.prenom_p;
+        demandeur.prenom_m = prenom_m_dem || demandeur.prenom_m;
+        demandeur.nom_m = nom_m_dem || demandeur.nom_m;
+      }
+      demandeur.num_act = num_act_dem || demandeur.num_act;
+      demandeur.date_n =
+        convertDateFormat(date_n_dem, "S").date || demandeur.date_n;
+      demandeur.type_date_n = type_date_n_dem || demandeur.type_date_n;
+      await demandeur.save();
     }
-    demandeur.num_act = num_act_dem || demandeur.num_act;
-    demandeur.date_n =
-      convertDateFormat(date_n_dem, "S").date || demandeur.date_n;
-    demandeur.type_date_n = type_date_n_dem || demandeur.type_date_n;
-    await demandeur.save();
-  }
 
-  // Update conjoin if exists
-  if (!(nom_conj === "") && !(nom_conj === "/") && !(nom_conj == null)) {
-    if (dossier.id_conjoin) {
-      if (dossier.id_conjoin[Ordre_conj - 1]) {
-        // get conjoin
-        const conjoin = await Person.findById(
-          dossier.id_conjoin[Ordre_conj - 1]
-        );
+    // Update conjoin if exists
+    if (!(nom_conj === "") && !(nom_conj === "/") && !(nom_conj == null)) {
+      if (dossier.id_conjoin) {
+        if (dossier.id_conjoin[Ordre_conj - 1]) {
+          // get conjoin
+          const conjoin = await Person.findById(
+            dossier.id_conjoin[Ordre_conj - 1]
+          );
 
-        // update conjoin
-        if (conjoin) {
-          if (language === "French") {
-            conjoin.prenom_fr = prenom_conj || conjoin.prenom_fr;
-            conjoin.nom_fr = nom_conj || conjoin.nom_fr;
-            conjoin.lieu_n_fr = lieu_n_conj || conjoin.lieu_n_fr;
-            conjoin.prenom_p_fr = prenom_p_conj || conjoin.prenom_p_fr;
-            conjoin.prenom_m_fr = prenom_m_conj || conjoin.prenom_m_fr;
-            conjoin.nom_m_fr = nom_m_conj || conjoin.nom_m_fr;
-          } else if (language === "Arabic") {
-            conjoin.prenom = prenom_conj || conjoin.prenom;
-            conjoin.nom = nom_conj || conjoin.nom;
-            conjoin.lieu_n = lieu_n_conj || conjoin.lieu_n;
-            conjoin.prenom_p = prenom_p_conj || conjoin.prenom_p;
-            conjoin.prenom_m = prenom_m_conj || conjoin.prenom_m;
-            conjoin.nom_m = nom_m_conj || conjoin.nom_m;
+          // update conjoin
+          if (conjoin) {
+            if (language === "French") {
+              conjoin.prenom_fr = prenom_conj || conjoin.prenom_fr;
+              conjoin.nom_fr = nom_conj || conjoin.nom_fr;
+              conjoin.lieu_n_fr = lieu_n_conj || conjoin.lieu_n_fr;
+              conjoin.prenom_p_fr = prenom_p_conj || conjoin.prenom_p_fr;
+              conjoin.prenom_m_fr = prenom_m_conj || conjoin.prenom_m_fr;
+              conjoin.nom_m_fr = nom_m_conj || conjoin.nom_m_fr;
+            } else if (language === "Arabic") {
+              conjoin.prenom = prenom_conj || conjoin.prenom;
+              conjoin.nom = nom_conj || conjoin.nom;
+              conjoin.lieu_n = lieu_n_conj || conjoin.lieu_n;
+              conjoin.prenom_p = prenom_p_conj || conjoin.prenom_p;
+              conjoin.prenom_m = prenom_m_conj || conjoin.prenom_m;
+              conjoin.nom_m = nom_m_conj || conjoin.nom_m;
+            }
+            conjoin.num_act = num_act_conj || conjoin.num_act;
+            conjoin.date_n =
+              convertDateFormat(date_n_conj, "S").date || conjoin.date_n;
+            conjoin.type_date_n = type_date_n_conj || conjoin.type_date_n;
+
+            await conjoin.save();
           }
-          conjoin.num_act = num_act_conj || conjoin.num_act;
-          conjoin.date_n =
-            convertDateFormat(date_n_conj, "S").date || conjoin.date_n;
-          conjoin.type_date_n = type_date_n_conj || conjoin.type_date_n;
+        } else {
+          //create Conjoin
+          const conjoin = await createConjoin(newData, language, creator);
 
-          await conjoin.save();
+          //add conjoin id
+          if (conjoin) dossier.id_conjoin[Ordre_conj - 1] = conjoin._id;
         }
       } else {
         //create Conjoin
         const conjoin = await createConjoin(newData, language, creator);
 
-        //add conjoin id
-        dossier.id_conjoin[Ordre_conj - 1] = conjoin._id;
+        // create id_conjoin table
+        var id_conjoin = [];
+        id_conjoin[Ordre_conj - 1] = conjoin._id;
+
+        //add id_conjoin
+        dossier.id_conjoin = id_conjoin;
       }
     } else {
-      //create Conjoin
-      const conjoin = await createConjoin(newData, language, creator);
-
-      // create id_conjoin table
-      var id_conjoin = [];
-      id_conjoin[Ordre_conj - 1] = conjoin._id;
-
-      //add id_conjoin
-      dossier.id_conjoin = id_conjoin;
+      if (dossier.id_conjoin) dossier.id_conjoin = [];
+      if (dossier.num_conj) dossier.num_conj = 0;
     }
-  } else {
-    if (dossier.id_conjoin) dossier.id_conjoin = [];
-    if (dossier.num_conj) dossier.num_conj = 0;
+
+    // get system info
+    const systemInfo = await system.findOne();
+
+    // Update dossier
+    dossier.date_depo = date_depo || dossier.date_depo;
+    dossier.id_commune = systemInfo.communeCode || dossier.id_commune;
+    dossier.num_conj = num_conj || dossier.num_conj;
+    dossier.note_revenue = note_revenue || dossier.note_revenue;
+    dossier.note_habita = note_habita || dossier.note_habita;
+    dossier.note_situation_familiale =
+      note_situation_familiale || dossier.note_situation_familiale;
+    dossier.note_anciennete = note_anciennete || dossier.note_anciennete;
+    dossier.notes = notes || dossier.notes;
+    dossier.remark = remark || dossier.remark;
+
+    await dossier.save();
+  } catch (error) {
+    console.error("Error updateExistingDossier", error);
+    res.status(500).send("Error updateExistingDossier");
   }
-
-  // get system info
-  const systemInfo = await system.findOne();
-
-  // Update dossier
-  dossier.date_depo = date_depo || dossier.date_depo;
-  dossier.id_commune = systemInfo.communeCode || dossier.id_commune;
-  dossier.num_conj = num_conj || dossier.num_conj;
-  dossier.note_revenue = note_revenue || dossier.note_revenue;
-  dossier.note_habita = note_habita || dossier.note_habita;
-  dossier.note_situation_familiale =
-    note_situation_familiale || dossier.note_situation_familiale;
-  dossier.note_anciennete = note_anciennete || dossier.note_anciennete;
-  dossier.notes = notes || dossier.notes;
-  dossier.remark = remark || dossier.remark;
-
-  await dossier.save();
 }
 
 async function createNewDossier(dossier, creator, language) {
-  const {
-    num_dos,
-    nom_dem,
-    prenom_dem,
-    gender_dem,
-    num_act_dem,
-    date_n_dem,
-    type_date_n_dem,
-    lieu_n_dem,
-    num_conj,
-    prenom_p_dem,
-    prenom_m_dem,
-    nom_m_dem,
-    stuation_f_dem,
-    Ordre_conj,
-    nom_conj,
-    date_depo,
-    address,
-    note_revenue,
-    note_habita,
-    note_situation_familiale,
-    note_anciennete,
-    notes,
-    remark,
-    date_n_conj,
-  } = extractDossierData(dossier, language);
+  try {
+    // Extract data from the dossier object based on the language
+    const {
+      num_dos,
+      nom_dem,
+      prenom_dem,
+      gender_dem,
+      num_act_dem,
+      date_n_dem,
+      type_date_n_dem,
+      lieu_n_dem,
+      num_conj,
+      prenom_p_dem,
+      prenom_m_dem,
+      nom_m_dem,
+      stuation_f_dem,
+      Ordre_conj,
+      nom_conj,
+      date_depo,
+      address,
+      note_revenue,
+      note_habita,
+      note_situation_familiale,
+      note_anciennete,
+      notes,
+      remark,
+      date_n_conj,
+    } = extractDossierData(dossier, language);
 
-  var demandeur = {};
-  if (prenom_dem && nom_dem) {
-    if (language === "French") {
-      demandeur = await Person.create({
-        type: "dema",
-        prenom: "",
-        prenom_fr: prenom_dem,
-        nom: "",
-        nom_fr: nom_dem,
-        gender: gender_dem,
-        num_act: num_act_dem,
-        date_n: convertDateFormat(date_n_dem, "S").date,
-        type_date_n: type_date_n_dem,
-        lieu_n: "",
-        lieu_n_fr: lieu_n_dem,
-        wil_n: "",
-        com_n: "",
-        prenom_p: "",
-        prenom_p_fr: prenom_p_dem,
-        prenom_m: "",
-        prenom_m_fr: prenom_m_dem,
-        nom_m: "",
-        nom_m_fr: nom_m_dem,
-        num_i_n: num_act_dem + " " + convertDateFormat(date_n_dem, "T").date,
-        stuation_f: stuation_f_dem,
-        situation_p: "",
-        profession: "",
-        salaire: "",
-        creator,
-      });
-    } else if (language === "Arabic") {
-      demandeur = await Person.create({
-        type: "dema",
-        prenom: prenom_dem,
-        prenom_fr: "",
-        nom: nom_dem,
-        nom_fr: "",
-        gender: gender_dem,
-        num_act: num_act_dem,
-        date_n: convertDateFormat(date_n_dem, "S").date,
-        type_date_n: type_date_n_dem,
-        lieu_n: lieu_n_dem,
-        lieu_n_fr: "",
-        wil_n: "",
-        com_n: "",
-        prenom_p: prenom_p_dem,
-        prenom_p_fr: "",
-        prenom_m: prenom_m_dem,
-        prenom_m_fr: "",
-        nom_m: nom_m_dem,
-        nom_m_fr: "",
-        num_i_n: num_act_dem + " " + convertDateFormat(date_n_dem, "T").date,
-        stuation_f: stuation_f_dem,
-        situation_p: "",
-        profession: "",
-        salaire: "",
-        creator,
-      });
+    var demandeur = {};
+    if (prenom_dem && nom_dem) {
+      if (language === "French") {
+        demandeur = await Person.create({
+          type: "dema",
+          prenom: "",
+          prenom_fr: prenom_dem,
+          nom: "",
+          nom_fr: nom_dem,
+          gender: gender_dem,
+          num_act: num_act_dem,
+          date_n: convertDateFormat(date_n_dem, "S").date,
+          type_date_n: type_date_n_dem,
+          lieu_n: "",
+          lieu_n_fr: lieu_n_dem,
+          wil_n: "",
+          com_n: "",
+          prenom_p: "",
+          prenom_p_fr: prenom_p_dem,
+          prenom_m: "",
+          prenom_m_fr: prenom_m_dem,
+          nom_m: "",
+          nom_m_fr: nom_m_dem,
+          num_i_n: num_act_dem + " " + convertDateFormat(date_n_dem, "T").date,
+          stuation_f: stuation_f_dem,
+          situation_p: "",
+          profession: "",
+          salaire: "",
+          creator,
+        });
+      } else if (language === "Arabic") {
+        demandeur = await Person.create({
+          type: "dema",
+          prenom: prenom_dem,
+          prenom_fr: "",
+          nom: nom_dem,
+          nom_fr: "",
+          gender: gender_dem,
+          num_act: num_act_dem,
+          date_n: convertDateFormat(date_n_dem, "S").date,
+          type_date_n: type_date_n_dem,
+          lieu_n: lieu_n_dem,
+          lieu_n_fr: "",
+          wil_n: "",
+          com_n: "",
+          prenom_p: prenom_p_dem,
+          prenom_p_fr: "",
+          prenom_m: prenom_m_dem,
+          prenom_m_fr: "",
+          nom_m: nom_m_dem,
+          nom_m_fr: "",
+          num_i_n: num_act_dem + " " + convertDateFormat(date_n_dem, "T").date,
+          stuation_f: stuation_f_dem,
+          situation_p: "",
+          profession: "",
+          salaire: "",
+          creator,
+        });
+      }
     }
+    var nb_conj = 0;
+    if (num_conj) nb_conj = num_conj;
+    else if (stuation_f_dem === "M" || "V") nb_conj = 1;
+
+    var id_conjoin = [];
+    if (!(nom_conj === "") && !(nom_conj === "/") && !(nom_conj == null)) {
+      //create Conjoin
+      const conjoin = await createConjoin(dossier, language, creator);
+      // create id_conjoin table
+      if (conjoin) id_conjoin[Ordre_conj - 1] = conjoin._id;
+    }
+    // determine conjoin gender
+    var gender_conj = "";
+    if (gender_dem === "M") gender_conj = "F";
+    else gender_conj = "M";
+    // get system data
+    const systemInfo = await system.findOne();
+
+    if (demandeur._id)
+      await Dossier.create({
+        creator,
+        id_commune: systemInfo.communeCode,
+        id_demandeur: demandeur._id,
+        id_conjoin: id_conjoin,
+        date_depo: date_depo,
+        num_dos: num_dos,
+        adress: language === "Arabic" ? address : "",
+        adress_fr: language === "French" ? address : "",
+        num_conj: nb_conj,
+        note_revenue,
+        note_habita,
+        note_situation_familiale,
+        note_anciennete,
+        type: "imported",
+        gender_conj,
+        remark,
+        saisi_conj: "imported",
+        scan_dossier: "",
+        notes,
+      });
+  } catch (error) {
+    console.error("Error updateExistingDossier", error);
+    res.status(500).send("Error updateExistingDossier");
   }
-  var nb_conj = 0;
-  if (num_conj) nb_conj = num_conj;
-  else if (stuation_f_dem === "M" || "V") nb_conj = 1;
-
-  var id_conjoin = [];
-  if (!(nom_conj === "") && !(nom_conj === "/") && !(nom_conj == null)) {
-    //create Conjoin
-    const conjoin = await createConjoin(dossier, language, creator);
-
-    // create id_conjoin table
-    id_conjoin[Ordre_conj - 1] = conjoin._id;
-  }
-  // determine conjoin gender
-  var gender_conj = "";
-  if (gender_dem === "M") gender_conj = "F";
-  else gender_conj = "M";
-  // get system data
-  const systemInfo = await system.findOne();
-
-  await Dossier.create({
-    creator,
-    id_commune: systemInfo.communeCode,
-    id_demandeur: demandeur._id,
-    id_conjoin: id_conjoin,
-    date_depo: date_depo,
-    num_dos: num_dos,
-    adress: language === "Arabic" ? address : "",
-    adress_fr: language === "French" ? address : "",
-    num_conj: nb_conj,
-    note_revenue,
-    note_habita,
-    note_situation_familiale,
-    note_anciennete,
-    type: "imported",
-    gender_conj,
-    remark,
-    saisi_conj: "imported",
-    scan_dossier: "",
-    notes,
-  });
 }
 
 async function createConjoin(dossier1, language, creator) {
-  const {
-    prenom_conj,
-    nom_conj,
-    gender_dem,
-    num_act_conj,
-    date_n_conj,
-    type_date_n_conj,
-    lieu_n_conj,
-    prenom_p_conj,
-    prenom_m_conj,
-    nom_m_conj,
-  } = extractDossierData(dossier1, language);
-  // determine conjoin gender
-  var gender_conj = "";
-  if (gender_dem === "M") gender_conj = "F";
-  else gender_conj = "M";
+  try {
+    // Extract data from the dossier object based on the language
+    const {
+      prenom_conj,
+      nom_conj,
+      gender_dem,
+      num_act_conj,
+      date_n_conj,
+      type_date_n_conj,
+      lieu_n_conj,
+      prenom_p_conj,
+      prenom_m_conj,
+      nom_m_conj,
+    } = extractDossierData(dossier1, language);
+    // determine conjoin gender
+    var gender_conj = "";
+    if (gender_dem === "M") gender_conj = "F";
+    else gender_conj = "M";
 
-  if (prenom_conj && nom_conj) {
-    if (language === "French")
-      return await Person.create({
-        type: "conj",
-        prenom: "",
-        prenom_fr: prenom_conj,
-        nom: "",
-        nom_fr: nom_conj,
-        gender: gender_conj,
-        num_act: num_act_conj,
-        date_n: convertDateFormat(date_n_conj, "S").date,
-        type_date_n: type_date_n_conj,
-        lieu_n: "",
-        lieu_n_fr: lieu_n_conj,
-        wil_n: "",
-        com_n: "",
-        prenom_p: "",
-        prenom_p_fr: prenom_p_conj,
-        prenom_m: "",
-        prenom_m_fr: prenom_m_conj,
-        nom_m: "",
-        nom_m_fr: nom_m_conj,
-        num_i_n: num_act_conj + " " + date_n_conj,
-        stuation_f: "",
-        situation_p: "",
-        profession: "",
-        salaire: "",
-        creator,
-      });
-    else if (language === "Arabic")
-      return await Person.create({
-        type: "conj",
-        prenom: prenom_conj,
-        prenom_fr: "",
-        nom: nom_conj,
-        nom_fr: "",
-        gender: gender_conj,
-        num_act: num_act_conj,
-        date_n: convertDateFormat(date_n_conj, "S").date,
-        type_date_n: type_date_n_conj,
-        lieu_n: lieu_n_conj,
-        lieu_n_fr: "",
-        wil_n: "",
-        com_n: "",
-        prenom_p: prenom_p_conj,
-        prenom_p_fr: "",
-        prenom_m: prenom_m_conj,
-        prenom_m_fr: "",
-        nom_m: nom_m_conj,
-        nom_m_fr: "",
-        num_i_n: num_act_conj + " " + date_n_conj,
-        stuation_f: "",
-        situation_p: "",
-        profession: "",
-        salaire: "",
-        creator,
-      });
+    if (prenom_conj && nom_conj) {
+      if (language === "French")
+        return await Person.create({
+          type: "conj",
+          prenom: "",
+          prenom_fr: prenom_conj,
+          nom: "",
+          nom_fr: nom_conj,
+          gender: gender_conj,
+          num_act: num_act_conj,
+          date_n: convertDateFormat(date_n_conj, "S").date,
+          type_date_n: type_date_n_conj,
+          lieu_n: "",
+          lieu_n_fr: lieu_n_conj,
+          wil_n: "",
+          com_n: "",
+          prenom_p: "",
+          prenom_p_fr: prenom_p_conj,
+          prenom_m: "",
+          prenom_m_fr: prenom_m_conj,
+          nom_m: "",
+          nom_m_fr: nom_m_conj,
+          num_i_n: num_act_conj + " " + date_n_conj,
+          stuation_f: "",
+          situation_p: "",
+          profession: "",
+          salaire: "",
+          creator,
+        });
+      else if (language === "Arabic")
+        return await Person.create({
+          type: "conj",
+          prenom: prenom_conj,
+          prenom_fr: "",
+          nom: nom_conj,
+          nom_fr: "",
+          gender: gender_conj,
+          num_act: num_act_conj,
+          date_n: convertDateFormat(date_n_conj, "S").date,
+          type_date_n: type_date_n_conj,
+          lieu_n: lieu_n_conj,
+          lieu_n_fr: "",
+          wil_n: "",
+          com_n: "",
+          prenom_p: prenom_p_conj,
+          prenom_p_fr: "",
+          prenom_m: prenom_m_conj,
+          prenom_m_fr: "",
+          nom_m: nom_m_conj,
+          nom_m_fr: "",
+          num_i_n: num_act_conj + " " + date_n_conj,
+          stuation_f: "",
+          situation_p: "",
+          profession: "",
+          salaire: "",
+          creator,
+        });
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error createConjoin", error);
+    res.status(500).send("Error createConjoin");
   }
-
-  return null;
 }
 
 module.exports = { updateDossiers, correctionDB };

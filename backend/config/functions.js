@@ -333,7 +333,7 @@ function reverseDayAndMonth(dateStr) {
   }
 }
 
-function countParentKeyMatches(targetEntry, tableEntries, lowPercentage = 0.8) {
+function countParentKeyMatches(targetEntry, tableEntries, lowPercentage = 0.84) {
   // Initialize counters
   const results = {
     fatherMatches: [],
@@ -382,7 +382,7 @@ function countParentKeyMatches(targetEntry, tableEntries, lowPercentage = 0.8) {
 
   // Compare against all table entries
   tableEntries.forEach((entry) => {
-    if (!entry?.demandeur) return;
+    if (!entry?.demandeur || entry._id === targetEntry._id) return;
 
     const currentFather = entry.demandeur.fatherkey;
     const currentMother = entry.demandeur.motherkey;

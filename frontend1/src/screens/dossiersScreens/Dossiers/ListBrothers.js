@@ -50,42 +50,47 @@ function ListBrothers({
           </ListGroup>
         </Card>
       </div>
-      {dossiers?.data?.map((dossierMap) => {
+      {dossiers?.data?.map((dossierMap, index) => {
         return (
           <>
             <SingleBrothergroup
+              key={dossierMap._id + index}
               dossierMap={dossierMap}
-              key={dossierMap._id + "brother2"}
               setShowPopup={setShowPopup}
               deleteHandler={deleteHandler}
               setIdToDel={setIdToDel}
             />
 
             {showBrothersList === "FatherBrothers" &&
-              dossierMap?.demandeur?.listOfFatherBrothers?.map((brother) => {
-                return (
-                  <SingleBrothergroup
-                    dossierMap={brother}
-                    key={brother._id + "brother3"}
-                    setShowPopup={setShowPopup}
-                    deleteHandler={deleteHandler}
-                    setIdToDel={setIdToDel}
-                  />
-                );
-              })}
+              dossierMap?.demandeur?.listOfFatherBrothers?.map(
+                (brother, index2) => {
+                  console.log("brother: ",brother);
+                  return (
+                    <SingleBrothergroup
+                      key={brother.matchId + index2}
+                      dossierMap={brother}
+                      setShowPopup={setShowPopup}
+                      deleteHandler={deleteHandler}
+                      setIdToDel={setIdToDel}
+                    />
+                  );
+                }
+              )}
 
             {showBrothersList === "MotherBrothers" &&
-              dossierMap?.demandeur?.listOfMotherBrothers?.map((brother) => {
-                return (
-                  <SingleBrothergroup
-                    dossierMap={brother}
-                    key={brother._id + "brother2"}
-                    setShowPopup={setShowPopup}
-                    deleteHandler={deleteHandler}
-                    setIdToDel={setIdToDel}
-                  />
-                );
-              })}
+              dossierMap?.demandeur?.listOfMotherBrothers?.map(
+                (brother, index3) => {
+                  return (
+                    <SingleBrothergroup
+                      key={brother.matchId + index3}
+                      dossierMap={brother}
+                      setShowPopup={setShowPopup}
+                      deleteHandler={deleteHandler}
+                      setIdToDel={setIdToDel}
+                    />
+                  );
+                }
+              )}
             <hr />
           </>
         );
