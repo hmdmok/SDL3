@@ -1,9 +1,9 @@
 import React from "react";
 import { Button, ButtonGroup, Dropdown, DropdownButton } from "react-bootstrap";
 
-const Sort = ({ sort, setSort }) => {
+const Sort = ({ sort, setSort, showBrothersList }) => {
   const onSelectChange = (e) => {
-     setSort({
+    setSort({
       sort: e,
       order: sort.order,
     });
@@ -37,6 +37,16 @@ const Sort = ({ sort, setSort }) => {
           <Dropdown.Item eventKey={"nom"}>اللقب بالفرنسية</Dropdown.Item>
           <Dropdown.Item eventKey={"prenom"}>الاسم بالفرنسية</Dropdown.Item>
           <Dropdown.Item eventKey={"date_n"}>تاريخ الميلاد</Dropdown.Item>
+          {showBrothersList === "FatherBrothers" && (
+            <Dropdown.Item eventKey={"nombreBrotherF"}>
+              عدد الاخوة
+            </Dropdown.Item>
+          )}
+          {showBrothersList === "MotherBrothers" && (
+            <Dropdown.Item eventKey={"nombreBrotherM"}>
+              عدد الاخوة
+            </Dropdown.Item>
+          )}
         </DropdownButton>
         <Button onClick={onArrowChange}>&uarr;&darr;</Button>
       </ButtonGroup>

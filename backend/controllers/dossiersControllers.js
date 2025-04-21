@@ -397,22 +397,26 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
         },
       };
     });
-    var keyArray1 = keyArray2.map(function (item) {
+    var keyArray1 = await keyArray2.map(function (item) {
       const demandeur = item.demandeur || {};
       const parentKeyMatches = countParentKeyMatches(item, keyArray2);
-      return {
-        _id: item._id,
-        num_dos: item.num_dos,
-        date_depo: item.date_depo,
-        notes: item.notes,
-        demandeur: {
-          ...demandeur, // Spread existing demandeur properties
-          numberOfFatherBrothers: parentKeyMatches.totalFatherMatches || 0,
-          numberOfMotherBrothers: parentKeyMatches.totalMotherMatches || 0,
-          listOfFatherBrothers: parentKeyMatches.fatherMatches || [],
-          listOfMotherBrothers: parentKeyMatches.motherMatches || [],
-        },
-      };
+      // if (
+      //   parentKeyMatches.totalFatherMatches > 0 ||
+      //   parentKeyMatches.totalMotherMatches > 0
+      // )
+        return {
+          _id: item._id,
+          num_dos: item.num_dos,
+          date_depo: item.date_depo,
+          notes: item.notes,
+          demandeur: {
+            ...demandeur, // Spread existing demandeur properties
+            numberOfFatherBrothers: parentKeyMatches.totalFatherMatches || 0,
+            numberOfMotherBrothers: parentKeyMatches.totalMotherMatches || 0,
+            listOfFatherBrothers: parentKeyMatches.fatherMatches || [],
+            listOfMotherBrothers: parentKeyMatches.motherMatches || [],
+          },
+        };
     });
 
     // filter by search
@@ -616,6 +620,42 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
             return a.notes - b.notes;
           } else if (sort.type === "desc") {
             return b.notes - a.notes;
+          }
+          return b.notes - a.notes;
+        });
+        break;
+      case "nombreBrotherF":
+        filterBySearch = filterBySearch.sort(function (a, b) {
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
+          if (sort.type === "asc") {
+            return (
+              a.demandeur?.numberOfFatherBrothers -
+              b.demandeur?.numberOfFatherBrothers
+            );
+          } else if (sort.type === "desc") {
+            return (
+              b.demandeur?.numberOfFatherBrothers -
+              a.demandeur?.numberOfFatherBrothers
+            );
+          }
+          return b.notes - a.notes;
+        });
+        break;
+      case "nombreBrotherM":
+        filterBySearch = filterBySearch.sort(function (a, b) {
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
+          if (sort.type === "asc") {
+            return (
+              a.demandeur?.numberOfMotherBrothers -
+              b.demandeur?.numberOfMotherBrothers
+            );
+          } else if (sort.type === "desc") {
+            return (
+              b.demandeur?.numberOfMotherBrothers -
+              a.demandeur?.numberOfMotherBrothers
+            );
           }
           return b.notes - a.notes;
         });

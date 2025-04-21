@@ -151,6 +151,7 @@ const Filters = ({
         }}
       />
       <Sort
+        showBrothersList={showBrothersList}
         sort={sort}
         setSort={(sort) => {
           setSort(sort);

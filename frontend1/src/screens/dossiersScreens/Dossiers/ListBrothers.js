@@ -88,7 +88,6 @@ function ListBrothers({
                     deleteHandler={deleteHandler}
                     setIdToDel={setIdToDel}
                   />
-                  )
                   {dossierMap?.demandeur?.listOfMotherBrothers?.map(
                     (brother, index3) => {
                       return (
