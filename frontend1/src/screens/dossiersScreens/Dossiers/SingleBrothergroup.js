@@ -84,7 +84,7 @@ const SingleBrothergroup = ({ dossierMap, setShowPopup, setIdToDel }) => {
         } %`}</Badge>
       </ListGroup>
 
-      {files?.some((f) => f._id === dossierMap.matchId || dossierMap._id) ? (
+      {files?.some((f) => f.num_dos === dossierMap.num_dos) ? (
         <Button
           variant="success"
           className="m-1"
@@ -102,7 +102,7 @@ const SingleBrothergroup = ({ dossierMap, setShowPopup, setIdToDel }) => {
         </Button>
       )}
 
-      {benefisiers?.some((f) => f._id === dossierMap.matchId || dossierMap._id) ? (
+      {benefisiers?.some((f) => f.num_dos === dossierMap.num_dos) ? (
         <Button
           variant="success"
           className="m-1"
@@ -121,7 +121,10 @@ const SingleBrothergroup = ({ dossierMap, setShowPopup, setIdToDel }) => {
       )}
 
       <Button variant="success" className="m-1">
-        <Link to={`/adddossiers/${dossierMap.matchId || dossierMap._id}`}> تعديل الملف</Link>
+        <Link to={`/adddossiers/${dossierMap.matchId || dossierMap._id}`}>
+          {" "}
+          تعديل الملف
+        </Link>
       </Button>
 
       <Button

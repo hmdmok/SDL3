@@ -56,8 +56,9 @@ function ListBrothers({
           <>
             {showBrothersList === "FatherBrothers" &&
               dossierMap?.demandeur?.listOfFatherBrothers?.length > 0 && (
-                <div className="" key={index}>
+                <div className="">
                   <SingleBrothergroup
+                    key={dossierMap._id + index + Math.random()}
                     dossierMap={dossierMap}
                     setShowPopup={setShowPopup}
                     deleteHandler={deleteHandler}
@@ -67,6 +68,7 @@ function ListBrothers({
                     (brother, index2) => {
                       return (
                         <SingleBrothergroup
+                          key={brother.matchId + index2 + Math.random()}
                           dossierMap={brother}
                           setShowPopup={setShowPopup}
                           deleteHandler={deleteHandler}
@@ -81,9 +83,10 @@ function ListBrothers({
 
             {showBrothersList === "MotherBrothers" &&
               dossierMap?.demandeur?.listOfMotherBrothers?.length > 0 && (
-                <div className="" key={index}>
+                <div className="">
                   <SingleBrothergroup
-                    dossierMap={dossierMap}
+                    key={dossierMap._id + index + Math.random()}
+                    dossierMap={dossierMap._id}
                     setShowPopup={setShowPopup}
                     deleteHandler={deleteHandler}
                     setIdToDel={setIdToDel}
@@ -92,6 +95,7 @@ function ListBrothers({
                     (brother, index3) => {
                       return (
                         <SingleBrothergroup
+                          key={brother.matchId + index3 + Math.random()}
                           dossierMap={brother}
                           setShowPopup={setShowPopup}
                           deleteHandler={deleteHandler}
