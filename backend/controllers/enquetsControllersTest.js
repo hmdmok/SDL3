@@ -527,7 +527,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
     };
     await Promise.all(dossiers.map((dossier) => processDossier(dossier)));
 
-    const newFileName = `List Benifisiers ${
+    const newFileName = `generatedEnq/List Benifisiers ${
       new Date().toISOString().split("T")[0]
     }.xlsx`;
 

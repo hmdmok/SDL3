@@ -8,6 +8,7 @@ importationFileUpload/
 personsPicUpload/  
 quotasPicUpload/  
 usersPicUpload/  
+generatedEnq/
 frontend1/**/node_modules/
 /.pnp
 .pnp.js
