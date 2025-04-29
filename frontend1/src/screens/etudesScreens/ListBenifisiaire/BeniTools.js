@@ -45,16 +45,8 @@ const BeniTools = () => {
     triDossiers,
     photoFemme
   ) => {
-    if (systemInfo.length > 0) {
-      dispatch(
-        listBenefisiersAction(
-          listDossierBenefisiers,
-          type,
-          triDossiers,
-          photoFemme
-        )
-      );
-    }
+    console.log("sent");
+    dispatch(listBenefisiersAction([], "arabic", "date-depo", "False"));
   };
 
   useEffect(() => {

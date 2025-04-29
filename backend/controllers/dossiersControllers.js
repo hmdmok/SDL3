@@ -404,21 +404,132 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
       //   parentKeyMatches.totalFatherMatches > 0 ||
       //   parentKeyMatches.totalMotherMatches > 0
       // )
-        return {
-          _id: item._id,
-          num_dos: item.num_dos,
-          date_depo: item.date_depo,
-          notes: item.notes,
-          demandeur: {
-            ...demandeur, // Spread existing demandeur properties
-            numberOfFatherBrothers: parentKeyMatches.totalFatherMatches || 0,
-            numberOfMotherBrothers: parentKeyMatches.totalMotherMatches || 0,
-            listOfFatherBrothers: parentKeyMatches.fatherMatches || [],
-            listOfMotherBrothers: parentKeyMatches.motherMatches || [],
-          },
-        };
+      return {
+        _id: item._id,
+        num_dos: item.num_dos,
+        date_depo: item.date_depo,
+        notes: item.notes,
+        demandeur: {
+          ...demandeur, // Spread existing demandeur properties
+          numberOfFatherBrothers: parentKeyMatches.totalFatherMatches || 0,
+          numberOfMotherBrothers: parentKeyMatches.totalMotherMatches || 0,
+          listOfFatherBrothers: parentKeyMatches.fatherMatches || [],
+          listOfMotherBrothers: parentKeyMatches.motherMatches || [],
+        },
+      };
     });
 
+    async function segregateBrothersLists(keyArray2) {
+      // Create a Set to track used IDs for efficient lookups
+      const usedIds = new Set();
+
+      // Initialize result arrays
+      const fatherBrothersList = [];
+      const motherBrothersList = [];
+      const remainingDossiers = [];
+
+      // First pass: Process all items to identify brothers
+      const processedItems = await Promise.all(
+        keyArray2.map(async (item) => {
+          const demandeur = item.demandeur || {};
+          const parentKeyMatches = await countParentKeyMatches(item, keyArray2);
+
+          return {
+            ...item,
+            demandeur: {
+              ...demandeur,
+              numberOfFatherBrothers: parentKeyMatches.totalFatherMatches || 0,
+              numberOfMotherBrothers: parentKeyMatches.totalMotherMatches || 0,
+              listOfFatherBrothers: parentKeyMatches.fatherMatches || [],
+              listOfMotherBrothers: parentKeyMatches.motherMatches || [],
+            },
+          };
+        })
+      );
+
+      // Second pass: Segregate into separate lists
+      for (const item of processedItems) {
+        if (usedIds.has(item._id.toString())) {
+          continue; // Skip already used items
+        }
+
+        // Check if this item has any brothers
+        const hasFatherBrothers =
+          item.demandeur.listOfFatherBrothers.length > 0;
+        const hasMotherBrothers =
+          item.demandeur.listOfMotherBrothers.length > 0;
+
+        if (hasFatherBrothers) {
+          // Create father brothers group
+          const fatherGroup = {
+            mainDossier: {
+              _id: item._id,
+              num_dos: item.num_dos,
+              date_depo: item.date_depo,
+            },
+            brothers: item.demandeur.listOfFatherBrothers.map((b) => ({
+              _id: b.matchId,
+              num_dos: b.num_dos,
+              similarity: b.similarity,
+            })),
+          };
+          fatherBrothersList.push(fatherGroup);
+
+          // Mark all brothers as used
+          usedIds.add(item._id.toString());
+          item.demandeur.listOfFatherBrothers.forEach((b) =>
+            usedIds.add(b.matchId.toString())
+          );
+        } else if (hasMotherBrothers) {
+          // Create mother brothers group
+          const motherGroup = {
+            mainDossier: {
+              _id: item._id,
+              num_dos: item.num_dos,
+              date_depo: item.date_depo,
+            },
+            brothers: item.demandeur.listOfMotherBrothers.map((b) => ({
+              _id: b.matchId,
+              num_dos: b.num_dos,
+              similarity: b.similarity,
+            })),
+          };
+          motherBrothersList.push(motherGroup);
+
+          // Mark all brothers as used
+          usedIds.add(item._id.toString());
+          item.demandeur.listOfMotherBrothers.forEach((b) =>
+            usedIds.add(b.matchId.toString())
+          );
+        } else {
+          // No brothers - add to remaining dossiers
+          remainingDossiers.push({
+            _id: item._id,
+            num_dos: item.num_dos,
+            date_depo: item.date_depo,
+            notes: item.notes,
+          });
+        }
+      }
+
+      return {
+        fatherBrothersList,
+        motherBrothersList,
+        remainingDossiers,
+        stats: {
+          fatherGroups: fatherBrothersList.length,
+          motherGroups: motherBrothersList.length,
+          remaining: remainingDossiers.length,
+        },
+      };
+    }
+
+    // Usage example
+    const { fatherBrothersList, motherBrothersList, remainingDossiers } =
+      await segregateBrothersLists(keyArray2);
+
+    console.log("fatherBrothersList", fatherBrothersList);
+    console.log("motherBrothersList", motherBrothersList);
     // filter by search
     var filterBySearch = keyArray1.filter(function (item) {
       return (

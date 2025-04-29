@@ -85,8 +85,8 @@ function ListBrothers({
               dossierMap?.demandeur?.listOfMotherBrothers?.length > 0 && (
                 <div className="">
                   <SingleBrothergroup
-                    key={dossierMap._id + index + Math.random()}
-                    dossierMap={dossierMap._id}
+                    key={dossierMap._id + Math.random()}
+                    dossierMap={dossierMap}
                     setShowPopup={setShowPopup}
                     deleteHandler={deleteHandler}
                     setIdToDel={setIdToDel}
