@@ -397,27 +397,27 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
         },
       };
     });
-    var keyArray1 = await keyArray2.map(function (item) {
-      const demandeur = item.demandeur || {};
-      const parentKeyMatches = countParentKeyMatches(item, keyArray2);
-      // if (
-      //   parentKeyMatches.totalFatherMatches > 0 ||
-      //   parentKeyMatches.totalMotherMatches > 0
-      // )
-      return {
-        _id: item._id,
-        num_dos: item.num_dos,
-        date_depo: item.date_depo,
-        notes: item.notes,
-        demandeur: {
-          ...demandeur, // Spread existing demandeur properties
-          numberOfFatherBrothers: parentKeyMatches.totalFatherMatches || 0,
-          numberOfMotherBrothers: parentKeyMatches.totalMotherMatches || 0,
-          listOfFatherBrothers: parentKeyMatches.fatherMatches || [],
-          listOfMotherBrothers: parentKeyMatches.motherMatches || [],
-        },
-      };
-    });
+    // var keyArray1 = await keyArray2.map(function (item) {
+    //   const demandeur = item.demandeur || {};
+    //   const parentKeyMatches = countParentKeyMatches(item, keyArray2);
+    //   // if (
+    //   //   parentKeyMatches.totalFatherMatches > 0 ||
+    //   //   parentKeyMatches.totalMotherMatches > 0
+    //   // )
+    //   return {
+    //     _id: item._id,
+    //     num_dos: item.num_dos,
+    //     date_depo: item.date_depo,
+    //     notes: item.notes,
+    //     demandeur: {
+    //       ...demandeur, // Spread existing demandeur properties
+    //       numberOfFatherBrothers: parentKeyMatches.totalFatherMatches || 0,
+    //       numberOfMotherBrothers: parentKeyMatches.totalMotherMatches || 0,
+    //       listOfFatherBrothers: parentKeyMatches.fatherMatches || [],
+    //       listOfMotherBrothers: parentKeyMatches.motherMatches || [],
+    //     },
+    //   };
+    // });
 
     async function segregateBrothersLists(keyArray2) {
       // Create a Set to track used IDs for efficient lookups
@@ -466,10 +466,24 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
               _id: item._id,
               num_dos: item.num_dos,
               date_depo: item.date_depo,
+              nom_fr: item["demandeur"]?.nom_fr,
+              prenom_fr: item["demandeur"]?.prenom_fr,
+              date_n: item["demandeur"]?.date_n,
+              stuation_f: item["demandeur"]?.stuation_f,
+              prenom_p_fr: item["demandeur"]?.prenom_p_fr,
+              prenom_m_fr: item["demandeur"]?.prenom_m_fr,
+              nom_m_fr: item["demandeur"]?.nom_m_fr,
             },
             brothers: item.demandeur.listOfFatherBrothers.map((b) => ({
               _id: b.matchId,
               num_dos: b.num_dos,
+              nom_fr: b["demandeur"]?.nom_fr,
+              prenom_fr: b["demandeur"]?.prenom_fr,
+              date_n: b["demandeur"]?.date_n,
+              stuation_f: b["demandeur"]?.stuation_f,
+              prenom_p_fr: item["demandeur"]?.prenom_p_fr,
+              prenom_m_fr: item["demandeur"]?.prenom_m_fr,
+              nom_m_fr: item["demandeur"]?.nom_m_fr,
               similarity: b.similarity,
             })),
           };
@@ -487,10 +501,24 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
               _id: item._id,
               num_dos: item.num_dos,
               date_depo: item.date_depo,
+              nom_fr: item["demandeur"]?.nom_fr,
+              prenom_fr: item["demandeur"]?.prenom_fr,
+              date_n: item["demandeur"]?.date_n,
+              stuation_f: item["demandeur"]?.stuation_f,
+              prenom_p_fr: item["demandeur"]?.prenom_p_fr,
+              prenom_m_fr: item["demandeur"]?.prenom_m_fr,
+              nom_m_fr: item["demandeur"]?.nom_m_fr,
             },
             brothers: item.demandeur.listOfMotherBrothers.map((b) => ({
               _id: b.matchId,
               num_dos: b.num_dos,
+              nom_fr: b["demandeur"]?.nom_fr,
+              prenom_fr: b["demandeur"]?.prenom_fr,
+              date_n: b["demandeur"]?.date_n,
+              stuation_f: b["demandeur"]?.stuation_f,
+              prenom_p_fr: item["demandeur"]?.prenom_p_fr,
+              prenom_m_fr: item["demandeur"]?.prenom_m_fr,
+              nom_m_fr: item["demandeur"]?.nom_m_fr,
               similarity: b.similarity,
             })),
           };
@@ -525,13 +553,16 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
     }
 
     // Usage example
-    const { fatherBrothersList, motherBrothersList, remainingDossiers } =
-      await segregateBrothersLists(keyArray2);
+    const {
+      stats,
+      fatherBrothersList: fatherBrothersList,
+      motherBrothersList: motherBrothersList,
+    } = await segregateBrothersLists(keyArray2);
 
-    console.log("fatherBrothersList", fatherBrothersList);
-    console.log("motherBrothersList", motherBrothersList);
+    console.log("BrothersList", stats);
+
     // filter by search
-    var filterBySearch = keyArray1.filter(function (item) {
+    var filterBySearch = keyArray2.filter(function (item) {
       return (
         item.num_dos?.toLowerCase().includes(search?.toLowerCase()) ||
         item.demandeur?.nom_fr?.toLowerCase().includes(search?.toLowerCase()) ||
@@ -804,6 +835,20 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
       }
     });
 
+    // Skip page * limit and limit
+    const motherBrothersList1 = motherBrothersList.filter((x, i) => {
+      if (i > page * limit - 1 && i < page * limit + limit) {
+        return true;
+      }
+    });
+
+    // Skip page * limit and limit
+    const fatherBrothersList1 = fatherBrothersList.filter((x, i) => {
+      if (i > page * limit - 1 && i < page * limit + limit) {
+        return true;
+      }
+    });
+
     var keyArray = filterBySearch.map(function (item) {
       return {
         _id: item._id,
@@ -834,6 +879,9 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
       limit,
       data: keyArray,
       totalArray: totalArray,
+      stats,
+      fatherBrothersList: fatherBrothersList1,
+      motherBrothersList: motherBrothersList1,
     };
 
     res.status(200).json(response);

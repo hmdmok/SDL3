@@ -55,7 +55,6 @@ function Dossiers() {
   const [showBrothersList, setShowBrothetherList] = useState("List"); // State to control popup visibility
   const [idToDel, setIdToDel] = useState(null); // State to control popup visibility
 
- 
   useEffect(() => {
     dispatch(
       listDossiersAction(
@@ -97,6 +96,7 @@ function Dossiers() {
     situationFamiliale,
     dateEtude,
   ]);
+
   return (
     <>
       <div className="alerts">
@@ -166,11 +166,14 @@ function Dossiers() {
             key={"filter"}
             setShowBrothetherList={setShowBrothetherList}
             showBrothersList={showBrothersList}
+            numberFatherBrothers={brothers?.stats?.fatherGroups}
+            numberMotherBrothers={brothers?.stats?.motherGroups}
           />
         </div>
 
         {showBrothersList === "List" && (
           <ListDossiers
+            key={"listDossiers"}
             title={"قائمة الملفات كاملة"}
             setShowPopup={setShowPopup}
             deleteHandler={deleteHandler}
@@ -180,21 +183,23 @@ function Dossiers() {
         )}
         {showBrothersList === "FatherBrothers" && (
           <ListBrothers
+            key={"fatherBrothers"}
             title={"قائمة الخوة من الاب"}
             setShowPopup={setShowPopup}
             deleteHandler={deleteHandler}
             setIdToDel={setIdToDel}
-            dossiers={brothers}
+            dossiers={brothers?.fatherBrothersList}
             showBrothersList={showBrothersList}
           />
         )}
         {showBrothersList === "MotherBrothers" && (
           <ListBrothers
+            key={"motherBrothers"}
             title={"قائمة الخوة من الام"}
             setShowPopup={setShowPopup}
             deleteHandler={deleteHandler}
             setIdToDel={setIdToDel}
-            dossiers={brothers}
+            dossiers={brothers?.motherBrothersList}
             showBrothersList={showBrothersList}
           />
         )}

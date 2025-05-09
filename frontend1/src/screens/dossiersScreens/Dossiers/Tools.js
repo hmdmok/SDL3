@@ -132,7 +132,16 @@ const Tools = ({ total, limit, data, page, setPage, totalArray }) => {
       >
         excell 2
       </Button>
-
+      <Button
+        variant="warning"
+        className="m-1"
+        size="sm"
+        onClick={() => {
+          console.log("تحميل ملف الاخوة");
+        }}
+      >
+        {"تحميل ملف الاخوة"}
+      </Button>
       <Button className="m-1 " size="sm">
         <Badge>ملف</Badge>
         <Badge>{total}</Badge>

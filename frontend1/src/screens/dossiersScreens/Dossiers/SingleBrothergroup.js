@@ -50,31 +50,31 @@ const SingleBrothergroup = ({ dossierMap, setShowPopup, setIdToDel }) => {
       }}
     >
       <ListGroup variant="flush" style={{ width: "9rem" }}>
-        <Badge style={{ height: "40px" }}>{dossierMap.demandeur?.nom_fr}</Badge>
+        <Badge style={{ height: "40px" }}>{dossierMap?.nom_fr}</Badge>
       </ListGroup>
 
       <ListGroup variant="flush" style={{ width: "9rem" }}>
         <Badge style={{ height: "40px" }}>
-          {dossierMap.demandeur?.prenom_fr}
+          {dossierMap?.prenom_fr}
         </Badge>
       </ListGroup>
 
       <ListGroup variant="flush" style={{ width: "9rem" }}>
-        <Badge style={{ height: "40px" }}>{dossierMap.demandeur?.date_n}</Badge>
+        <Badge style={{ height: "40px" }}>{dossierMap?.date_n}</Badge>
       </ListGroup>
 
       <ListGroup variant="flush" style={{ width: "11rem" }}>
         <Badge style={{ height: "40px" }}>
-          {dossierMap.demandeur?.prenom_p_fr +
+          {dossierMap?.prenom_p_fr +
             " " +
-            dossierMap.demandeur?.nom_fr}
+            dossierMap?.nom_fr}
         </Badge>
       </ListGroup>
       <ListGroup variant="flush" style={{ width: "11rem" }}>
         <Badge style={{ height: "40px" }}>
-          {dossierMap.demandeur?.prenom_m_fr +
+          {dossierMap?.prenom_m_fr +
             " " +
-            dossierMap.demandeur?.nom_m_fr}
+            dossierMap?.nom_m_fr}
         </Badge>
       </ListGroup>
 

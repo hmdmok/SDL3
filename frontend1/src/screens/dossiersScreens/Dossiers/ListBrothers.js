@@ -51,37 +51,34 @@ function ListBrothers({
           </ListGroup>
         </Card>
       </div>
-      {dossiers?.data?.map((dossierMap, index) => {
+      {dossiers?.map((dossierMap, index) => {
         return (
           <>
-            {showBrothersList === "FatherBrothers" &&
-              dossierMap?.demandeur?.listOfFatherBrothers?.length > 0 && (
-                <div className="">
-                  <SingleBrothergroup
-                    key={dossierMap._id + index + Math.random()}
-                    dossierMap={dossierMap}
-                    setShowPopup={setShowPopup}
-                    deleteHandler={deleteHandler}
-                    setIdToDel={setIdToDel}
-                  />
-                  {dossierMap?.demandeur?.listOfFatherBrothers?.map(
-                    (brother, index2) => {
-                      return (
-                        <SingleBrothergroup
-                          key={brother.matchId + index2 + Math.random()}
-                          dossierMap={brother}
-                          setShowPopup={setShowPopup}
-                          deleteHandler={deleteHandler}
-                          setIdToDel={setIdToDel}
-                        />
-                      );
-                    }
-                  )}
-                  <hr />
-                </div>
-              )}
+            {showBrothersList !== "List" && (
+              <div className="">
+                <SingleBrothergroup
+                  key={index + Math.random()}
+                  dossierMap={dossierMap?.mainDossier}
+                  setShowPopup={setShowPopup}
+                  deleteHandler={deleteHandler}
+                  setIdToDel={setIdToDel}
+                />
+                {dossierMap?.brothers?.map((brother, index2) => {
+                  return (
+                    <SingleBrothergroup
+                      key={ index2 + Math.random()}
+                      dossierMap={brother}
+                      setShowPopup={setShowPopup}
+                      deleteHandler={deleteHandler}
+                      setIdToDel={setIdToDel}
+                    />
+                  );
+                })}
+                <hr />
+              </div>
+            )}
 
-            {showBrothersList === "MotherBrothers" &&
+            {/* {showBrothersList === "MotherBrothers" &&
               dossierMap?.demandeur?.listOfMotherBrothers?.length > 0 && (
                 <div className="">
                   <SingleBrothergroup
@@ -106,7 +103,7 @@ function ListBrothers({
                   )}
                   <hr />
                 </div>
-              )}
+              )} */}
           </>
         );
       })}

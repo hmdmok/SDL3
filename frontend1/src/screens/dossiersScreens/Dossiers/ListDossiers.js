@@ -61,7 +61,7 @@ function ListDossiers({
         return (
           <SingleDossier
             dossierMap={brother}
-            key={brother._id + "brother2"}
+            key={brother._id}
             setShowPopup={setShowPopup}
             deleteHandler={deleteHandler}
             setIdToDel={setIdToDel}

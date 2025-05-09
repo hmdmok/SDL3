@@ -22,6 +22,8 @@ const Filters = ({
   setSort,
   setShowBrothetherList,
   showBrothersList,
+  numberFatherBrothers,
+  numberMotherBrothers,
 }) => {
   const PlusMoinRadioItems = [
     { value: "p", label: "اكثر من 35 سنة من تاريخ الدراسة" },
@@ -43,14 +45,14 @@ const Filters = ({
               setShowBrothetherList("FatherBrothers");
             }}
           >
-            {"قائمة الاخوة من الاب"}
+            {"قائمة الاخوة من الاب" + numberFatherBrothers + " ملف"}
           </Button>
           <Button
             onClick={() => {
               setShowBrothetherList("MotherBrothers");
             }}
           >
-            {"قائمة الاخوة من الام"}
+            {"قائمة الاخوة من الام" + numberMotherBrothers + " ملف"}
           </Button>
         </>
       ) : (
@@ -69,7 +71,7 @@ const Filters = ({
                   setShowBrothetherList("MotherBrothers");
                 }}
               >
-                {"قائمة الاخوة من الام"}
+                {"قائمة الاخوة من الام " + numberMotherBrothers + " ملف"}
               </Button>
             </>
           ) : (
@@ -88,7 +90,7 @@ const Filters = ({
                       setShowBrothetherList("FatherBrothers");
                     }}
                   >
-                    {"قائمة الاخوة من الاب"}
+                    {"قائمة الاخوة من الاب" + numberFatherBrothers + " ملف"}
                   </Button>
                 </>
               ) : null}
