@@ -201,8 +201,8 @@ function convertDateFormat(dateStr, outputType) {
   month = padZero(month);
 
   // Format the date as 01/01/yyyy if day or month is 00
-  let day01 = padZero(day) === "00" ? "01" : padZero(day);
-  let month01 = padZero(month) === "00" ? "01" : padZero(month);
+  let day01 = day === "00" ? "01" : day;
+  let month01 = month === "00" ? "01" : month;
 
   // Format the date as  31/12/yyyy if day or month is 00
   let day31 = day === "00" ? "31" : day;

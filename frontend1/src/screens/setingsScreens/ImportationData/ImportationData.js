@@ -175,6 +175,7 @@ function ImportationData() {
   //   var headerRow = false;
   // };
   useEffect(() => {
+    console.log("fichierInfo: ", fichierInfo);
     if (!fichierInfo?.includes("dossiers")) setNumDosIds(fichierInfo);
   }, [fichierInfo]);
 
@@ -335,6 +336,7 @@ function ImportationData() {
             </Button>
             {numDosIds?.length > 0 && (
               <>
+                {console.log("numDos: ",numDosIds)}
                 <Button
                   variant="success"
                   className="m-1 "

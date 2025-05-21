@@ -256,12 +256,12 @@ const Navigation = () => {
                   <DropdownMenu style={{ minWidth: 370 }}>
                     {files?.length > 0 ? (
                       <>
-                        {files.map((file) => (
+                        {/* {files?.map((file) => (
                           <span className="file" key={file._id}>
                             <div className="fileDetail">
-                              <span>N: {file.num_dos}</span>
-                              <span>Nom: {file.demandeur?.nom_fr}</span>
-                              <span>Prenom: {file.demandeur?.prenom_fr}</span>
+                              <span>N: {file?.num_dos}</span>
+                              <span>Nom: {file?.demandeur?.nom_fr}</span>
+                              <span>Prenom: {file?.demandeur?.prenom_fr}</span>
                             </div>
                             <AiFillDelete
                               fontSize={"20px"}
@@ -269,7 +269,8 @@ const Navigation = () => {
                               onClick={() => dellDossierFromCheck(file)}
                             />
                           </span>
-                        ))}
+                        ))} */}
+                        {/* {console.log("files", files)} */}
                         <Link to="/enquetCNL">
                           <Button style={{ width: "95%", margin: "0 10px" }}>
                             صفحة ملفات التحقيق

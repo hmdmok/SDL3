@@ -899,7 +899,7 @@ const getDossierByBrothers = asyncHandler(async (req, res) => {
     // Create a map to group persons by their father's name, birth date, and birth location
     const groupedByFather = fullDossiers.reduce((acc, dossier) => {
       // Construct a unique key for the father based on name, birth date, and location
-      const fatherKey = `${dossier["demandeur"]?.prenom_p_fr}_${dossier["demandeur"]?.prenom_m_fr}_${dossier["demandeur"]?.nom_m_fr}`;
+      const fatherKey = `${dossier["demandeur"]?.prenom_p_fr}_${dossier["demandeur"]?.nom_fr}`;
 
       if (!acc[fatherKey]) {
         acc[fatherKey] = [];
