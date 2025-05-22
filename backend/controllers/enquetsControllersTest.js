@@ -372,6 +372,10 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         await loadWorkbook("Export-ArFilter.xlsx");
         worksheetPlus = workbook.worksheets[0];
         break;
+      case "brothers":
+        await loadWorkbook("ListBrothersAr.xlsx");
+        worksheetPlus = workbook.worksheets[0];
+        break;
       default:
         return res.status(400).json({ error: "Invalid type" });
     }
