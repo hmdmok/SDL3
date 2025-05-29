@@ -45,9 +45,9 @@ const Navigation = () => {
   const { benefisiersInfo } = filesToBenifits;
   const { benefisiers } = benefisiersInfo;
 
-  const dellDossierFromCheck = (fileTo) => {
-    dispatch(deleteFile(fileTo));
-  };
+  // const dellDossierFromCheck = (fileTo) => {
+  //   dispatch(deleteFile(fileTo));
+  // };
 
   const dellDossierFromBenefisiers = (fileTo) => {
     dispatch(deleteBenefisier(fileTo));

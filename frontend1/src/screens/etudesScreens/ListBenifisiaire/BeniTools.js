@@ -45,8 +45,8 @@ const BeniTools = () => {
     triDossiers,
     photoFemme
   ) => {
-    console.log("sent");
-    dispatch(listBenefisiersAction([], "arabic", "date-depo", "False"));
+    console.log("sent:", type);
+    dispatch(listBenefisiersAction(listDossierBenefisiers, type, "", "False"));
   };
 
   useEffect(() => {
@@ -184,6 +184,20 @@ const BeniTools = () => {
         }
       >
         انشاء ملف المستفيدين
+      </Button>
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() =>
+          onGetBenefisiersList(
+            getIDList(benefisiers),
+            "brothersfr",
+            TriDossiers,
+            PhotoFemme
+          )
+        }
+      >
+        انشاء ملف الاخوة
       </Button>
 
       <Button

@@ -17,6 +17,10 @@ const {
   getAlphabet,
   getCivility,
   getGenderName,
+  processDossier,
+  processDossierBrothers,
+  getSimilarityKey,
+  segregateBrothersLists,
 } = require("../config/functions");
 const fs = require("fs");
 const { DBFFile } = require("dbffile");
@@ -320,8 +324,8 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
 const getListBenefisiersFile = asyncHandler(async (req, res) => {
   try {
     const { dossiersList, type, triDossiers, photoFemme } = req.body;
+    // console.log("type2:", type);
     const data = await getFullDossier();
-    let quotaDate;
     const systemInfo = await System.findOne();
 
     let dossiers =
@@ -331,8 +335,16 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
           )
         : data;
 
+    const dossierBrothers = await segregateBrothersLists(
+      await getSimilarityKey(dossiers)
+    );
+
     const workbook = new ExcelJS.Workbook();
-    let worksheetPlus, worksheetMoin;
+    let worksheetPlus,
+      worksheetMoin,
+      worksheetFather,
+      worksheetMother,
+      worksheetUnique;
 
     const loadWorkbook = async (fileName) => {
       try {
@@ -372,9 +384,11 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         await loadWorkbook("Export-ArFilter.xlsx");
         worksheetPlus = workbook.worksheets[0];
         break;
-      case "brothers":
-        await loadWorkbook("ListBrothersAr.xlsx");
-        worksheetPlus = workbook.worksheets[0];
+      case "brothersfr":
+        await loadWorkbook("ListBrothersFr.xlsx");
+        worksheetFather = workbook.worksheets[0];
+        worksheetMother = workbook.worksheets[1];
+        worksheetUnique = workbook.worksheets[2];
         break;
       default:
         return res.status(400).json({ error: "Invalid type" });
@@ -385,159 +399,92 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
       extension: "png",
     });
 
-    if (type !== "exportFilter" && type !== "export") {
-      worksheetPlus.addImage(imageId1, "A1:A1");
-      worksheetMoin.addImage(imageId1, "A1:A1");
-    }
+    // if (type !== "exportFilter" && type !== "export") {
+    //   worksheetPlus.addImage(imageId1, "A1:A1");
+    //   worksheetMoin.addImage(imageId1, "A1:A1");
+    // }
+    const quotaDate = systemInfo.quotaDate;
+    // console.log("dossierBrothers: ", dossierBrothers);
+    if (type.includes("brothers")) {
+      await Promise.all(
+        dossierBrothers.fatherBrothersList.map((dossier) => {
+          // console.log("dossier: ", dossier);
+          return processDossierBrothers(
+            dossier,
+            triDossiers,
+            quotaDate,
+            workbook,
+            type,
+            photoFemme,
+            worksheetFather,
+            worksheetMother,
+            worksheetUnique,
+            "Fathers"
+          );
+        })
+      );
 
-    const isDateBeforeQuota = (record) => {
-      if (triDossiers === "quotas") quotaDate = systemInfo.quotaDate;
-      else if (triDossiers === "date-depo") quotaDate = record.date_depo;
-      return (
-        new Date(convertDateFormat(record.demandeur?.date_n).jsDate) <=
-        new Date(
-          new Date(quotaDate).getFullYear() - 35,
-          new Date(quotaDate).getMonth(),
-          new Date(quotaDate).getDate()
+      await Promise.all(
+        dossierBrothers.motherBrothersList.map((dossier) => {
+          // console.log("dossier: ", dossier);
+          return processDossierBrothers(
+            dossier,
+            triDossiers,
+            quotaDate,
+            workbook,
+            type,
+            photoFemme,
+            worksheetFather,
+            worksheetMother,
+            worksheetUnique,
+            "Mothers"
+          );
+        })
+      );
+      await Promise.all(
+        dossierBrothers.remainingDossiers.map((dossier) => {
+          // console.log("dossier: ", dossier);
+          return processDossierBrothers(
+            dossier,
+            triDossiers,
+            quotaDate,
+            workbook,
+            type,
+            photoFemme,
+            worksheetFather,
+            worksheetMother,
+            worksheetUnique,
+            "Unique"
+          );
+        })
+      );
+    } else
+      await Promise.all(
+        dossiers.map((dossier) =>
+          processDossier(
+            dossier,
+            triDossiers,
+            quotaDate,
+            workbook,
+            type,
+            photoFemme,
+            worksheetPlus,
+            worksheetMoin
+          )
         )
       );
-    };
-
-    const addRowToWorksheet = (worksheet, rowData, imagePath, col, row) => {
-      worksheet?.addRow(rowData, "i+");
-      if (imagePath) {
-        const image = workbook.addImage({
-          filename: imagePath,
-          extension: "png",
-        });
-        worksheet?.addImage(image, {
-          tl: { col, row: worksheet._media.length + 5 },
-          ext: { width: 178, height: 198 },
-        });
-      }
-    };
-
-    const processDossier = async (record) => {
-      let imagePath;
-      if (photoFemme === "true" && record.demandeur?.gender === "F") {
-        imagePath = "usersPicUpload/Women_icon.png";
-      } else
-        imagePath =
-          record?.demandeur?.photo_link || "usersPicUpload/default.png";
-      const rowCount = isDateBeforeQuota(record)
-        ? worksheetPlus?._rows.length - 6
-        : worksheetMoin?._rows.length - 6;
-      const rowData = type.includes("fr")
-        ? [
-            rowCount,
-            record.demandeur?.nom_fr,
-            record.demandeur?.prenom_fr,
-            record.demandeur?.date_n,
-            record.demandeur?.lieu_n_fr,
-            getCivility(
-              record.demandeur?.stuation_f + record.demandeur?.gender,
-              "f"
-            ),
-            record.demandeur?.prenom_p_fr,
-            record.demandeur?.nom_m_fr,
-            record.demandeur?.prenom_m_fr,
-            record.adress_fr,
-            record.date_depo,
-            "",
-            record.num_dos,
-          ]
-        : [
-            rowCount,
-            record.demandeur?.nom,
-            record.demandeur?.prenom,
-            record.demandeur?.date_n,
-            record.demandeur?.lieu_n,
-            getCivility(
-              record.demandeur?.stuation_f + record.demandeur?.gender,
-              "a"
-            ),
-            record.demandeur?.prenom_p,
-            record.demandeur?.nom_m,
-            record.demandeur?.prenom_m,
-            record.adress,
-            record.date_depo,
-            "",
-            record.num_dos,
-          ];
-      const rowDataExport = [
-        worksheetPlus?._rows.length - 1,
-        record.num_dos,
-        record.date_depo,
-        record.demandeur?.nom,
-        record.demandeur?.prenom,
-        record.demandeur?.gender,
-        record.demandeur?.date_n,
-        record.demandeur?.num_act,
-        record.demandeur?.lieu_n,
-        getCivility(
-          record.demandeur?.stuation_f + record.demandeur?.gender,
-          "a"
-        ),
-        record.demandeur?.prenom_p,
-        record.demandeur?.nom_m,
-        record.demandeur?.prenom_m,
-        record.adress,
-        record.note_revenue,
-        record.note_habita,
-        record.note_situation_familiale,
-        record.note_anciennete,
-        record.notes,
-        record.remark,
-      ];
-      let addWorkSheet;
-      if (type === "exportFilter") addWorkSheet = worksheetPlus;
-      else
-        addWorkSheet = isDateBeforeQuota(record)
-          ? worksheetPlus
-          : worksheetMoin;
-      if (type === "export") {
-        addRowToWorksheet(
-          addWorkSheet,
-          rowDataExport,
-          null,
-          29,
-          addWorkSheet._media.length + 5
-        );
-      } else if (type === "exportFilter") {
-        addRowToWorksheet(
-          addWorkSheet,
-          rowDataExport,
-          null,
-          29,
-          addWorkSheet?._media.length + 5
-        );
-      } else if (type.includes("f")) {
-        addRowToWorksheet(
-          addWorkSheet,
-          rowData,
-          imagePath,
-          11,
-          addWorkSheet._media.length + 5
-        );
-      } else if (type.includes("a")) {
-        addRowToWorksheet(
-          addWorkSheet,
-          rowData,
-          imagePath,
-          11,
-          addWorkSheet._media.length + 5
-        );
-      }
-    };
-    await Promise.all(dossiers.map((dossier) => processDossier(dossier)));
 
     const newFileName = `generatedEnq/List Benifisiers ${
       new Date().toISOString().split("T")[0]
     }.xlsx`;
-
+    // console.log("type1:", type);
     if (type === "export" || type === "exportFilter") {
       worksheetPlus.spliceRows(2, 1);
       if (type === "export") worksheetMoin.spliceRows(2, 1);
+    } else if (type === "brothersfr") {
+      worksheetFather.spliceRows(7, 1);
+      worksheetMother.spliceRows(7, 1);
+      worksheetUnique.spliceRows(7, 1);
     } else {
       worksheetPlus.spliceRows(7, 1);
       worksheetMoin.spliceRows(7, 1);

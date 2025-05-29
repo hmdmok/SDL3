@@ -333,7 +333,11 @@ function reverseDayAndMonth(dateStr) {
   }
 }
 
-function countParentKeyMatches(targetEntry, tableEntries, lowPercentage = 0.84) {
+function countParentKeyMatches(
+  targetEntry,
+  tableEntries,
+  lowPercentage = 0.84
+) {
   // Initialize counters
   const results = {
     fatherMatches: [],
@@ -398,15 +402,7 @@ function countParentKeyMatches(targetEntry, tableEntries, lowPercentage = 0.84) 
           notes: entry.notes,
           similarity: similarity * 100,
           matchingKey: currentFather,
-          demandeur: {
-            nom_fr: entry["demandeur"]?.nom_fr,
-            prenom_fr: entry["demandeur"]?.prenom_fr,
-            date_n: entry["demandeur"]?.date_n,
-            stuation_f: entry["demandeur"]?.stuation_f,
-            prenom_p_fr: entry["demandeur"]?.prenom_p_fr,
-            prenom_m_fr: entry["demandeur"]?.prenom_m_fr,
-            nom_m_fr: entry["demandeur"]?.nom_m_fr,
-          },
+          demandeur: entry["demandeur"],
         });
         results.totalFatherMatches++;
       }
@@ -423,15 +419,7 @@ function countParentKeyMatches(targetEntry, tableEntries, lowPercentage = 0.84) 
           notes: entry.notes,
           similarity: similarity * 100,
           matchingKey: currentFather,
-          demandeur: {
-            nom_fr: entry["demandeur"]?.nom_fr,
-            prenom_fr: entry["demandeur"]?.prenom_fr,
-            date_n: entry["demandeur"]?.date_n,
-            stuation_f: entry["demandeur"]?.stuation_f,
-            prenom_p_fr: entry["demandeur"]?.prenom_p_fr,
-            prenom_m_fr: entry["demandeur"]?.prenom_m_fr,
-            nom_m_fr: entry["demandeur"]?.nom_m_fr,
-          },
+          demandeur: entry["demandeur"],
         });
         results.totalMotherMatches++;
       }
@@ -440,6 +428,443 @@ function countParentKeyMatches(targetEntry, tableEntries, lowPercentage = 0.84) 
 
   return results;
 }
+
+const getSimilarityKey = (dossierByNotes) => {
+  return dossierByNotes.map(function (item) {
+    const demandeur = item.demandeur || {};
+    return {
+      _id: item._id,
+      num_dos: item.num_dos,
+      date_depo: item.date_depo,
+      notes: item.notes,
+      demandeur: {
+        ...demandeur?._doc, // Spread existing demandeur properties
+        fatherkey: item.demandeur?.nom + item.demandeur?.prenom_p || null, // Add fatherkey with fallback
+        motherkey: item.demandeur?.nom_m + item.demandeur?.prenom_m || null, // Add motherkey with fallback
+      },
+    };
+  });
+};
+
+/**
+ * Segregates a list of dossier items into groups based on brother relationships (father's side and mother's side).
+ *
+ * For each dossier, identifies its brothers by matching parent keys, then groups dossiers into:
+ *   - fatherBrothersList: Groups of dossiers sharing the same father.
+ *   - motherBrothersList: Groups of dossiers sharing the same mother.
+ *   - remainingDossiers: Dossiers with no identified brothers.
+ *
+ * Each group contains a main dossier and its brothers, with relevant details.
+ *
+ * @async
+ * @param {Array<Object>} keyArray2 - Array of dossier items to process. Each item should contain a `demandeur` object and an `_id`.
+ * @returns {Promise<{
+ *   fatherBrothersList: Array<Object>,
+ *   motherBrothersList: Array<Object>,
+ *   remainingDossiers: Array<Object>,
+ *   stats: {
+ *     fatherGroups: number,
+ *     motherGroups: number,
+ *     remaining: number
+ *   }
+ * }>} An object containing the segregated lists and statistics.
+ */
+async function segregateBrothersLists(keyArray2) {
+  // Create a Set to track used IDs for efficient lookups
+  const usedIds = new Set();
+
+  // Initialize result arrays
+  const fatherBrothersList = [];
+  const motherBrothersList = [];
+  const remainingDossiers = [];
+
+  // First pass: Process all items to identify brothers
+  const processedItems = await Promise.all(
+    keyArray2.map(async (item) => {
+      const demandeur = item.demandeur || {};
+      const parentKeyMatches = await countParentKeyMatches(item, keyArray2);
+
+      return {
+        ...item,
+        demandeur: {
+          ...demandeur,
+          numberOfFatherBrothers: parentKeyMatches.totalFatherMatches || 0,
+          numberOfMotherBrothers: parentKeyMatches.totalMotherMatches || 0,
+          listOfFatherBrothers: parentKeyMatches.fatherMatches || [],
+          listOfMotherBrothers: parentKeyMatches.motherMatches || [],
+        },
+      };
+    })
+  );
+
+  // Second pass: Segregate into separate lists
+  for (const item of processedItems) {
+    if (usedIds.has(item._id.toString())) {
+      continue; // Skip already used items
+    }
+
+    // Check if this item has any brothers
+    const hasFatherBrothers = item.demandeur.listOfFatherBrothers.length > 0;
+    const hasMotherBrothers = item.demandeur.listOfMotherBrothers.length > 0;
+
+    if (hasFatherBrothers) {
+      // Create father brothers group
+      const fatherGroup = {
+        mainDossier: {
+          _id: item._id,
+          num_dos: item.num_dos,
+          date_depo: item.date_depo,
+          address_fr: item.adress_fr,
+          remark: item.remark,
+          nom_fr: item["demandeur"]?.nom_fr,
+          prenom_fr: item["demandeur"]?.prenom_fr,
+          date_n: item["demandeur"]?.date_n,
+          stuation_f: item["demandeur"]?.stuation_f,
+          prenom_p_fr: item["demandeur"]?.prenom_p_fr,
+          prenom_m_fr: item["demandeur"]?.prenom_m_fr,
+          nom_m_fr: item["demandeur"]?.nom_m_fr,
+          gender: item["demandeur"]?.gender,
+          photo_link: item["demandeur"]?.photo_link,
+          liue_n_fr: item["demandeur"]?.lieu_n_fr,
+        },
+        brothers: item.demandeur.listOfFatherBrothers.map((p) => ({
+          _id: p.matchId,
+          num_dos: p.num_dos,
+          date_depo: p.date_depo,
+          address_fr: p.adress_fr,
+          remark: p.remark,
+          nom_fr: p["demandeur"]?.nom_fr,
+          prenom_fr: p["demandeur"]?.prenom_fr,
+          date_n: p["demandeur"]?.date_n,
+          stuation_f: p["demandeur"]?.stuation_f,
+          prenom_p_fr: p["demandeur"]?.prenom_p_fr,
+          prenom_m_fr: p["demandeur"]?.prenom_m_fr,
+          nom_m_fr: p["demandeur"]?.nom_m_fr,
+          gender: p["demandeur"]?.gender,
+          photo_link: p["demandeur"]?.photo_link,
+          liue_n_fr: p["demandeur"]?.lieu_n_fr,
+          similarity: p.similarity,
+        })),
+      };
+      fatherBrothersList.push(fatherGroup);
+
+      // Mark all brothers as used
+      usedIds.add(item._id.toString());
+      item.demandeur.listOfFatherBrothers.forEach((b) =>
+        usedIds.add(b.matchId.toString())
+      );
+    } else if (hasMotherBrothers) {
+      // Create mother brothers group
+      const motherGroup = {
+        mainDossier: {
+          _id: item._id,
+          num_dos: item.num_dos,
+          date_depo: item.date_depo,
+          address_fr: item.adress_fr,
+          remark: item.remark,
+          nom_fr: item["demandeur"]?.nom_fr,
+          prenom_fr: item["demandeur"]?.prenom_fr,
+          date_n: item["demandeur"]?.date_n,
+          stuation_f: item["demandeur"]?.stuation_f,
+          prenom_p_fr: item["demandeur"]?.prenom_p_fr,
+          prenom_m_fr: item["demandeur"]?.prenom_m_fr,
+          nom_m_fr: item["demandeur"]?.nom_m_fr,
+          gender: item["demandeur"]?.gender,
+          photo_link: item["demandeur"]?.photo_link,
+          liue_n_fr: item["demandeur"]?.lieu_n_fr,
+        },
+        brothers: item.demandeur.listOfMotherBrothers.map((b) => ({
+          _id: b.matchId,
+          num_dos: b.num_dos,
+          date_depo: b.date_depo,
+          address_fr: b.adress_fr,
+          remark: b.remark,
+          nom_fr: b["demandeur"]?.nom_fr,
+          prenom_fr: b["demandeur"]?.prenom_fr,
+          date_n: b["demandeur"]?.date_n,
+          stuation_f: b["demandeur"]?.stuation_f,
+          prenom_p_fr: b["demandeur"]?.prenom_p_fr,
+          prenom_m_fr: b["demandeur"]?.prenom_m_fr,
+          nom_m_fr: b["demandeur"]?.nom_m_fr,
+          gender: b["demandeur"]?.gender,
+          photo_link: b["demandeur"]?.photo_link,
+          liue_n_fr: b["demandeur"]?.lieu_n_fr,
+          similarity: b.similarity,
+        })),
+      };
+      // console.log("motherBrothersList", motherGroup.brothers[0]);
+      motherBrothersList.push(motherGroup);
+
+      // Mark all brothers as used
+      usedIds.add(item._id.toString());
+      item.demandeur.listOfMotherBrothers.forEach((b) =>
+        usedIds.add(b.matchId.toString())
+      );
+    } else {
+      // No brothers - add to remaining dossiers
+      remainingDossiers.push({
+        mainDossier: {
+          _id: item._id,
+          num_dos: item.num_dos,
+          date_depo: item.date_depo,
+          address_fr: item.adress_fr,
+          remark: item.remark,
+          nom_fr: item["demandeur"]?.nom_fr,
+          prenom_fr: item["demandeur"]?.prenom_fr,
+          date_n: item["demandeur"]?.date_n,
+          stuation_f: item["demandeur"]?.stuation_f,
+          prenom_p_fr: item["demandeur"]?.prenom_p_fr,
+          prenom_m_fr: item["demandeur"]?.prenom_m_fr,
+          nom_m_fr: item["demandeur"]?.nom_m_fr,
+          gender: item["demandeur"]?.gender,
+          photo_link: item["demandeur"]?.photo_link,
+          liue_n_fr: item["demandeur"]?.lieu_n_fr,
+        },
+      });
+    }
+  }
+
+  return {
+    fatherBrothersList,
+    motherBrothersList,
+    remainingDossiers,
+    stats: {
+      fatherGroups: fatherBrothersList.length,
+      motherGroups: motherBrothersList.length,
+      remaining: remainingDossiers.length,
+    },
+  };
+}
+
+const addRowToWorksheet = (worksheet, rowData, imagePath, col, workbook) => {
+  worksheet?.addRow(rowData, "i+");
+  if (imagePath) {
+    const image = workbook.addImage({
+      filename: imagePath,
+      extension: "png",
+    });
+    worksheet?.addImage(image, {
+      tl: { col, row: worksheet._media.length + 6 },
+      ext: { width: 178, height: 198 },
+    });
+  }
+};
+
+const isDateBeforeQuota = (record, triDossiers, quotaDate) => {
+  if (triDossiers === "quotas") quotaDate = quotaDate;
+  else if (triDossiers === "date-depo") quotaDate = record.date_depo;
+  return (
+    new Date(convertDateFormat(record.demandeur?.date_n).jsDate) <=
+    new Date(
+      new Date(quotaDate).getFullYear() - 35,
+      new Date(quotaDate).getMonth(),
+      new Date(quotaDate).getDate()
+    )
+  );
+};
+
+const processDossier = async (
+  record,
+  triDossiers,
+  quotaDate,
+  workbook,
+  type,
+  photoFemme,
+  worksheetPlus,
+  worksheetMoin
+) => {
+  let imagePath;
+  if (photoFemme === "true" && record.demandeur?.gender === "F") {
+    imagePath = "usersPicUpload/Women_icon.png";
+  } else
+    imagePath = record?.demandeur?.photo_link || "usersPicUpload/default.png";
+  const rowCount = isDateBeforeQuota(record)
+    ? worksheetPlus?._rows.length - 6
+    : worksheetMoin?._rows.length - 6;
+  const rowData = type.includes("fr")
+    ? [
+        rowCount,
+        record.demandeur?.nom_fr,
+        record.demandeur?.prenom_fr,
+        record.demandeur?.date_n,
+        record.demandeur?.lieu_n_fr,
+        getCivility(
+          record.demandeur?.stuation_f + record.demandeur?.gender,
+          "f"
+        ),
+        record.demandeur?.prenom_p_fr,
+        record.demandeur?.nom_m_fr,
+        record.demandeur?.prenom_m_fr,
+        record.adress_fr,
+        record.date_depo,
+        "",
+        record.num_dos,
+      ]
+    : [
+        rowCount,
+        record.demandeur?.nom,
+        record.demandeur?.prenom,
+        record.demandeur?.date_n,
+        record.demandeur?.lieu_n,
+        getCivility(
+          record.demandeur?.stuation_f + record.demandeur?.gender,
+          "a"
+        ),
+        record.demandeur?.prenom_p,
+        record.demandeur?.nom_m,
+        record.demandeur?.prenom_m,
+        record.adress,
+        record.date_depo,
+        "",
+        record.num_dos,
+      ];
+  const rowDataExport = [
+    worksheetPlus?._rows.length - 1,
+    record.num_dos,
+    record.date_depo,
+    record.demandeur?.nom,
+    record.demandeur?.prenom,
+    record.demandeur?.gender,
+    record.demandeur?.date_n,
+    record.demandeur?.num_act,
+    record.demandeur?.lieu_n,
+    getCivility(record.demandeur?.stuation_f + record.demandeur?.gender, "a"),
+    record.demandeur?.prenom_p,
+    record.demandeur?.nom_m,
+    record.demandeur?.prenom_m,
+    record.adress,
+    record.note_revenue,
+    record.note_habita,
+    record.note_situation_familiale,
+    record.note_anciennete,
+    record.notes,
+    record.remark,
+  ];
+  let addWorkSheet;
+  if (type === "exportFilter") addWorkSheet = worksheetPlus;
+  else
+    addWorkSheet = isDateBeforeQuota(record, triDossiers, quotaDate)
+      ? worksheetPlus
+      : worksheetMoin;
+  if (type === "export") {
+    addRowToWorksheet(addWorkSheet, rowDataExport, null, 29, workbook);
+  } else if (type === "exportFilter") {
+    addRowToWorksheet(addWorkSheet, rowDataExport, null, 29, workbook);
+  } else if (type.includes("f")) {
+    addRowToWorksheet(addWorkSheet, rowData, imagePath, 11, workbook);
+  } else if (type.includes("a")) {
+    addRowToWorksheet(addWorkSheet, rowData, imagePath, 11, workbook);
+  }
+};
+
+const getRowData = (record, type, rowCount) => {
+  // console.log("type", type);
+  return type.includes("fr")
+    ? [
+        rowCount,
+        record?.nom_fr,
+        record?.prenom_fr,
+        record?.date_n,
+        record?.lieu_n_fr,
+        getCivility(record?.stuation_f + record?.gender, "f"),
+        record?.prenom_p_fr,
+        record?.nom_m_fr,
+        record?.prenom_m_fr,
+        record?.date_depo,
+        record?.photo_link,
+        record?.num_dos,
+        record?.remark,
+        record?.similarity || "---",
+      ]
+    : [
+        rowCount,
+        record?.nom,
+        record?.prenom,
+        record?.date_n,
+        record?.lieu_n,
+        getCivility(record?.stuation_f + record?.gender, "a"),
+        record?.prenom_p,
+        record?.nom_m,
+        record?.prenom_m,
+        record?.date_depo,
+        record?.photo_link,
+        record?.num_dos,
+        record?.remark,
+        record?.similarity || "---",
+      ];
+};
+
+const processDossierBrothers = async (
+  record,
+  triDossiers,
+  quotaDate,
+  workbook,
+  type,
+  photoFemme,
+  worksheetFather,
+  worksheetMother,
+  worksheetUnique,
+  listType
+) => {
+  let addWorkSheet;
+
+  if (listType === "Fathers") addWorkSheet = worksheetFather;
+  else if (listType === "Mothers") addWorkSheet = worksheetMother;
+  else addWorkSheet = worksheetUnique;
+
+  let imagePath;
+  if (photoFemme === "true" && record.mainDossier?.gender === "F") {
+    imagePath = "usersPicUpload/Women_icon.png";
+  } else
+    imagePath = record?.mainDossier?.photo_link || "usersPicUpload/default.png";
+  const rowCount = addWorkSheet?._rows.length - 6;
+  const rowData = getRowData(record.mainDossier, type, rowCount);
+
+  addRowToWorksheet(addWorkSheet, rowData, imagePath, 10, workbook);
+  if (listType === "Fathers" || listType === "Mothers") {
+    record.brothers.forEach((brother) => {
+      let imagePathBrother;
+      // console.log("brother:", brother.photo_link,"maindossier:", record.mainDossier.prenom_fr);
+      if (photoFemme === "true" && brother?.gender === "F") {
+        imagePathBrother = "usersPicUpload/Women_icon.png";
+      } else
+        imagePathBrother = brother.photo_link || "usersPicUpload/default.png";
+      const rowCountBrother = addWorkSheet?._rows.length - 6;
+      const brotherRowData = getRowData(brother, type, rowCountBrother);
+      addRowToWorksheet(
+        addWorkSheet,
+        brotherRowData,
+        imagePathBrother,
+        10,
+        workbook
+      );
+    });
+    const brotherSeparetor = [
+      rowCount,
+      "---",
+      "---",
+      "---",
+      "---",
+      "---",
+      "---",
+      "---",
+      "---",
+      "---",
+      "---",
+      "---",
+      "---",
+      "---",
+    ];
+
+    addRowToWorksheet(
+      addWorkSheet,
+      brotherSeparetor,
+      "usersPicUpload/default.png",
+      10,
+      workbook
+    );
+  }
+};
 
 module.exports = {
   isValidDate,
@@ -457,4 +882,10 @@ module.exports = {
   sortByName,
   reverseDayAndMonth,
   countParentKeyMatches,
+  segregateBrothersLists,
+  processDossier,
+  processDossierBrothers,
+  getSimilarityKey,
+  addRowToWorksheet,
+  isDateBeforeQuota,
 };

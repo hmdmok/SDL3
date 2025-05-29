@@ -9,6 +9,8 @@ const {
   sortByName,
   convertDateFormat,
   countParentKeyMatches,
+  segregateBrothersLists,
+  getSimilarityKey,
 } = require("../config/functions");
 
 const getDossiers = asyncHandler(async (req, res) => {
@@ -381,22 +383,8 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
 
     const dossierByNotes = await getFullDossier();
 
-    var keyArray2 = dossierByNotes.map(function (item) {
-      const demandeur = item.demandeur || {};
-      return {
-        _id: item._id,
-        num_dos: item.num_dos,
-        date_depo: item.date_depo,
-        notes: item.notes,
-        demandeur: {
-          ...demandeur?._doc, // Spread existing demandeur properties
-          fatherkey:
-            item.demandeur?.nom_fr + item.demandeur?.prenom_p_fr || null, // Add fatherkey with fallback
-          motherkey:
-            item.demandeur?.nom_m_fr + item.demandeur?.prenom_m_fr || null, // Add motherkey with fallback
-        },
-      };
-    });
+    var keyArray2 = getSimilarityKey(dossierByNotes);
+
     // var keyArray1 = await keyArray2.map(function (item) {
     //   const demandeur = item.demandeur || {};
     //   const parentKeyMatches = countParentKeyMatches(item, keyArray2);
@@ -419,139 +407,6 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
     //   };
     // });
 
-    async function segregateBrothersLists(keyArray2) {
-      // Create a Set to track used IDs for efficient lookups
-      const usedIds = new Set();
-
-      // Initialize result arrays
-      const fatherBrothersList = [];
-      const motherBrothersList = [];
-      const remainingDossiers = [];
-
-      // First pass: Process all items to identify brothers
-      const processedItems = await Promise.all(
-        keyArray2.map(async (item) => {
-          const demandeur = item.demandeur || {};
-          const parentKeyMatches = await countParentKeyMatches(item, keyArray2);
-
-          return {
-            ...item,
-            demandeur: {
-              ...demandeur,
-              numberOfFatherBrothers: parentKeyMatches.totalFatherMatches || 0,
-              numberOfMotherBrothers: parentKeyMatches.totalMotherMatches || 0,
-              listOfFatherBrothers: parentKeyMatches.fatherMatches || [],
-              listOfMotherBrothers: parentKeyMatches.motherMatches || [],
-            },
-          };
-        })
-      );
-
-      // Second pass: Segregate into separate lists
-      for (const item of processedItems) {
-        if (usedIds.has(item._id.toString())) {
-          continue; // Skip already used items
-        }
-
-        // Check if this item has any brothers
-        const hasFatherBrothers =
-          item.demandeur.listOfFatherBrothers.length > 0;
-        const hasMotherBrothers =
-          item.demandeur.listOfMotherBrothers.length > 0;
-
-        if (hasFatherBrothers) {
-          // Create father brothers group
-          const fatherGroup = {
-            mainDossier: {
-              _id: item._id,
-              num_dos: item.num_dos,
-              date_depo: item.date_depo,
-              nom_fr: item["demandeur"]?.nom_fr,
-              prenom_fr: item["demandeur"]?.prenom_fr,
-              date_n: item["demandeur"]?.date_n,
-              stuation_f: item["demandeur"]?.stuation_f,
-              prenom_p_fr: item["demandeur"]?.prenom_p_fr,
-              prenom_m_fr: item["demandeur"]?.prenom_m_fr,
-              nom_m_fr: item["demandeur"]?.nom_m_fr,
-            },
-            brothers: item.demandeur.listOfFatherBrothers.map((b) => ({
-              _id: b.matchId,
-              num_dos: b.num_dos,
-              nom_fr: b["demandeur"]?.nom_fr,
-              prenom_fr: b["demandeur"]?.prenom_fr,
-              date_n: b["demandeur"]?.date_n,
-              stuation_f: b["demandeur"]?.stuation_f,
-              prenom_p_fr: item["demandeur"]?.prenom_p_fr,
-              prenom_m_fr: item["demandeur"]?.prenom_m_fr,
-              nom_m_fr: item["demandeur"]?.nom_m_fr,
-              similarity: b.similarity,
-            })),
-          };
-          fatherBrothersList.push(fatherGroup);
-
-          // Mark all brothers as used
-          usedIds.add(item._id.toString());
-          item.demandeur.listOfFatherBrothers.forEach((b) =>
-            usedIds.add(b.matchId.toString())
-          );
-        } else if (hasMotherBrothers) {
-          // Create mother brothers group
-          const motherGroup = {
-            mainDossier: {
-              _id: item._id,
-              num_dos: item.num_dos,
-              date_depo: item.date_depo,
-              nom_fr: item["demandeur"]?.nom_fr,
-              prenom_fr: item["demandeur"]?.prenom_fr,
-              date_n: item["demandeur"]?.date_n,
-              stuation_f: item["demandeur"]?.stuation_f,
-              prenom_p_fr: item["demandeur"]?.prenom_p_fr,
-              prenom_m_fr: item["demandeur"]?.prenom_m_fr,
-              nom_m_fr: item["demandeur"]?.nom_m_fr,
-            },
-            brothers: item.demandeur.listOfMotherBrothers.map((b) => ({
-              _id: b.matchId,
-              num_dos: b.num_dos,
-              nom_fr: b["demandeur"]?.nom_fr,
-              prenom_fr: b["demandeur"]?.prenom_fr,
-              date_n: b["demandeur"]?.date_n,
-              stuation_f: b["demandeur"]?.stuation_f,
-              prenom_p_fr: item["demandeur"]?.prenom_p_fr,
-              prenom_m_fr: item["demandeur"]?.prenom_m_fr,
-              nom_m_fr: item["demandeur"]?.nom_m_fr,
-              similarity: b.similarity,
-            })),
-          };
-          motherBrothersList.push(motherGroup);
-
-          // Mark all brothers as used
-          usedIds.add(item._id.toString());
-          item.demandeur.listOfMotherBrothers.forEach((b) =>
-            usedIds.add(b.matchId.toString())
-          );
-        } else {
-          // No brothers - add to remaining dossiers
-          remainingDossiers.push({
-            _id: item._id,
-            num_dos: item.num_dos,
-            date_depo: item.date_depo,
-            notes: item.notes,
-          });
-        }
-      }
-
-      return {
-        fatherBrothersList,
-        motherBrothersList,
-        remainingDossiers,
-        stats: {
-          fatherGroups: fatherBrothersList.length,
-          motherGroups: motherBrothersList.length,
-          remaining: remainingDossiers.length,
-        },
-      };
-    }
-
     // Usage example
     const {
       stats,
@@ -559,7 +414,7 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
       motherBrothersList: motherBrothersList,
     } = await segregateBrothersLists(keyArray2);
 
-    console.log("BrothersList", stats);
+    // console.log("fatherBrothersList: ", fatherBrothersList[2].brothers);
 
     // filter by search
     var filterBySearch = keyArray2.filter(function (item) {
