@@ -197,7 +197,39 @@ const BeniTools = () => {
           )
         }
       >
-        انشاء ملف الاخوة
+        انشاء ملف الاخوة بالفرنسية
+      </Button>
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() =>
+          onGetBenefisiersList([], "brothersfr", TriDossiers, PhotoFemme)
+        }
+      >
+        انشاء ملف الاخوة الكامل بالفرنسية
+      </Button>
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() =>
+          onGetBenefisiersList(
+            getIDList(benefisiers),
+            "brothersar",
+            TriDossiers,
+            PhotoFemme
+          )
+        }
+      >
+        انشاء ملف الاخوة 
+      </Button>
+      <Button
+        variant="success"
+        className="m-1 "
+        onClick={() =>
+          onGetBenefisiersList([], "brothersar", TriDossiers, PhotoFemme)
+        }
+      >
+        انشاء ملف الاخوة الكامل
       </Button>
 
       <Button

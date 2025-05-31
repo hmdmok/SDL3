@@ -336,7 +336,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         : data;
 
     const dossierBrothers = await segregateBrothersLists(
-      await getSimilarityKey(dossiers)
+      await getSimilarityKey(dossiers,"ar")
     );
 
     const workbook = new ExcelJS.Workbook();
@@ -390,6 +390,12 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         worksheetMother = workbook.worksheets[1];
         worksheetUnique = workbook.worksheets[2];
         break;
+      case "brothersar":
+        await loadWorkbook("ListBrothersAr.xlsx");
+        worksheetFather = workbook.worksheets[0];
+        worksheetMother = workbook.worksheets[1];
+        worksheetUnique = workbook.worksheets[2];
+        break;
       default:
         return res.status(400).json({ error: "Invalid type" });
     }
@@ -407,11 +413,11 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
     // console.log("dossierBrothers: ", dossierBrothers);
     if (type.includes("brothers")) {
       await Promise.all(
-        dossierBrothers.fatherBrothersList.map((dossier) => {
+        dossierBrothers.fatherBrothersList.map((dossier, index) => {
           // console.log("dossier: ", dossier);
           return processDossierBrothers(
             dossier,
-            triDossiers,
+            index,
             quotaDate,
             workbook,
             type,
@@ -425,11 +431,11 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
       );
 
       await Promise.all(
-        dossierBrothers.motherBrothersList.map((dossier) => {
+        dossierBrothers.motherBrothersList.map((dossier, index) => {
           // console.log("dossier: ", dossier);
           return processDossierBrothers(
             dossier,
-            triDossiers,
+            index,
             quotaDate,
             workbook,
             type,
@@ -442,11 +448,11 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         })
       );
       await Promise.all(
-        dossierBrothers.remainingDossiers.map((dossier) => {
+        dossierBrothers.remainingDossiers.map((dossier, index) => {
           // console.log("dossier: ", dossier);
           return processDossierBrothers(
             dossier,
-            triDossiers,
+            index,
             quotaDate,
             workbook,
             type,
@@ -482,6 +488,10 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
       worksheetPlus.spliceRows(2, 1);
       if (type === "export") worksheetMoin.spliceRows(2, 1);
     } else if (type === "brothersfr") {
+      worksheetFather.spliceRows(7, 1);
+      worksheetMother.spliceRows(7, 1);
+      worksheetUnique.spliceRows(7, 1);
+    } else if (type === "brothersar") {
       worksheetFather.spliceRows(7, 1);
       worksheetMother.spliceRows(7, 1);
       worksheetUnique.spliceRows(7, 1);

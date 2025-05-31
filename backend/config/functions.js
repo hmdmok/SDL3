@@ -429,20 +429,35 @@ function countParentKeyMatches(
   return results;
 }
 
-const getSimilarityKey = (dossierByNotes) => {
+const getSimilarityKey = (dossierByNotes, type) => {
   return dossierByNotes.map(function (item) {
     const demandeur = item.demandeur || {};
-    return {
-      _id: item._id,
-      num_dos: item.num_dos,
-      date_depo: item.date_depo,
-      notes: item.notes,
-      demandeur: {
-        ...demandeur?._doc, // Spread existing demandeur properties
-        fatherkey: item.demandeur?.nom + item.demandeur?.prenom_p || null, // Add fatherkey with fallback
-        motherkey: item.demandeur?.nom_m + item.demandeur?.prenom_m || null, // Add motherkey with fallback
-      },
-    };
+    if (type === "ar")
+      return {
+        _id: item._id,
+        num_dos: item.num_dos,
+        date_depo: item.date_depo,
+        notes: item.notes,
+        demandeur: {
+          ...demandeur?._doc, // Spread existing demandeur properties
+          fatherkey: item.demandeur?.nom + item.demandeur?.prenom_p || null, // Add fatherkey with fallback
+          motherkey: item.demandeur?.nom_m + item.demandeur?.prenom_m || null, // Add motherkey with fallback
+        },
+      };
+    else
+      return {
+        _id: item._id,
+        num_dos: item.num_dos,
+        date_depo: item.date_depo,
+        notes: item.notes,
+        demandeur: {
+          ...demandeur?._doc, // Spread existing demandeur properties
+          fatherkey:
+            item.demandeur?.nom_fr + item.demandeur?.prenom_p_fr || null, // Add fatherkey with fallback
+          motherkey:
+            item.demandeur?.nom_m_fr + item.demandeur?.prenom_m_fr || null, // Add motherkey with fallback
+        },
+      };
   });
 };
 
@@ -516,16 +531,7 @@ async function segregateBrothersLists(keyArray2) {
           date_depo: item.date_depo,
           address_fr: item.adress_fr,
           remark: item.remark,
-          nom_fr: item["demandeur"]?.nom_fr,
-          prenom_fr: item["demandeur"]?.prenom_fr,
-          date_n: item["demandeur"]?.date_n,
-          stuation_f: item["demandeur"]?.stuation_f,
-          prenom_p_fr: item["demandeur"]?.prenom_p_fr,
-          prenom_m_fr: item["demandeur"]?.prenom_m_fr,
-          nom_m_fr: item["demandeur"]?.nom_m_fr,
-          gender: item["demandeur"]?.gender,
-          photo_link: item["demandeur"]?.photo_link,
-          liue_n_fr: item["demandeur"]?.lieu_n_fr,
+          ...item.demandeur, // Spread existing demandeur properties
         },
         brothers: item.demandeur.listOfFatherBrothers.map((p) => ({
           _id: p.matchId,
@@ -533,16 +539,7 @@ async function segregateBrothersLists(keyArray2) {
           date_depo: p.date_depo,
           address_fr: p.adress_fr,
           remark: p.remark,
-          nom_fr: p["demandeur"]?.nom_fr,
-          prenom_fr: p["demandeur"]?.prenom_fr,
-          date_n: p["demandeur"]?.date_n,
-          stuation_f: p["demandeur"]?.stuation_f,
-          prenom_p_fr: p["demandeur"]?.prenom_p_fr,
-          prenom_m_fr: p["demandeur"]?.prenom_m_fr,
-          nom_m_fr: p["demandeur"]?.nom_m_fr,
-          gender: p["demandeur"]?.gender,
-          photo_link: p["demandeur"]?.photo_link,
-          liue_n_fr: p["demandeur"]?.lieu_n_fr,
+          ...p.demandeur, // Spread existing demandeur properties
           similarity: p.similarity,
         })),
       };
@@ -562,16 +559,7 @@ async function segregateBrothersLists(keyArray2) {
           date_depo: item.date_depo,
           address_fr: item.adress_fr,
           remark: item.remark,
-          nom_fr: item["demandeur"]?.nom_fr,
-          prenom_fr: item["demandeur"]?.prenom_fr,
-          date_n: item["demandeur"]?.date_n,
-          stuation_f: item["demandeur"]?.stuation_f,
-          prenom_p_fr: item["demandeur"]?.prenom_p_fr,
-          prenom_m_fr: item["demandeur"]?.prenom_m_fr,
-          nom_m_fr: item["demandeur"]?.nom_m_fr,
-          gender: item["demandeur"]?.gender,
-          photo_link: item["demandeur"]?.photo_link,
-          liue_n_fr: item["demandeur"]?.lieu_n_fr,
+          ...item.demandeur, // Spread existing demandeur properties
         },
         brothers: item.demandeur.listOfMotherBrothers.map((b) => ({
           _id: b.matchId,
@@ -579,16 +567,7 @@ async function segregateBrothersLists(keyArray2) {
           date_depo: b.date_depo,
           address_fr: b.adress_fr,
           remark: b.remark,
-          nom_fr: b["demandeur"]?.nom_fr,
-          prenom_fr: b["demandeur"]?.prenom_fr,
-          date_n: b["demandeur"]?.date_n,
-          stuation_f: b["demandeur"]?.stuation_f,
-          prenom_p_fr: b["demandeur"]?.prenom_p_fr,
-          prenom_m_fr: b["demandeur"]?.prenom_m_fr,
-          nom_m_fr: b["demandeur"]?.nom_m_fr,
-          gender: b["demandeur"]?.gender,
-          photo_link: b["demandeur"]?.photo_link,
-          liue_n_fr: b["demandeur"]?.lieu_n_fr,
+          ...b.demandeur, // Spread existing demandeur properties
           similarity: b.similarity,
         })),
       };
@@ -609,16 +588,7 @@ async function segregateBrothersLists(keyArray2) {
           date_depo: item.date_depo,
           address_fr: item.adress_fr,
           remark: item.remark,
-          nom_fr: item["demandeur"]?.nom_fr,
-          prenom_fr: item["demandeur"]?.prenom_fr,
-          date_n: item["demandeur"]?.date_n,
-          stuation_f: item["demandeur"]?.stuation_f,
-          prenom_p_fr: item["demandeur"]?.prenom_p_fr,
-          prenom_m_fr: item["demandeur"]?.prenom_m_fr,
-          nom_m_fr: item["demandeur"]?.nom_m_fr,
-          gender: item["demandeur"]?.gender,
-          photo_link: item["demandeur"]?.photo_link,
-          liue_n_fr: item["demandeur"]?.lieu_n_fr,
+          ...item.demandeur, // Spread existing demandeur properties
         },
       });
     }
@@ -817,7 +787,7 @@ const processDossierBrothers = async (
     imagePath = "usersPicUpload/Women_icon.png";
   } else
     imagePath = record?.mainDossier?.photo_link || "usersPicUpload/default.png";
-  const rowCount = addWorkSheet?._rows.length - 6;
+  const rowCount = triDossiers;
   const rowData = getRowData(record.mainDossier, type, rowCount);
 
   addRowToWorksheet(addWorkSheet, rowData, imagePath, 10, workbook);
@@ -840,7 +810,7 @@ const processDossierBrothers = async (
       );
     });
     const brotherSeparetor = [
-      rowCount,
+      "---",
       "---",
       "---",
       "---",
