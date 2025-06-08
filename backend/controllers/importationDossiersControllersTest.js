@@ -317,7 +317,7 @@ function extractDossierData(dossier, language) {
         nom_m_conj: dossier["لقب أم الزوج(ة)"],
         note_revenue: dossier["مستوى المداخيل"],
         note_habita: dossier["ظروف السكن"],
-        note_situation_familiale: dossier["الحالة العائلية"],
+        note_situation_familiale: dossier["2الحالة العائلية"],
         note_anciennete: dossier["أقدمية طلب السكن"],
         notes: dossier["المجموع"],
         remark: dossier["الملاحظة"],

@@ -336,12 +336,13 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         : data;
 
     const dossierBrothers = await segregateBrothersLists(
-      await getSimilarityKey(dossiers,"ar")
+      await getSimilarityKey(dossiers, "ar")
     );
 
     const workbook = new ExcelJS.Workbook();
     let worksheetPlus,
       worksheetMoin,
+      worksheetBrother,
       worksheetFather,
       worksheetMother,
       worksheetUnique;
@@ -386,15 +387,17 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
         break;
       case "brothersfr":
         await loadWorkbook("ListBrothersFr.xlsx");
-        worksheetFather = workbook.worksheets[0];
-        worksheetMother = workbook.worksheets[1];
-        worksheetUnique = workbook.worksheets[2];
+        worksheetBrother = workbook.worksheets[0];
+        worksheetFather = workbook.worksheets[1];
+        worksheetMother = workbook.worksheets[2];
+        worksheetUnique = workbook.worksheets[3];
         break;
       case "brothersar":
         await loadWorkbook("ListBrothersAr.xlsx");
-        worksheetFather = workbook.worksheets[0];
-        worksheetMother = workbook.worksheets[1];
-        worksheetUnique = workbook.worksheets[2];
+        worksheetBrother = workbook.worksheets[0];
+        worksheetFather = workbook.worksheets[1];
+        worksheetMother = workbook.worksheets[2];
+        worksheetUnique = workbook.worksheets[3];
         break;
       default:
         return res.status(400).json({ error: "Invalid type" });
@@ -410,18 +413,69 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
     //   worksheetMoin.addImage(imageId1, "A1:A1");
     // }
     const quotaDate = systemInfo.quotaDate;
-    // console.log("dossierBrothers: ", dossierBrothers);
+
     if (type.includes("brothers")) {
+      var filterBySearch = dossierBrothers.brotherBrothersList;
+      var filterBySearch2 = dossierBrothers.fatherBrothersList;
+      var filterBySearch3 = dossierBrothers.motherBrothersList;
+
+      filterBySearch = filterBySearch.sort(function (a, b) {
+        // Turn your strings into dates, and then subtract them
+        // to get a value that is either negative, positive, or zero.
+
+        return (
+          b.mainDossier?.numberOfBrotherBrothers -
+          a.mainDossier?.numberOfBrotherBrothers
+        );
+      });
+      filterBySearch2 = filterBySearch2.sort(function (a, b) {
+        // Turn your strings into dates, and then subtract them
+        // to get a value that is either negative, positive, or zero.
+
+        return (
+          b.mainDossier?.numberOfFatherBrothers -
+          a.mainDossier?.numberOfFatherBrothers
+        );
+      });
+      filterBySearch3 = filterBySearch3.sort(function (a, b) {
+        // Turn your strings into dates, and then subtract them
+        // to get a value that is either negative, positive, or zero.
+
+        return (
+          b.mainDossier?.numberOfMotherBrothers -
+          a.mainDossier?.numberOfMotherBrothers
+        );
+      });
+      // console.log("dossierBrothers: ", filterBySearch[0].mainDossier.numberOfBrotherBrothers);
       await Promise.all(
-        dossierBrothers.fatherBrothersList.map((dossier, index) => {
+        filterBySearch.map((dossier, index) => {
+          // console.log("number of brothers: ", dossier.brothers.length + 1);
+          return processDossierBrothers(
+            dossier,
+            index,
+            dossier.brothers.length + 1,
+            workbook,
+            type,
+            photoFemme,
+            worksheetBrother,
+            worksheetFather,
+            worksheetMother,
+            worksheetUnique,
+            "Brothers"
+          );
+        })
+      );
+      await Promise.all(
+        filterBySearch2.map((dossier, index) => {
           // console.log("dossier: ", dossier);
           return processDossierBrothers(
             dossier,
             index,
-            quotaDate,
+            dossier.brothers.length + 1,
             workbook,
             type,
             photoFemme,
+            worksheetBrother,
             worksheetFather,
             worksheetMother,
             worksheetUnique,
@@ -431,15 +485,16 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
       );
 
       await Promise.all(
-        dossierBrothers.motherBrothersList.map((dossier, index) => {
+        filterBySearch3.map((dossier, index) => {
           // console.log("dossier: ", dossier);
           return processDossierBrothers(
             dossier,
             index,
-            quotaDate,
+            dossier.brothers.length + 1,
             workbook,
             type,
             photoFemme,
+            worksheetBrother,
             worksheetFather,
             worksheetMother,
             worksheetUnique,
@@ -453,10 +508,11 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
           return processDossierBrothers(
             dossier,
             index,
-            quotaDate,
+            null,
             workbook,
             type,
             photoFemme,
+            worksheetBrother,
             worksheetFather,
             worksheetMother,
             worksheetUnique,

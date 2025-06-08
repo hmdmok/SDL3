@@ -336,12 +336,14 @@ function reverseDayAndMonth(dateStr) {
 function countParentKeyMatches(
   targetEntry,
   tableEntries,
-  lowPercentage = 0.84
+  lowPercentage = 0.92
 ) {
   // Initialize counters
   const results = {
+    brotherMatches: [],
     fatherMatches: [],
     motherMatches: [],
+    totalBrotherMatches: 0,
     totalFatherMatches: 0,
     totalMotherMatches: 0,
   };
@@ -381,6 +383,7 @@ function countParentKeyMatches(
     return results;
   }
 
+  const targetBrother = targetEntry.demandeur.brotherkey;
   const targetFather = targetEntry.demandeur.fatherkey;
   const targetMother = targetEntry.demandeur.motherkey;
 
@@ -388,8 +391,26 @@ function countParentKeyMatches(
   tableEntries.forEach((entry) => {
     if (!entry?.demandeur || entry._id === targetEntry._id) return;
 
+    const currentBrother = entry.demandeur.brotherkey;
     const currentFather = entry.demandeur.fatherkey;
     const currentMother = entry.demandeur.motherkey;
+
+    // Check brotherkey match
+    if (targetBrother && currentBrother) {
+      const similarity = calculateSimilarity(targetBrother, currentBrother);
+      if (similarity >= lowPercentage) {
+        results.brotherMatches.push({
+          matchId: entry._id,
+          num_dos: entry.num_dos,
+          date_depo: entry.date_depo,
+          notes: entry.notes,
+          similarity: similarity * 100,
+          matchingKey: currentBrother,
+          demandeur: entry["demandeur"],
+        });
+        results.totalBrotherMatches++;
+      }
+    }
 
     // Check fatherkey match
     if (targetFather && currentFather) {
@@ -440,6 +461,11 @@ const getSimilarityKey = (dossierByNotes, type) => {
         notes: item.notes,
         demandeur: {
           ...demandeur?._doc, // Spread existing demandeur properties
+          brotherkey:
+            item.demandeur?.nom +
+              item.demandeur?.prenom_p +
+              item.demandeur?.nom_m +
+              item.demandeur?.prenom_m || null, // Add brotherkey with fallback
           fatherkey: item.demandeur?.nom + item.demandeur?.prenom_p || null, // Add fatherkey with fallback
           motherkey: item.demandeur?.nom_m + item.demandeur?.prenom_m || null, // Add motherkey with fallback
         },
@@ -452,6 +478,11 @@ const getSimilarityKey = (dossierByNotes, type) => {
         notes: item.notes,
         demandeur: {
           ...demandeur?._doc, // Spread existing demandeur properties
+          brotherkey:
+            item.demandeur?.nom_fr +
+              item.demandeur?.prenom_p_fr +
+              item.demandeur?.nom_m_fr +
+              item.demandeur?.prenom_m_fr || null, // Add brotherkey with fallback
           fatherkey:
             item.demandeur?.nom_fr + item.demandeur?.prenom_p_fr || null, // Add fatherkey with fallback
           motherkey:
@@ -489,6 +520,7 @@ async function segregateBrothersLists(keyArray2) {
   const usedIds = new Set();
 
   // Initialize result arrays
+  const brotherBrothersList = [];
   const fatherBrothersList = [];
   const motherBrothersList = [];
   const remainingDossiers = [];
@@ -503,8 +535,10 @@ async function segregateBrothersLists(keyArray2) {
         ...item,
         demandeur: {
           ...demandeur,
+          numberOfBrotherBrothers: parentKeyMatches.totalBrotherMatches || 0,
           numberOfFatherBrothers: parentKeyMatches.totalFatherMatches || 0,
           numberOfMotherBrothers: parentKeyMatches.totalMotherMatches || 0,
+          listOfBrotherBrothers: parentKeyMatches.brotherMatches || [],
           listOfFatherBrothers: parentKeyMatches.fatherMatches || [],
           listOfMotherBrothers: parentKeyMatches.motherMatches || [],
         },
@@ -519,9 +553,51 @@ async function segregateBrothersLists(keyArray2) {
     }
 
     // Check if this item has any brothers
+    const hasBrotherBrothers = item.demandeur.listOfBrotherBrothers.length > 0;
     const hasFatherBrothers = item.demandeur.listOfFatherBrothers.length > 0;
     const hasMotherBrothers = item.demandeur.listOfMotherBrothers.length > 0;
 
+    if (hasBrotherBrothers) {
+      // Create father brothers group
+      const brotherGroup = {
+        mainDossier: {
+          _id: item._id,
+          num_dos: item.num_dos,
+          date_depo: item.date_depo,
+          address_fr: item.adress_fr,
+          remark: item.remark,
+          ...item.demandeur, // Spread existing demandeur properties
+        },
+        brothers: item.demandeur.listOfBrotherBrothers.map((p) => ({
+          _id: p.matchId,
+          num_dos: p.num_dos,
+          date_depo: p.date_depo,
+          address_fr: p.adress_fr,
+          remark: p.remark,
+          ...p.demandeur, // Spread existing demandeur properties
+          similarity: p.similarity,
+        })),
+      };
+      brotherBrothersList.push(brotherGroup);
+
+      // Mark all brothers as used
+      usedIds.add(item._id.toString());
+      item.demandeur.listOfBrotherBrothers.forEach((b) =>
+        usedIds.add(b.matchId.toString())
+      );
+    } else {
+      // No brothers - add to remaining dossiers
+      remainingDossiers.push({
+        mainDossier: {
+          _id: item._id,
+          num_dos: item.num_dos,
+          date_depo: item.date_depo,
+          address_fr: item.adress_fr,
+          remark: item.remark,
+          ...item.demandeur, // Spread existing demandeur properties
+        },
+      });
+    }
     if (hasFatherBrothers) {
       // Create father brothers group
       const fatherGroup = {
@@ -544,13 +620,8 @@ async function segregateBrothersLists(keyArray2) {
         })),
       };
       fatherBrothersList.push(fatherGroup);
-
-      // Mark all brothers as used
-      usedIds.add(item._id.toString());
-      item.demandeur.listOfFatherBrothers.forEach((b) =>
-        usedIds.add(b.matchId.toString())
-      );
-    } else if (hasMotherBrothers) {
+    }
+    if (hasMotherBrothers) {
       // Create mother brothers group
       const motherGroup = {
         mainDossier: {
@@ -573,32 +644,16 @@ async function segregateBrothersLists(keyArray2) {
       };
       // console.log("motherBrothersList", motherGroup.brothers[0]);
       motherBrothersList.push(motherGroup);
-
-      // Mark all brothers as used
-      usedIds.add(item._id.toString());
-      item.demandeur.listOfMotherBrothers.forEach((b) =>
-        usedIds.add(b.matchId.toString())
-      );
-    } else {
-      // No brothers - add to remaining dossiers
-      remainingDossiers.push({
-        mainDossier: {
-          _id: item._id,
-          num_dos: item.num_dos,
-          date_depo: item.date_depo,
-          address_fr: item.adress_fr,
-          remark: item.remark,
-          ...item.demandeur, // Spread existing demandeur properties
-        },
-      });
     }
   }
 
   return {
+    brotherBrothersList,
     fatherBrothersList,
     motherBrothersList,
     remainingDossiers,
     stats: {
+      brotherGroups: brotherBrothersList.length,
       fatherGroups: fatherBrothersList.length,
       motherGroups: motherBrothersList.length,
       remaining: remainingDossiers.length,
@@ -727,7 +782,7 @@ const processDossier = async (
   }
 };
 
-const getRowData = (record, type, rowCount) => {
+const getRowData = (record, type, rowCount, numBro) => {
   // console.log("type", type);
   return type.includes("fr")
     ? [
@@ -745,6 +800,7 @@ const getRowData = (record, type, rowCount) => {
         record?.num_dos,
         record?.remark,
         record?.similarity || "---",
+        numBro || "---",
       ]
     : [
         rowCount,
@@ -761,6 +817,7 @@ const getRowData = (record, type, rowCount) => {
         record?.num_dos,
         record?.remark,
         record?.similarity || "---",
+        numBro || "---",
       ];
 };
 
@@ -771,6 +828,7 @@ const processDossierBrothers = async (
   workbook,
   type,
   photoFemme,
+  worksheetBrother,
   worksheetFather,
   worksheetMother,
   worksheetUnique,
@@ -778,7 +836,8 @@ const processDossierBrothers = async (
 ) => {
   let addWorkSheet;
 
-  if (listType === "Fathers") addWorkSheet = worksheetFather;
+  if (listType === "Brothers") addWorkSheet = worksheetBrother;
+  else if (listType === "Fathers") addWorkSheet = worksheetFather;
   else if (listType === "Mothers") addWorkSheet = worksheetMother;
   else addWorkSheet = worksheetUnique;
 
@@ -788,10 +847,14 @@ const processDossierBrothers = async (
   } else
     imagePath = record?.mainDossier?.photo_link || "usersPicUpload/default.png";
   const rowCount = triDossiers;
-  const rowData = getRowData(record.mainDossier, type, rowCount);
+  const rowData = getRowData(record.mainDossier, type, rowCount, quotaDate);
 
   addRowToWorksheet(addWorkSheet, rowData, imagePath, 10, workbook);
-  if (listType === "Fathers" || listType === "Mothers") {
+  if (
+    listType === "Brothers" ||
+    listType === "Fathers" ||
+    listType === "Mothers"
+  ) {
     record.brothers.forEach((brother) => {
       let imagePathBrother;
       // console.log("brother:", brother.photo_link,"maindossier:", record.mainDossier.prenom_fr);
