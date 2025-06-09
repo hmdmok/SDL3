@@ -202,7 +202,6 @@ async function processDossiers(data, creator, res, language) {
       data.map(async (dossier) => {
         const { num_dos } = extractDossierData(dossier, language);
         const existingDossier = await Dossier.findOne({ num_dos });
-
         if (language === "numDos") {
           if (existingDossier) {
             let dossiers = await data2.find(
@@ -466,7 +465,6 @@ async function updateExistingDossier(dossier, newData, creator, language) {
     dossier.note_anciennete = note_anciennete || dossier.note_anciennete;
     dossier.notes = notes || dossier.notes;
     dossier.remark = remark || dossier.remark;
-
     await dossier.save();
   } catch (error) {
     console.error("Error updateExistingDossier", error);
@@ -563,7 +561,10 @@ async function createNewDossier(dossier, creator, language) {
           creator,
         });
       }
+    }else {
+      return res.status(400).send("Demandeur name is required");
     }
+
     var nb_conj = 0;
     if (num_conj) nb_conj = num_conj;
     else if (stuation_f_dem === "M" || "V") nb_conj = 1;
@@ -581,7 +582,6 @@ async function createNewDossier(dossier, creator, language) {
     else gender_conj = "M";
     // get system data
     const systemInfo = await system.findOne();
-
     if (demandeur._id)
       await Dossier.create({
         creator,

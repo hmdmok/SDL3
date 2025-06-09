@@ -847,6 +847,7 @@ const processDossierBrothers = async (
   } else
     imagePath = record?.mainDossier?.photo_link || "usersPicUpload/default.png";
   const rowCount = triDossiers;
+  console.log("record.mainDossier", record.mainDossier);
   const rowData = getRowData(record.mainDossier, type, rowCount, quotaDate);
 
   addRowToWorksheet(addWorkSheet, rowData, imagePath, 10, workbook);
