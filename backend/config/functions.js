@@ -459,6 +459,7 @@ const getSimilarityKey = (dossierByNotes, type) => {
         num_dos: item.num_dos,
         date_depo: item.date_depo,
         notes: item.notes,
+        remark: item.remark,
         demandeur: {
           ...demandeur?._doc, // Spread existing demandeur properties
           brotherkey:
@@ -476,6 +477,7 @@ const getSimilarityKey = (dossierByNotes, type) => {
         num_dos: item.num_dos,
         date_depo: item.date_depo,
         notes: item.notes,
+        remark: item.remark_fr,
         demandeur: {
           ...demandeur?._doc, // Spread existing demandeur properties
           brotherkey:
@@ -517,7 +519,9 @@ const getSimilarityKey = (dossierByNotes, type) => {
  */
 async function segregateBrothersLists(keyArray2) {
   // Create a Set to track used IDs for efficient lookups
-  const usedIds = new Set();
+  const usedIds = new Set(),
+    usedIdsF = new Set(),
+    usedIdsM = new Set();
 
   // Initialize result arrays
   const brotherBrothersList = [];
@@ -528,6 +532,8 @@ async function segregateBrothersLists(keyArray2) {
   // First pass: Process all items to identify brothers
   const processedItems = await Promise.all(
     keyArray2.map(async (item) => {
+      if (item.remark) console.log("item", item.remark);
+
       const demandeur = item.demandeur || {};
       const parentKeyMatches = await countParentKeyMatches(item, keyArray2);
 
@@ -548,16 +554,15 @@ async function segregateBrothersLists(keyArray2) {
 
   // Second pass: Segregate into separate lists
   for (const item of processedItems) {
-    if (usedIds.has(item._id.toString())) {
-      continue; // Skip already used items
-    }
-
     // Check if this item has any brothers
     const hasBrotherBrothers = item.demandeur.listOfBrotherBrothers.length > 0;
     const hasFatherBrothers = item.demandeur.listOfFatherBrothers.length > 0;
     const hasMotherBrothers = item.demandeur.listOfMotherBrothers.length > 0;
 
     if (hasBrotherBrothers) {
+      if (usedIds.has(item._id.toString())) {
+        continue; // Skip already used items
+      }
       // Create father brothers group
       const brotherGroup = {
         mainDossier: {
@@ -599,6 +604,9 @@ async function segregateBrothersLists(keyArray2) {
       });
     }
     if (hasFatherBrothers) {
+      if (usedIdsF.has(item._id.toString())) {
+        continue; // Skip already used items
+      }
       // Create father brothers group
       const fatherGroup = {
         mainDossier: {
@@ -620,8 +628,16 @@ async function segregateBrothersLists(keyArray2) {
         })),
       };
       fatherBrothersList.push(fatherGroup);
+      // Mark all brothers as used
+      usedIdsF.add(item._id.toString());
+      item.demandeur.listOfFatherBrothers.forEach((b) =>
+        usedIdsF.add(b.matchId.toString())
+      );
     }
     if (hasMotherBrothers) {
+      if (usedIdsM.has(item._id.toString())) {
+        continue; // Skip already used items
+      }
       // Create mother brothers group
       const motherGroup = {
         mainDossier: {
@@ -644,6 +660,11 @@ async function segregateBrothersLists(keyArray2) {
       };
       // console.log("motherBrothersList", motherGroup.brothers[0]);
       motherBrothersList.push(motherGroup);
+      // Mark all brothers as used
+      usedIdsM.add(item._id.toString());
+      item.demandeur.listOfMotherBrothers.forEach((b) =>
+        usedIdsM.add(b.matchId.toString())
+      );
     }
   }
 
@@ -847,7 +868,7 @@ const processDossierBrothers = async (
   } else
     imagePath = record?.mainDossier?.photo_link || "usersPicUpload/default.png";
   const rowCount = triDossiers;
-  console.log("record.mainDossier", record.mainDossier);
+  // if (record.mainDossier.remark) console.log("record.mainDossier", record.mainDossier.remark);
   const rowData = getRowData(record.mainDossier, type, rowCount, quotaDate);
 
   addRowToWorksheet(addWorkSheet, rowData, imagePath, 10, workbook);

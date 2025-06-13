@@ -544,10 +544,12 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
       worksheetPlus.spliceRows(2, 1);
       if (type === "export") worksheetMoin.spliceRows(2, 1);
     } else if (type === "brothersfr") {
+      worksheetBrother.spliceRows(7, 1);
       worksheetFather.spliceRows(7, 1);
       worksheetMother.spliceRows(7, 1);
       worksheetUnique.spliceRows(7, 1);
     } else if (type === "brothersar") {
+      worksheetBrother.spliceRows(7, 1);
       worksheetFather.spliceRows(7, 1);
       worksheetMother.spliceRows(7, 1);
       worksheetUnique.spliceRows(7, 1);
