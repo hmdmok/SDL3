@@ -54,9 +54,7 @@ const SingleBrothergroup = ({ dossierMap, setShowPopup, setIdToDel }) => {
       </ListGroup>
 
       <ListGroup variant="flush" style={{ width: "9rem" }}>
-        <Badge style={{ height: "40px" }}>
-          {dossierMap?.prenom_fr}
-        </Badge>
+        <Badge style={{ height: "40px" }}>{dossierMap?.prenom_fr}</Badge>
       </ListGroup>
 
       <ListGroup variant="flush" style={{ width: "9rem" }}>
@@ -65,16 +63,12 @@ const SingleBrothergroup = ({ dossierMap, setShowPopup, setIdToDel }) => {
 
       <ListGroup variant="flush" style={{ width: "11rem" }}>
         <Badge style={{ height: "40px" }}>
-          {dossierMap?.prenom_p_fr +
-            " " +
-            dossierMap?.nom_fr}
+          {dossierMap?.prenom_p_fr + " " + dossierMap?.nom_fr}
         </Badge>
       </ListGroup>
       <ListGroup variant="flush" style={{ width: "11rem" }}>
         <Badge style={{ height: "40px" }}>
-          {dossierMap?.prenom_m_fr +
-            " " +
-            dossierMap?.nom_m_fr}
+          {dossierMap?.prenom_m_fr + " " + dossierMap?.nom_m_fr}
         </Badge>
       </ListGroup>
 
@@ -122,8 +116,7 @@ const SingleBrothergroup = ({ dossierMap, setShowPopup, setIdToDel }) => {
 
       <Button variant="success" className="m-1">
         <Link to={`/adddossiers/${dossierMap.matchId || dossierMap._id}`}>
-          {" "}
-          تعديل الملف
+          {"تعديل الملف"}
         </Link>
       </Button>
 

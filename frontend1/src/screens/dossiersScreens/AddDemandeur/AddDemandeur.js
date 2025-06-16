@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Col, Form, Row } from "react-bootstrap";
+import { Button, Col, Form, Row, Card } from "react-bootstrap";
 import Message from "../../../components/Message";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -137,6 +137,7 @@ function AddDemandeur({ type }) {
       note_anciennete: 0,
       notes: 0,
       type: type,
+      photo_link: "",
     },
   });
   const {
@@ -734,7 +735,37 @@ function AddDemandeur({ type }) {
                 others={register}
               />
             </Col>
-
+            <Row className="text-right">
+              <Col>
+                <Card.Body>
+                  <Card.Text>صورة المستخدم</Card.Text>
+                </Card.Body>
+                {getValues("photo_link") ? (
+                  <Card.Img
+                    src={"/usersPicUpload/default.png"}
+                    width="300px"
+                    alt="pic"
+                  />
+                ) : (
+                  <Card.Img
+                    src={`http://localhost:4000/${getValues("photo_link")}`}
+                    width="300px"
+                    alt="pic"
+                  />
+                )}
+              </Col>
+              <Col sm={{ order: "first" }}>
+                <Form.Group controlId="formFile" className="mb-3">
+                  <Form.Label> صورة المستخدم</Form.Label>
+                  <Form.Control
+                    type="file"
+                    name="photo_link"
+                    placeholder="ادخل صورة المستخدم"
+                    // onChange={(e) => setPhoto_file(e.target.files[0])}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
             <Col sm={{ order: "first" }}>
               <TextInput
                 errors={errors}

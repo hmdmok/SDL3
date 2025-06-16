@@ -57,8 +57,8 @@ function ListBrothers({
             {showBrothersList !== "List" && (
               <div className="">
                 <SingleBrothergroup
-                  key={index + Math.random()}
                   dossierMap={dossierMap?.mainDossier}
+                  key={index}
                   setShowPopup={setShowPopup}
                   deleteHandler={deleteHandler}
                   setIdToDel={setIdToDel}
@@ -66,8 +66,8 @@ function ListBrothers({
                 {dossierMap?.brothers?.map((brother, index2) => {
                   return (
                     <SingleBrothergroup
-                      key={ index2 + Math.random()}
                       dossierMap={brother}
+                      key={index2}
                       setShowPopup={setShowPopup}
                       deleteHandler={deleteHandler}
                       setIdToDel={setIdToDel}
