@@ -226,11 +226,12 @@ async function processDossiers(data, creator, res, language) {
               existingDossier,
               dossier,
               creator,
-              language
+              language,
+              res
             );
             dossierUpdatedCount++;
           } else {
-            await createNewDossier(dossier, creator, language);
+            await createNewDossier(dossier, creator, language, res);
             dossierAddedCount++;
           }
         }
@@ -249,7 +250,7 @@ async function processDossiers(data, creator, res, language) {
   }
 }
 
-function extractDossierData(dossier, language) {
+function extractDossierData(dossier, language, res) {
   try {
     // Extract fields from the dossier based on the language
     if (language === "French") {
@@ -286,6 +287,8 @@ function extractDossierData(dossier, language) {
         note_anciennete: dossier["Note Anciennete"],
         notes: dossier["Notes"],
         remark: dossier["Remarque"],
+        num_i_n: dossier["NIN"],
+        num_i_n_conj: dossier["NIN CONJ"],
       };
     } else if (language === "Arabic") {
       return {
@@ -332,7 +335,7 @@ function extractDossierData(dossier, language) {
   }
 }
 
-async function updateExistingDossier(dossier, newData, creator, language) {
+async function updateExistingDossier(dossier, newData, creator, language, res) {
   try {
     // Extract data from the newData object based on the language
     const {
@@ -365,7 +368,9 @@ async function updateExistingDossier(dossier, newData, creator, language) {
       note_anciennete,
       notes,
       remark,
-    } = extractDossierData(newData, language);
+      num_i_n,
+      num_i_n_conj,
+    } = extractDossierData(newData, language, res);
 
     // Update demandeur if exists
     const demandeur = await Person.findById(dossier.id_demandeur);
@@ -389,6 +394,7 @@ async function updateExistingDossier(dossier, newData, creator, language) {
         demandeur.nom_m = nom_m_dem || demandeur.nom_m;
       }
       demandeur.num_act = num_act_dem || demandeur.num_act;
+      demandeur.num_i_n = num_i_n || demandeur.num_i_n;
       demandeur.date_n =
         convertDateFormat(date_n_dem, "S").date || demandeur.date_n;
       demandeur.type_date_n = type_date_n_dem || demandeur.type_date_n;
@@ -422,6 +428,7 @@ async function updateExistingDossier(dossier, newData, creator, language) {
               conjoin.nom_m = nom_m_conj || conjoin.nom_m;
             }
             conjoin.num_act = num_act_conj || conjoin.num_act;
+            conjoin.num_i_n = num_i_n_conj || conjoin.num_i_n;
             conjoin.date_n =
               convertDateFormat(date_n_conj, "S").date || conjoin.date_n;
             conjoin.type_date_n = type_date_n_conj || conjoin.type_date_n;
@@ -468,11 +475,11 @@ async function updateExistingDossier(dossier, newData, creator, language) {
     await dossier.save();
   } catch (error) {
     console.error("Error updateExistingDossier", error);
-    res.status(500).send("Error updateExistingDossier");
+    res.status(500).send("Error updateExistingDossier: ", dossier.num_dos);
   }
 }
 
-async function createNewDossier(dossier, creator, language) {
+async function createNewDossier(dossier, creator, language, res) {
   try {
     // Extract data from the dossier object based on the language
     const {
@@ -500,6 +507,8 @@ async function createNewDossier(dossier, creator, language) {
       notes,
       remark,
       date_n_conj,
+      num_i_n,
+      num_i_n_conj,
     } = extractDossierData(dossier, language);
 
     var demandeur = {};
@@ -525,7 +534,9 @@ async function createNewDossier(dossier, creator, language) {
           prenom_m_fr: prenom_m_dem,
           nom_m: "",
           nom_m_fr: nom_m_dem,
-          num_i_n: num_act_dem + " " + convertDateFormat(date_n_dem, "T").date,
+          num_i_n:
+            num_i_n ||
+            num_act_dem + " " + convertDateFormat(date_n_dem, "T").date,
           stuation_f: stuation_f_dem,
           situation_p: "",
           profession: "",
@@ -553,7 +564,9 @@ async function createNewDossier(dossier, creator, language) {
           prenom_m_fr: "",
           nom_m: nom_m_dem,
           nom_m_fr: "",
-          num_i_n: num_act_dem + " " + convertDateFormat(date_n_dem, "T").date,
+          num_i_n:
+            num_i_n ||
+            num_act_dem + " " + convertDateFormat(date_n_dem, "T").date,
           stuation_f: stuation_f_dem,
           situation_p: "",
           profession: "",
@@ -561,8 +574,10 @@ async function createNewDossier(dossier, creator, language) {
           creator,
         });
       }
-    }else {
-      return res.status(400).send("Demandeur name is required");
+    } else {
+      console.log(dossier);
+      return res.status(400).send("Demandeur name is required " + nom_conj);
+      stop;
     }
 
     var nb_conj = 0;
@@ -606,11 +621,11 @@ async function createNewDossier(dossier, creator, language) {
       });
   } catch (error) {
     console.error("Error updateExistingDossier", error);
-    res.status(500).send("Error updateExistingDossier");
+    res.status(500).send("Error updateExistingDossier: ", num_dos);
   }
 }
 
-async function createConjoin(dossier1, language, creator) {
+async function createConjoin(dossier1, language, creator, res) {
   try {
     // Extract data from the dossier object based on the language
     const {
@@ -624,6 +639,7 @@ async function createConjoin(dossier1, language, creator) {
       prenom_p_conj,
       prenom_m_conj,
       nom_m_conj,
+      num_i_n_conj,
     } = extractDossierData(dossier1, language);
     // determine conjoin gender
     var gender_conj = "";
@@ -652,7 +668,7 @@ async function createConjoin(dossier1, language, creator) {
           prenom_m_fr: prenom_m_conj,
           nom_m: "",
           nom_m_fr: nom_m_conj,
-          num_i_n: num_act_conj + " " + date_n_conj,
+          num_i_n: num_i_n_conj || num_act_conj + " " + date_n_conj,
           stuation_f: "",
           situation_p: "",
           profession: "",
@@ -680,7 +696,7 @@ async function createConjoin(dossier1, language, creator) {
           prenom_m_fr: "",
           nom_m: nom_m_conj,
           nom_m_fr: "",
-          num_i_n: num_act_conj + " " + date_n_conj,
+          num_i_n: num_i_n_conj || num_act_conj + " " + date_n_conj,
           stuation_f: "",
           situation_p: "",
           profession: "",
