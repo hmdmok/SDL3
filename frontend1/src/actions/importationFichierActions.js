@@ -35,7 +35,7 @@ export const sendImportationFichierAction =
         payload:
           error.response && error.response.data.message
             ? error.response.data.message
-            : error.message,
+            : error.response.data,
       });
     }
   };
