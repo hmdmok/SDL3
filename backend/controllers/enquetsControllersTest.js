@@ -334,7 +334,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             data.find((d) => d._id.toString() === e)
           )
         : data;
-
+    console.log("dossiersList: ", dossiersList);
     const dossierBrothers = await segregateBrothersLists(
       await getSimilarityKey(dossiers, "ar")
     );
