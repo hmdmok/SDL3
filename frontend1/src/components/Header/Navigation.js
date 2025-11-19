@@ -20,7 +20,7 @@ import {
   AiOutlineFileSearch,
 } from "react-icons/ai";
 import DropdownMenu from "react-bootstrap/esm/DropdownMenu";
-import { deleteFile } from "../../actions/filesActions";
+// import { deleteFile } from "../../actions/filesActions";
 import { deleteBenefisier } from "../../actions/benifisierActions";
 import { listCommunesByDairaAction } from "../../actions/communeActions";
 import { checkSystem, updateSystem } from "../../actions/systemActions";

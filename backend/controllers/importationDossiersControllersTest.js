@@ -155,7 +155,7 @@ const correctionDB = asyncHandler(async (req, res) => {
 
 const updateDossiers = asyncHandler(async (req, res) => {
   try {
-    console.log("updateDossiers File received:");
+    // console.log("updateDossiers File received:");
     const { creator, remark } = req.body;
     const importation_File = req.file?.path;
     if (!importation_File) {
@@ -203,57 +203,103 @@ const updateDossiers = asyncHandler(async (req, res) => {
 
 async function processDossiers(data, creator, res, language) {
   try {
-    console.log("processDossiers excelData: ");
+    // console.log("processDossiers excelData: ");
     const dossiersCount = data.length;
     let dossierAddedCount = 0;
     let dossierUpdatedCount = 0;
     let numDos = [];
     const data2 = await getFullDossier();
-    await Promise.all(
-      data.map(async (dossier, index) => {
-        const row = index + 2;
-        const { num_dos } = extractDossierData(dossier, language);
-        if (!num_dos) {
-          // if (!res.headersSent)
-          res.status(400).send("رقم الملف غير موجود في السطر " + row);
+
+    // Group rows by trimmed num_dos so we process each dossier once
+    const groups = new Map();
+    const rowErrors = [];
+    data.forEach((row, idx) => {
+      const rowNum = idx + 2;
+      const extracted = extractDossierData(row, language);
+      const rawNum = extracted?.num_dos;
+      if (!rawNum) {
+        rowErrors.push(`رقم الملف غير موجود في السطر ${rowNum}`);
+        return;
+      }
+      const key = String(rawNum).trim();
+      if (!groups.has(key)) groups.set(key, { base: extracted, extras: [] });
+      else groups.get(key).extras.push(extracted);
+    });
+
+    // Errors in imported table
+    if (rowErrors.length > 0) {
+      res.status(400).send(rowErrors.join("; "));
+      return;
+    }
+
+    for (const [numKey, group] of groups) {
+      const base = group.base;
+      const extras = group.extras;
+
+      if (language === "numDos") {
+        const existingDossier = await Dossier.findOne({ num_dos: numKey });
+        if (existingDossier) {
+          let dossiers = await data2.find(
+            (d) => d._id.toString() === existingDossier._id.toString()
+          );
+          numDos.push({
+            _id: dossiers._id,
+            num_dos: dossiers.num_dos,
+            date_depo: dossiers.date_depo,
+            notes: dossiers.notes,
+            demandeur: {
+              nom_fr: dossiers["demandeur"]?.nom_fr,
+              prenom_fr: dossiers["demandeur"]?.prenom_fr,
+              date_n: dossiers["demandeur"]?.date_n,
+              stuation_f: dossiers["demandeur"]?.stuation_f,
+            },
+          });
         }
-        const existingDossier = await Dossier.findOne({ num_dos });
-        if (language === "numDos") {
-          if (existingDossier) {
-            let dossiers = await data2.find(
-              (d) => d._id.toString() === existingDossier._id.toString()
-            );
-            numDos.push({
-              _id: dossiers._id,
-              num_dos: dossiers.num_dos,
-              date_depo: dossiers.date_depo,
-              notes: dossiers.notes,
-              demandeur: {
-                nom_fr: dossiers["demandeur"]?.nom_fr,
-                prenom_fr: dossiers["demandeur"]?.prenom_fr,
-                date_n: dossiers["demandeur"]?.date_n,
-                stuation_f: dossiers["demandeur"]?.stuation_f,
-              },
-            });
-          }
-        } else {
-          if (existingDossier) {
-            await updateExistingDossier(
-              existingDossier,
-              dossier,
-              creator,
-              language,
-              res,
-              row
-            );
-            dossierUpdatedCount++;
-          } else {
-            await createNewDossier(dossier, creator, language, res, row);
-            dossierAddedCount++;
+        continue;
+      }
+
+      // For French/Arabic: create or update a single dossier per num_dos
+      const existingDossier = await Dossier.findOne({ num_dos: numKey });
+      if (existingDossier) {
+        await updateExistingDossier(existingDossier, base, creator, language);
+
+        // Add any extra conjoins present in extra rows
+        if (extras && extras.length > 0) {
+          for (const extra of extras) {
+            if (extra.nom_conj && extra.prenom_conj) {
+              await updateExistingDossier(
+                existingDossier,
+                extra,
+                creator,
+                language
+              );
+            }
           }
         }
-      })
-    );
+        dossierUpdatedCount++;
+      } else {
+        // console.log("Creating new dossier:", base);
+        await createNewDossier(base, creator, language, res);
+        dossierAddedCount++;
+
+        if (extras && extras.length > 0) {
+          const createdDossier = await Dossier.findOne({ num_dos: numKey });
+          if (createdDossier) {
+            for (const extra of extras) {
+              if (extra.nom_conj && extra.prenom_conj) {
+                await updateExistingDossier(
+                  createdDossier,
+                  extra,
+                  creator,
+                  language
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+
     if (language === "numDos")
       // if (!res.headersSent)
       res.status(200).send(numDos);
@@ -264,7 +310,7 @@ async function processDossiers(data, creator, res, language) {
           `${dossierAddedCount} added, and ${dossierUpdatedCount} updated of ${dossiersCount} dossiers.`
         );
   } catch (error) {
-    console.error("Error processing dossiers:", error);
+    console.log("Error processing dossiers:", error);
     // if (!res.headersSent)
     res.status(500).send("Error processing dossiers");
   }
@@ -273,7 +319,7 @@ async function processDossiers(data, creator, res, language) {
 function extractDossierData(dossier, language, res) {
   try {
     // Extract fields from the dossier based on the language
-    // console.log("extractDossierData dossier:", dossier["رقم الملف"]);
+    // console.log("extractDossierData dossier:", dossier["Ref demande"]);
     if (language === "French") {
       return {
         num_dos: dossier["Ref demande"],
@@ -352,12 +398,14 @@ function extractDossierData(dossier, language, res) {
     }
   } catch (error) {
     console.error("Error extractDossierData:", error);
-    // if (!res.headersSent)
-    res.status(500).send("Error extractDossierData");
+    throw new Error(
+      "Error extractDossierData: " +
+        (error && error.message ? error.message : error)
+    );
   }
 }
 
-async function updateExistingDossier(dossier, newData, creator, language, res) {
+async function updateExistingDossier(dossier, newData, creator, language) {
   try {
     // Extract data from the newData object based on the language
     // console.log("updateExistingDossier newData:");
@@ -393,7 +441,7 @@ async function updateExistingDossier(dossier, newData, creator, language, res) {
       remark,
       num_i_n,
       num_i_n_conj,
-    } = extractDossierData(newData, language, res);
+    } = newData;
 
     // Update demandeur if exists
     const demandeur = await Person.findById(dossier.id_demandeur);
@@ -433,8 +481,7 @@ async function updateExistingDossier(dossier, newData, creator, language, res) {
           const conjoin = await Person.findById(
             dossier.id_conjoin[Ordre_conj - 1]
           );
-          if (num_conj == "2")
-            console.log("Updating conjoin:", Ordre_conj - 1);
+          // if (num_conj == "2") console.log("Updating conjoin:", Ordre_conj - 1);
           // update conjoin
           if (conjoin) {
             if (language === "French") {
@@ -500,15 +547,19 @@ async function updateExistingDossier(dossier, newData, creator, language, res) {
     await dossier.save();
   } catch (error) {
     console.error("Error updateExistingDossier", error);
-    // // if (!res.headersSent)
-    res.status(500).send("Error updateExistingDossier: ", dossier.num_dos);
+    throw new Error(
+      "Error updateExistingDossier: " +
+        (dossier?.num_dos || dossier?._id || "unknown") +
+        " - " +
+        (error && error.message ? error.message : error)
+    );
   }
 }
 
-async function createNewDossier(dossier, creator, language, res, row) {
+async function createNewDossier(dossier, creator, language, row) {
   try {
     // Extract data from the dossier object based on the language
-    console.log("createNewDossier dossier:");
+    // console.log("createNewDossier dossier:");
     const {
       num_dos,
       nom_dem,
@@ -536,7 +587,7 @@ async function createNewDossier(dossier, creator, language, res, row) {
       date_n_conj,
       num_i_n,
       num_i_n_conj,
-    } = extractDossierData(dossier, language);
+    } = dossier;
 
     var demandeur = {};
 
@@ -601,8 +652,7 @@ async function createNewDossier(dossier, creator, language, res, row) {
         });
       }
     } else {
-      // if (!res.headersSent)
-      res.status(400).send("الاسم غير موجود في السطر " + row);
+      throw new Error("الاسم غير موجود في السطر " + row);
     }
 
     var nb_conj = 0;
@@ -645,13 +695,17 @@ async function createNewDossier(dossier, creator, language, res, row) {
         notes,
       });
   } catch (error) {
-    console.error("Error updateExistingDossier", error);
-    // if (!res.headersSent)
-    res.status(500).send("Error updateExistingDossier: ", num_dos);
+    console.error("Error createNewDossier", error);
+    throw new Error(
+      "Error createNewDossier: " +
+        (num_dos || "unknown") +
+        " - " +
+        (error && error.message ? error.message : error)
+    );
   }
 }
 
-async function createConjoin(dossier1, language, creator, res) {
+async function createConjoin(dossier1, language, creator) {
   try {
     // Extract data from the dossier object based on the language
     // console.log("createConjoin dossier1:");
@@ -667,7 +721,7 @@ async function createConjoin(dossier1, language, creator, res) {
       prenom_m_conj,
       nom_m_conj,
       num_i_n_conj,
-    } = extractDossierData(dossier1, language);
+    } = dossier1;
     // determine conjoin gender
     var gender_conj = "";
     if (gender_dem === "M") gender_conj = "F";
@@ -733,8 +787,9 @@ async function createConjoin(dossier1, language, creator, res) {
     }
   } catch (error) {
     console.error("Error createConjoin", error);
-    // // if (!res.headersSent)
-    res.status(500).send("Error createConjoin");
+    throw new Error(
+      "Error createConjoin: " + (error && error.message ? error.message : error)
+    );
   }
 }
 
