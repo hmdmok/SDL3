@@ -11,6 +11,9 @@ import {
   ENQUETCNL_LIST_FAIL,
   ENQUETCNL_LIST_REQUEST,
   ENQUETCNL_LIST_SUCCESS,
+  ENQUETCADASTRE_GET_REQUEST,
+  ENQUETCADASTRE_GET_SUCCESS,
+  ENQUETCADASTRE_GET_FAIL,
 } from "../constants/enquetCNLConstants";
 
 export const enquetCNLListReducer = (state = { enquetCNLs: [] }, actions) => {
@@ -48,6 +51,20 @@ export const enquetCNASGetReducer = (state = {}, actions) => {
     case ENQUETCNAS_GET_SUCCESS:
       return { loading: false, enquetCNASs: actions.payload, success: true };
     case ENQUETCNAS_GET_FAIL:
+      return { loading: false, error: actions.payload };
+
+    default:
+      return state;
+  }
+};
+
+export const enquetCadastreGetReducer = (state = {}, actions) => {
+  switch (actions.type) {
+    case ENQUETCADASTRE_GET_REQUEST:
+      return { loading: true };
+    case ENQUETCADASTRE_GET_SUCCESS:
+      return { loading: false, enquetCadastres: actions.payload, success: true };
+    case ENQUETCADASTRE_GET_FAIL:
       return { loading: false, error: actions.payload };
 
     default:

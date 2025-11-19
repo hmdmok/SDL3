@@ -35,7 +35,7 @@ const createRecord = (dossier, newData, type) => {
     CODE_P: prefix === "CASNOS" ? newData.length + 1 : "",
     NOM_P: sanitizeInput(person.nom_fr || ""),
     PRENOM_P: sanitizeInput(person.prenom_fr || ""),
-    DDN_P: convertDateFormat(person.date_n, "S").date3112 || "",
+    DDN_P: convertDateFormat(person.date_n, "T").date3112 || "",
     ADR_P: "",
     NUM_ACT_P: sanitizeInput(numAct || ""),
     PP: sanitizeInput(person.prenom_p_fr || ""),
@@ -44,6 +44,23 @@ const createRecord = (dossier, newData, type) => {
     CC: "",
     NC: sanitizeInput(person.lieu_n_fr || ""),
     WILAYA: sanitizeInput(person.wil_n || ""),
+  });
+
+  const createCadastreRecord = (person, numAct) => ({
+    "N°": newData.length + 1,
+    NOM: sanitizeInput(person.nom_fr || ""),
+    PRENOM: sanitizeInput(person.prenom_fr || ""),
+    NIN: sanitizeInput(person.num_i_n || ""),
+    "DAT  NAIS": convertDateFormat(person.date_n, "S").date3112 || "",
+    "LIEU NAIS": sanitizeInput(person.lieu_n_fr || ""),
+    "N AN": sanitizeInput(numAct || ""),
+    "P père": sanitizeInput(person.prenom_p_fr || ""),
+    "N mère": sanitizeInput(person.nom_m_fr || ""),
+    "P mère": sanitizeInput(person.prenom_m_fr || ""),
+    "WILAYA d etablissemet de la CNI/PC": "",
+    CONTROL: "",
+    IDENTIFICATION: "",
+    OBSERVATIONS: "",
   });
 
   const { demandeur, conjoin } = dossier;
@@ -59,6 +76,17 @@ const createRecord = (dossier, newData, type) => {
       conjoin.forEach((person) => {
         if (person)
           newData.push(createNewRecord(person, address, person.num_act, type));
+      });
+    }
+  }
+  if (type === "Cadastre") {
+    if (demandeur) {
+      newData.push(createCadastreRecord(demandeur, demandeur.num_act, type));
+    }
+    if (conjoin) {
+      conjoin.forEach((person) => {
+        if (person)
+          newData.push(createCadastreRecord(person, person.num_act, type));
       });
     }
   }
@@ -320,6 +348,40 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
     res.status(500).json("Error creating enqCNAS");
   }
 });
+const getEnquetCadastreFile = asyncHandler(async (req, res) => {
+  try {
+    const { dossierEnq: dossiersList } = req.body;
+    const data = await getFullDossier();
+    let dossierEnq = [];
+
+    if (dossiersList.length > 0) {
+      dossiersList.forEach((e) => {
+        const element = data.find((d) => d._id.toString() === e);
+        if (element) dossierEnq.push(element);
+      });
+    } else {
+      dossierEnq = data;
+    }
+
+    let newData = [];
+
+    for (let i = 0; i < dossierEnq.length; i++) {
+      createRecord(dossierEnq[i], newData, "Cadastre");
+    }
+
+    const fileName = `new_EnquetCadastre.xlsx`;
+    const newWB = XLSX.utils.book_new();
+    const newWS = XLSX.utils.json_to_sheet(newData);
+    XLSX.utils.book_append_sheet(newWB, newWS, "Table1");
+    XLSX.writeFile(newWB, fileName);
+    const fileCNAS = `new_EnquetCadastre.xlsx`;
+
+    res.download(fileCNAS);
+  } catch (error) {
+    console.error("Error creating enqCNAS file:", error);
+    res.status(500).json("Error creating enqCNAS");
+  }
+});
 
 const getListBenefisiersFile = asyncHandler(async (req, res) => {
   try {
@@ -573,4 +635,5 @@ module.exports = {
   getEnquetCASNOSFile,
   getEnquetCNASFile,
   getListBenefisiersFile,
+  getEnquetCadastreFile,
 };

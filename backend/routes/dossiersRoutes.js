@@ -24,6 +24,7 @@ const {
   getEnquetCNLFile,
   getEnquetCASNOSFile,
   getListBenefisiersFile,
+  getEnquetCadastreFile,
 } = require("../controllers/enquetsControllersTest");
 const personPhotoStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -76,6 +77,7 @@ router.route("/enqCNL").post(getEnquetCNLFile);
 router.route("/listBenefisiers").post(getListBenefisiersFile);
 router.route("/enqCNLtest").post(getEnquetCNLFileTest);
 router.route("/enqCNAS").post(getEnquetCNASFile);
+router.route("/enqCadastre").post(getEnquetCadastreFile);
 router.route("/enqCNAStest").post(getEnquetCNASFileTest);
 router.route("/enqCASNOS").post(getEnquetCASNOSFile);
 router.route("/enqCASNOStest").post(getEnquetCASNOSFileTest);

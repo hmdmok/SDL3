@@ -159,7 +159,7 @@ const updateDossiers = asyncHandler(async (req, res) => {
     const { creator, remark } = req.body;
     const importation_File = req.file?.path;
     if (!importation_File) {
-      // if (!res.headersSent) 
+      // if (!res.headersSent)
       res.status(400).send("No file uploaded");
     }
 
@@ -187,16 +187,16 @@ const updateDossiers = asyncHandler(async (req, res) => {
       } else if (remark === "numDos Fichier Imported") {
         await processDossiers(excelData, creator, res, "numDos");
       } else {
-        // if (!res.headersSent) 
+        // if (!res.headersSent)
         res.status(400).send("Invalid remark provided");
       }
     } else {
-      // if (!res.headersSent) 
+      // if (!res.headersSent)
       res.status(200).send("لا يمكن قراءة الملف");
     }
   } catch (error) {
     console.error("Error processing request:", error);
-    // if (!res.headersSent) 
+    // if (!res.headersSent)
     res.status(500).send("Server error");
   }
 });
@@ -213,6 +213,10 @@ async function processDossiers(data, creator, res, language) {
       data.map(async (dossier, index) => {
         const row = index + 2;
         const { num_dos } = extractDossierData(dossier, language);
+        if (!num_dos) {
+          // if (!res.headersSent)
+          res.status(400).send("رقم الملف غير موجود في السطر " + row);
+        }
         const existingDossier = await Dossier.findOne({ num_dos });
         if (language === "numDos") {
           if (existingDossier) {
@@ -251,17 +255,17 @@ async function processDossiers(data, creator, res, language) {
       })
     );
     if (language === "numDos")
-      // if (!res.headersSent) 
-    res.status(200).send(numDos);
-      else
-        res
-          .status(200)
-          .send(
-            `${dossierAddedCount} added, and ${dossierUpdatedCount} updated of ${dossiersCount} dossiers.`
-          );
+      // if (!res.headersSent)
+      res.status(200).send(numDos);
+    else
+      res
+        .status(200)
+        .send(
+          `${dossierAddedCount} added, and ${dossierUpdatedCount} updated of ${dossiersCount} dossiers.`
+        );
   } catch (error) {
     console.error("Error processing dossiers:", error);
-    // if (!res.headersSent) 
+    // if (!res.headersSent)
     res.status(500).send("Error processing dossiers");
   }
 }
@@ -269,7 +273,7 @@ async function processDossiers(data, creator, res, language) {
 function extractDossierData(dossier, language, res) {
   try {
     // Extract fields from the dossier based on the language
-    console.log("extractDossierData dossier:", dossier["رقم الملف"]);
+    // console.log("extractDossierData dossier:", dossier["رقم الملف"]);
     if (language === "French") {
       return {
         num_dos: dossier["Ref demande"],
@@ -348,7 +352,7 @@ function extractDossierData(dossier, language, res) {
     }
   } catch (error) {
     console.error("Error extractDossierData:", error);
-    // if (!res.headersSent) 
+    // if (!res.headersSent)
     res.status(500).send("Error extractDossierData");
   }
 }
@@ -356,7 +360,7 @@ function extractDossierData(dossier, language, res) {
 async function updateExistingDossier(dossier, newData, creator, language, res) {
   try {
     // Extract data from the newData object based on the language
-    console.log("updateExistingDossier newData:");
+    // console.log("updateExistingDossier newData:");
     const {
       nom_dem,
       prenom_dem,
@@ -429,7 +433,8 @@ async function updateExistingDossier(dossier, newData, creator, language, res) {
           const conjoin = await Person.findById(
             dossier.id_conjoin[Ordre_conj - 1]
           );
-
+          if (num_conj == "2")
+            console.log("Updating conjoin:", Ordre_conj - 1);
           // update conjoin
           if (conjoin) {
             if (language === "French") {
@@ -496,7 +501,7 @@ async function updateExistingDossier(dossier, newData, creator, language, res) {
   } catch (error) {
     console.error("Error updateExistingDossier", error);
     // // if (!res.headersSent)
-      res.status(500).send("Error updateExistingDossier: ", dossier.num_dos);
+    res.status(500).send("Error updateExistingDossier: ", dossier.num_dos);
   }
 }
 
@@ -597,7 +602,7 @@ async function createNewDossier(dossier, creator, language, res, row) {
       }
     } else {
       // if (!res.headersSent)
-        res.status(400).send("الاسم غير موجود في السطر " + row);
+      res.status(400).send("الاسم غير موجود في السطر " + row);
     }
 
     var nb_conj = 0;
@@ -642,14 +647,14 @@ async function createNewDossier(dossier, creator, language, res, row) {
   } catch (error) {
     console.error("Error updateExistingDossier", error);
     // if (!res.headersSent)
-      res.status(500).send("Error updateExistingDossier: ", num_dos);
+    res.status(500).send("Error updateExistingDossier: ", num_dos);
   }
 }
 
 async function createConjoin(dossier1, language, creator, res) {
   try {
     // Extract data from the dossier object based on the language
-    console.log("createConjoin dossier1:");
+    // console.log("createConjoin dossier1:");
     const {
       prenom_conj,
       nom_conj,
@@ -726,10 +731,9 @@ async function createConjoin(dossier1, language, creator, res) {
           creator,
         });
     }
-
   } catch (error) {
     console.error("Error createConjoin", error);
-    // // if (!res.headersSent) 
+    // // if (!res.headersSent)
     res.status(500).send("Error createConjoin");
   }
 }

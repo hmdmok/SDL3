@@ -12,6 +12,9 @@ import {
   ENQUETCNL_LIST_FAIL,
   ENQUETCNL_LIST_REQUEST,
   ENQUETCNL_LIST_SUCCESS,
+  ENQUETCADASTRE_GET_REQUEST,
+  ENQUETCADASTRE_GET_SUCCESS,
+  ENQUETCADASTRE_GET_FAIL,
 } from "../constants/enquetCNLConstants";
 
 export const listEnquetCNLsAction =
@@ -125,6 +128,42 @@ export const getEnquetCNASAction =
     } catch (error) {
       dispatch({
         type: ENQUETCNAS_GET_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };
+
+export const getEnquetCadastreAction =
+  (dossierEnq) => async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: ENQUETCADASTRE_GET_REQUEST,
+      });
+      const {
+        userLogin: { userInfo },
+      } = getState();
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+        responseType: "arraybuffer",
+      };
+
+      const formData = { dossierEnq: dossierEnq };
+      const data = await axios.post(`/api/dossiers/enqCadastre`, formData, config);
+
+      dispatch({
+        type: ENQUETCADASTRE_GET_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: ENQUETCADASTRE_GET_FAIL,
         payload:
           error.response && error.response.data.message
             ? error.response.data.message

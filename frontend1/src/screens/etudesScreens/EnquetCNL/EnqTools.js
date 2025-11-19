@@ -6,6 +6,7 @@ import {
   getEnquetCNASAction,
   getEnquetCNLAction,
   getEnquetCASNOSAction,
+  getEnquetCadastreAction,
 } from "../../../actions/enquetCNLActions";
 import ErrorMessage from "../../../components/ErrorMessage";
 import Loading from "../../../components/Loading";
@@ -45,8 +46,21 @@ const EnqTools = () => {
     success: successCNAS,
   } = enquetCNASGet;
 
+  // for EnqCadastre
+  const enquetCadastreGet = useSelector((state) => state.enquetCadastreGet);
+  const {
+    loading: loadingCadastre,
+    enquetCadastres,
+    error: errorCadastre,
+    success: successCadastre,
+  } = enquetCadastreGet;
+
   const onGetEnqCNAS = (listDossierEnquet) => {
     dispatch(getEnquetCNASAction(listDossierEnquet));
+  };
+
+  const onGetEnqCadastre = (listDossierEnquet) => {
+    dispatch(getEnquetCadastreAction(listDossierEnquet));
   };
 
   useEffect(() => {
@@ -57,6 +71,33 @@ const EnqTools = () => {
       );
     }
   }, [dispatch, enquetCNASs, successCNAS]);
+
+  useEffect(() => {
+    if (successCadastre) {
+      fileDownload(
+        enquetCadastres.data,
+        enquetCadastres.headers["content-disposition"].split('"')[1]
+      );
+    }
+  }, [dispatch, enquetCadastres, successCadastre]);
+
+  useEffect(() => {
+    if (successCNAS) {
+      fileDownload(
+        enquetCNASs.data,
+        enquetCNASs.headers["content-disposition"].split('"')[1]
+      );
+    }
+  }, [dispatch, enquetCNASs, successCNAS]);
+
+  useEffect(() => {
+    if (successCadastre) {
+      fileDownload(
+        enquetCadastres.data,
+        enquetCadastres.headers["content-disposition"].split('"')[1]
+      );
+    }
+  }, [dispatch, enquetCadastres, successCadastre]);
 
   // for EnqCASNOS
   const enquetCASNOSGet = useSelector((state) => state.enquetCASNOSGet);
@@ -99,6 +140,14 @@ const EnqTools = () => {
         }}
       >
         انشاء ملف تحقيق CNAS لكل الملفات
+      </Button>
+      <Button
+        className="m-1 "
+        onClick={() => {
+          onGetEnqCadastre([]);
+        }}
+      >
+        انشاء ملف تحقيق Cadastre لكل الملفات
       </Button>
       <Button
         className="m-1 "
@@ -157,6 +206,10 @@ const EnqTools = () => {
         {loading && <Loading />}
         {errorCNAS && <ErrorMessage variant="danger">{errorCNAS}</ErrorMessage>}
         {loadingCNAS && <Loading />}
+        {errorCadastre && (
+          <ErrorMessage variant="danger">{errorCadastre}</ErrorMessage>
+        )}
+        {loadingCadastre && <Loading />}
         {errorCASNOS && (
           <ErrorMessage variant="danger">{errorCASNOS}</ErrorMessage>
         )}

@@ -66,6 +66,7 @@ import {
   enquetCNASGetReducer,
   enquetCASNOSGetReducer,
   enquetCNLListReducer,
+  enquetCadastreGetReducer,
 } from "./reducers/enquetCNLReducers";
 // import { importationDataReducer } from "./reducers/importationDataReducers";
 import { importationFichierReducer } from "./reducers/importationFichierReducers";
@@ -143,6 +144,7 @@ const reducer = combineReducers({
   enquetCNLList: enquetCNLListReducer,
   enquetCNLGet: enquetCNLGetReducer,
   enquetCNASGet: enquetCNASGetReducer,
+  enquetCadastreGet: enquetCadastreGetReducer,
   enquetCASNOSGet: enquetCASNOSGetReducer,
 });
 
