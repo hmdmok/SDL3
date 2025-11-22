@@ -14,8 +14,17 @@ const dossierSchema = mongoose.Schema(
     id_conjoin: {
       type: [String],
     },
+    id_demandeur_obj: {
+      type: mongoose.Schema.Types.ObjectId,
+    },
+    id_conjoin_obj: {
+      type: [mongoose.Schema.Types.ObjectId],
+    },
     date_depo: {
       type: String,
+    },
+    date_depo_dt: {
+      type: Date,
     },
     num_dos: {
       type: String,
@@ -67,6 +76,13 @@ const dossierSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Indexes to speed up common queries
+dossierSchema.index({ num_dos: 1 });
+dossierSchema.index({ id_commune: 1 });
+dossierSchema.index({ notes: -1 });
+// Add index for objectId fields (useful after one-time migration)
+dossierSchema.index({ id_demandeur_obj: 1 });
 
 const dossier = mongoose.model("dossier", dossierSchema);
 

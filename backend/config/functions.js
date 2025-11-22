@@ -125,6 +125,9 @@ const getGenderName = (gender, language) => {
 };
 
 function convertDateFormat(dateStr, outputType) {
+  // Ensure we always operate on a string to avoid runtime errors
+  dateStr =
+    typeof dateStr === "string" ? dateStr : dateStr ? String(dateStr) : "";
   // Helper function to add leading zero if needed
   function padZero(number) {
     return number < 10 ? "0" + number : number;
@@ -332,29 +335,31 @@ async function getFullDossier() {
 
   // Combine dossier data with person data
   const dossierEnq = dossies.map((dossier) => {
-    const demandeurInfo = personMap[dossier.id_demandeur] || null;
-    var conjoinInfo = [];
-    if (dossier.id_conjoin)
-      conjoinInfo = dossier.id_conjoin.map((id_conj) => {
-        const conjoin = personMap[id_conj] || null;
-        return conjoin;
-      });
+    // Always return a demandeur object (may be empty) to keep response shape stable
+    const demandeurInfo = personMap[dossier.id_demandeur] || {};
+    let conjoinInfo = [];
+    if (Array.isArray(dossier.id_conjoin) && dossier.id_conjoin.length > 0) {
+      conjoinInfo = dossier.id_conjoin.map(
+        (id_conj) => personMap[id_conj] || {}
+      );
+    }
 
-    if (conjoinInfo)
-      return {
-        ...dossier._doc,
-        demandeur: demandeurInfo,
-        conjoin: conjoinInfo,
-      };
-    else return { ...dossier._doc, demandeur: demandeurInfo };
+    const base = {
+      ...dossier._doc,
+      demandeur: demandeurInfo,
+    };
+
+    if (conjoinInfo.length > 0) base.conjoin = conjoinInfo;
+
+    return base;
   });
 
   return dossierEnq;
 }
 
 function sortByName(a, b, attribut, type) {
-  let x = a.demandeur[attribut].toLowerCase();
-  let y = b.demandeur[attribut].toLowerCase();
+  let x = (a.demandeur?.[attribut] || "").toLowerCase();
+  let y = (b.demandeur?.[attribut] || "").toLowerCase();
   if (type === "asc") {
     if (x < y) {
       return -1;
@@ -503,6 +508,9 @@ function countParentKeyMatches(
 const getSimilarityKey = (dossierByNotes, type) => {
   return dossierByNotes.map(function (item) {
     const demandeur = item.demandeur || {};
+    // Support both Mongoose Document (with _doc) and plain object
+    const demandeurSource =
+      demandeur && demandeur._doc ? demandeur._doc : demandeur || {};
     if (type === "ar")
       return {
         _id: item._id,
@@ -511,14 +519,21 @@ const getSimilarityKey = (dossierByNotes, type) => {
         notes: item.notes,
         remark: item.remark,
         demandeur: {
-          ...demandeur?._doc, // Spread existing demandeur properties
+          ...demandeurSource,
           brotherkey:
-            item.demandeur?.nom +
-              item.demandeur?.prenom_p +
-              item.demandeur?.nom_m +
-              item.demandeur?.prenom_m || null, // Add brotherkey with fallback
-          fatherkey: item.demandeur?.nom + item.demandeur?.prenom_p || null, // Add fatherkey with fallback
-          motherkey: item.demandeur?.nom_m + item.demandeur?.prenom_m || null, // Add motherkey with fallback
+            (demandeurSource.nom || item.demandeur?.nom || "") +
+              (demandeurSource.prenom_p || item.demandeur?.prenom_p || "") +
+              (demandeurSource.nom_m || item.demandeur?.nom_m || "") +
+              (demandeurSource.prenom_m || item.demandeur?.prenom_m || "") ||
+            null,
+          fatherkey:
+            (demandeurSource.nom || item.demandeur?.nom || "") +
+              (demandeurSource.prenom_p || item.demandeur?.prenom_p || "") ||
+            null,
+          motherkey:
+            (demandeurSource.nom_m || item.demandeur?.nom_m || "") +
+              (demandeurSource.prenom_m || item.demandeur?.prenom_m || "") ||
+            null,
         },
       };
     else
@@ -529,16 +544,26 @@ const getSimilarityKey = (dossierByNotes, type) => {
         notes: item.notes,
         remark: item.remark_fr,
         demandeur: {
-          ...demandeur?._doc, // Spread existing demandeur properties
+          ...demandeurSource,
           brotherkey:
-            item.demandeur?.nom_fr +
-              item.demandeur?.prenom_p_fr +
-              item.demandeur?.nom_m_fr +
-              item.demandeur?.prenom_m_fr || null, // Add brotherkey with fallback
+            (demandeurSource.nom_fr || item.demandeur?.nom_fr || "") +
+              (demandeurSource.prenom_p_fr ||
+                item.demandeur?.prenom_p_fr ||
+                "") +
+              (demandeurSource.nom_m_fr || item.demandeur?.nom_m_fr || "") +
+              (demandeurSource.prenom_m_fr ||
+                item.demandeur?.prenom_m_fr ||
+                "") || null,
           fatherkey:
-            item.demandeur?.nom_fr + item.demandeur?.prenom_p_fr || null, // Add fatherkey with fallback
+            (demandeurSource.nom_fr || item.demandeur?.nom_fr || "") +
+              (demandeurSource.prenom_p_fr ||
+                item.demandeur?.prenom_p_fr ||
+                "") || null,
           motherkey:
-            item.demandeur?.nom_m_fr + item.demandeur?.prenom_m_fr || null, // Add motherkey with fallback
+            (demandeurSource.nom_m_fr || item.demandeur?.nom_m_fr || "") +
+              (demandeurSource.prenom_m_fr ||
+                item.demandeur?.prenom_m_fr ||
+                "") || null,
         },
       };
   });

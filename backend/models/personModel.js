@@ -29,6 +29,9 @@ const personSchema = mongoose.Schema(
     date_n: {
       type: String,
     },
+    date_n_dt: {
+      type: Date,
+    },
     lieu_n: {
       type: String,
     },
@@ -88,6 +91,10 @@ const personSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Indexes for faster name searches
+personSchema.index({ nom_fr: 1, prenom_fr: 1 });
+personSchema.index({ nom: 1, prenom: 1 });
 
 const person = mongoose.model("person", personSchema);
 

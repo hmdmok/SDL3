@@ -46,23 +46,37 @@ const SingleDossier = ({ dossierMap, setShowPopup, setIdToDel }) => {
   return (
     <div className="">
       <Card style={{ display: "flex", flexDirection: "row-reverse" }}>
-        <ListGroup variant="flush" style={{ width: "9rem" }}>
-          <Badge style={{ height: "40px" }}>
-            {dossierMap?.demandeur?.nom_fr}
-          </Badge>
-        </ListGroup>
+        {(() => {
+          // resilient getters: some endpoints return demandeur as object, others project fields at top level
+          const nomFr =
+            dossierMap?.demandeur?.nom_fr ||
+            dossierMap?.nom_fr ||
+            dossierMap?.demandeurNomFr ||
+            "";
+          const prenomFr =
+            dossierMap?.demandeur?.prenom_fr ||
+            dossierMap?.prenom_fr ||
+            dossierMap?.demandeurPrenomFr ||
+            "";
+          const dateN =
+            dossierMap?.demandeur?.date_n || dossierMap?.date_n || "";
 
-        <ListGroup variant="flush" style={{ width: "9rem" }}>
-          <Badge style={{ height: "40px" }}>
-            {dossierMap?.demandeur?.prenom_fr}
-          </Badge>
-        </ListGroup>
+          return (
+            <>
+              <ListGroup variant="flush" style={{ width: "9rem" }}>
+                <Badge style={{ height: "40px" }}>{nomFr}</Badge>
+              </ListGroup>
 
-        <ListGroup variant="flush" style={{ width: "9rem" }}>
-          <Badge style={{ height: "40px" }}>
-            {dossierMap?.demandeur?.date_n}
-          </Badge>
-        </ListGroup>
+              <ListGroup variant="flush" style={{ width: "9rem" }}>
+                <Badge style={{ height: "40px" }}>{prenomFr}</Badge>
+              </ListGroup>
+
+              <ListGroup variant="flush" style={{ width: "9rem" }}>
+                <Badge style={{ height: "40px" }}>{dateN}</Badge>
+              </ListGroup>
+            </>
+          );
+        })()}
 
         <ListGroup variant="flush" style={{ width: "7rem" }}>
           <Badge style={{ height: "40px" }}>{dossierMap?.num_dos}</Badge>

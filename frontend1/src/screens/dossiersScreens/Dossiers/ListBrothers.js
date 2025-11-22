@@ -52,22 +52,26 @@ function ListBrothers({
         </Card>
       </div>
       {dossiers?.map((dossierMap, index) => {
+        const main = dossierMap?.mainDossier || {};
+        const groupKey = main.matchId || main._id || `group-${index}`;
         return (
-          <>
+          <div key={groupKey}>
             {showBrothersList !== "List" && (
               <div className="">
                 <SingleBrothergroup
-                  dossierMap={dossierMap?.mainDossier}
-                  key={index}
+                  dossierMap={main}
+                  key={main.matchId || main._id || `main-${index}`}
                   setShowPopup={setShowPopup}
                   deleteHandler={deleteHandler}
                   setIdToDel={setIdToDel}
                 />
                 {dossierMap?.brothers?.map((brother, index2) => {
+                  const bKey =
+                    brother.matchId || brother._id || `${groupKey}-b-${index2}`;
                   return (
                     <SingleBrothergroup
                       dossierMap={brother}
-                      key={index2}
+                      key={bKey}
                       setShowPopup={setShowPopup}
                       deleteHandler={deleteHandler}
                       setIdToDel={setIdToDel}
@@ -77,34 +81,7 @@ function ListBrothers({
                 <hr />
               </div>
             )}
-
-            {/* {showBrothersList === "MotherBrothers" &&
-              dossierMap?.demandeur?.listOfMotherBrothers?.length > 0 && (
-                <div className="">
-                  <SingleBrothergroup
-                    key={dossierMap._id + Math.random()}
-                    dossierMap={dossierMap}
-                    setShowPopup={setShowPopup}
-                    deleteHandler={deleteHandler}
-                    setIdToDel={setIdToDel}
-                  />
-                  {dossierMap?.demandeur?.listOfMotherBrothers?.map(
-                    (brother, index3) => {
-                      return (
-                        <SingleBrothergroup
-                          key={brother.matchId + index3 + Math.random()}
-                          dossierMap={brother}
-                          setShowPopup={setShowPopup}
-                          deleteHandler={deleteHandler}
-                          setIdToDel={setIdToDel}
-                        />
-                      );
-                    }
-                  )}
-                  <hr />
-                </div>
-              )} */}
-          </>
+          </div>
         );
       })}
     </ListGroup>

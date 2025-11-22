@@ -120,7 +120,15 @@ export const listDossiersAction =
         },
       };
 
-      const url = `/api/dossiers/filtred?page=${page}&limit=${limit}&search=${search}&sort=${sort?.sort},${sort?.order}&fromDate=${fromDate}&toDate=${toDate}&p_m_35_de=${p_m_35_de?.dateEtude},${p_m_35_de?.type}&p_m_35_dd=${p_m_35_dd}&stuation_f=${situationFamiliale}`;
+      const url = `/api/dossiers/paged?page=${page}&limit=${limit}&search=${encodeURIComponent(
+        search || ""
+      )}&sort=${sort?.sort},${
+        sort?.order
+      }&fromDate=${fromDate}&toDate=${toDate}&p_m_35_de=${
+        p_m_35_de?.dateEtude
+      },${
+        p_m_35_de?.type
+      }&p_m_35_dd=${p_m_35_dd}&stuation_f=${situationFamiliale}`;
 
       const { data } = await axios.get(url, config);
       dispatch({
@@ -167,7 +175,15 @@ export const listBrothersDossiersAction =
         },
       };
 
-      const url = `/api/dossiers/brothers/filtred?page=${page}&limit=${limit}&search=${search}&sort=${sort?.sort},${sort?.order}&fromDate=${fromDate}&toDate=${toDate}&p_m_35_de=${p_m_35_de?.dateEtude},${p_m_35_de?.type}&p_m_35_dd=${p_m_35_dd}&stuation_f=${situationFamiliale}`;
+      const url = `/api/dossiers/brothers/paged?page=${page}&limit=${limit}&search=${encodeURIComponent(
+        search || ""
+      )}&sort=${sort?.sort},${
+        sort?.order
+      }&fromDate=${fromDate}&toDate=${toDate}&p_m_35_de=${
+        p_m_35_de?.dateEtude
+      },${
+        p_m_35_de?.type
+      }&p_m_35_dd=${p_m_35_dd}&stuation_f=${situationFamiliale}`;
 
       const { data } = await axios.get(url, config);
       dispatch({

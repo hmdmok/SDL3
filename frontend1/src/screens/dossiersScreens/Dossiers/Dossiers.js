@@ -43,6 +43,8 @@ function Dossiers() {
   };
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
+  const [fatherPage, setFatherPage] = useState(1);
+  const [motherPage, setMotherPage] = useState(1);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState({ sort: "notes", order: "desc" });
   const [fromDate, setFromDate] = useState("");
@@ -55,6 +57,7 @@ function Dossiers() {
   const [showBrothersList, setShowBrothetherList] = useState("List"); // State to control popup visibility
   const [idToDel, setIdToDel] = useState(null); // State to control popup visibility
 
+  // Fetch main dossiers — depends only on main page and filters
   useEffect(() => {
     dispatch(
       listDossiersAction(
@@ -69,22 +72,73 @@ function Dossiers() {
         situationFamiliale
       )
     );
-    dispatch(
-      listBrothersDossiersAction(
-        page,
-        limit,
-        search,
-        sort,
-        fromDate,
-        toDate,
-        p_m_35_dd,
-        p_m_35_de,
-        situationFamiliale
-      )
-    );
   }, [
     dispatch,
     successDossierDelete,
+    page,
+    limit,
+    search,
+    sort,
+    fromDate,
+    toDate,
+    p_m_35_dd,
+    p_m_35_de,
+    situationFamiliale,
+    dateEtude,
+  ]);
+
+  // Fetch brothers lists — only fetches when the active brother view or its page changes
+  useEffect(() => {
+    if (showBrothersList === "FatherBrothers") {
+      dispatch(
+        listBrothersDossiersAction(
+          fatherPage,
+          limit,
+          search,
+          sort,
+          fromDate,
+          toDate,
+          p_m_35_dd,
+          p_m_35_de,
+          situationFamiliale
+        )
+      );
+    } else if (showBrothersList === "MotherBrothers") {
+      dispatch(
+        listBrothersDossiersAction(
+          motherPage,
+          limit,
+          search,
+          sort,
+          fromDate,
+          toDate,
+          p_m_35_dd,
+          p_m_35_de,
+          situationFamiliale
+        )
+      );
+    } else {
+      // overview/stats view: fetch with main page to populate summary
+      dispatch(
+        listBrothersDossiersAction(
+          page,
+          limit,
+          search,
+          sort,
+          fromDate,
+          toDate,
+          p_m_35_dd,
+          p_m_35_de,
+          situationFamiliale
+        )
+      );
+    }
+  }, [
+    dispatch,
+    successDossierDelete,
+    showBrothersList,
+    fatherPage,
+    motherPage,
     page,
     limit,
     search,
@@ -131,15 +185,44 @@ function Dossiers() {
         )}
       </div>
       <ListGroup>
-        <Tools
-          limit={dossiers?.limit ? dossiers.limit : 20}
-          total={dossiers?.total ? dossiers.total : 0}
-          data={dossiers?.data ? dossiers.data : {}}
-          totalArray={dossiers?.totalArray ? dossiers.totalArray : {}}
-          setPage={setPage}
-          page={page}
-          key={"tools"}
-        />
+        {/* Show Tools for main dossiers or for brother views using the server-paged response */}
+        {showBrothersList === "List" && (
+          <Tools
+            limit={dossiers?.limit ? dossiers.limit : 20}
+            total={dossiers?.total ? dossiers.total : 0}
+            data={dossiers?.data ? dossiers.data : {}}
+            totalArray={dossiers?.totalArray ? dossiers.totalArray : {}}
+            setPage={setPage}
+            page={page}
+            key={"tools"}
+          />
+        )}
+        {showBrothersList === "FatherBrothers" && (
+          <Tools
+            limit={brothers?.limit ? brothers.limit : 20}
+            total={brothers?.total ? brothers.total : 0}
+            data={
+              brothers?.fatherBrothersList ? brothers.fatherBrothersList : []
+            }
+            totalArray={brothers?.totalArray ? brothers.totalArray : {}}
+            setPage={setFatherPage}
+            page={fatherPage}
+            key={"tools-father"}
+          />
+        )}
+        {showBrothersList === "MotherBrothers" && (
+          <Tools
+            limit={brothers?.limit ? brothers.limit : 20}
+            total={brothers?.total ? brothers.total : 0}
+            data={
+              brothers?.motherBrothersList ? brothers.motherBrothersList : []
+            }
+            totalArray={brothers?.totalArray ? brothers.totalArray : {}}
+            setPage={setMotherPage}
+            page={motherPage}
+            key={"tools-mother"}
+          />
+        )}
       </ListGroup>
       <MainScreen title={"البحث عبر الملفات "}>
         <div className="rigthPanel">

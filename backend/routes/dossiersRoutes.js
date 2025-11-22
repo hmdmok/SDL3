@@ -10,7 +10,9 @@ const {
   deleteDossier,
   getDossierByFilters,
   getDossierBrothersByFilters,
+  getDossierBrothersPaged,
   getDossierByNumDoss,
+  getDossiersPaged,
 } = require("../controllers/dossiersControllers");
 const {
   getEnquetCNLFileTest,
@@ -62,16 +64,18 @@ const router = express.Router();
 
 router.route("/").get(getDossiers);
 router.route("/filtred").get(getDossierByFilters);
+router.route("/paged").get(getDossiersPaged);
 router.route("/brothers/filtred").get(getDossierBrothersByFilters);
+router.route("/brothers/paged").get(getDossierBrothersPaged);
 router
   .route("/:id")
   .get(getDossierById)
-  .put(updateDossier)
-  .delete(deleteDossier);
+  .put(protect, updateDossier)
+  .delete(protect, deleteDossier);
 router
   .route("/num/:num_dos")
-  .post(uploadPersonPhoto.single("photo_link"), getDossierByNumDoss);
-router.route("/create").post(createDossier);
+  .post(protect, uploadPersonPhoto.single("photo_link"), getDossierByNumDoss);
+router.route("/create").post(protect, createDossier);
 router.route("/enquetCNLs").post(getDossierByDates);
 router.route("/enqCNL").post(getEnquetCNLFile);
 router.route("/listBenefisiers").post(getListBenefisiersFile);
