@@ -1,13 +1,6 @@
 const asyncHandler = require("express-async-handler");
-const Dossier = require("../models/dossierModel");
-const Person = require("../models/personModel");
-const Notes = require("../models/notesModel");
 const DossierEnq = require("../models/dossierEnqModel");
-const Enquete = require("../models/enqueteModel");
-const generateToken = require("../utils/generateToken");
-const { calculate } = require("./CalculeNotesDossier");
 const XLSX = require("sheetjs-style");
-const ADODB = require("node-adodb");
 const {
   convertDateFormat,
   sanitizeInput,
@@ -15,15 +8,12 @@ const {
   compressFolderToZip,
   getFullDossier,
   getAlphabet,
-  getCivility,
-  getGenderName,
   processDossier,
   processDossierBrothers,
   getSimilarityKey,
   segregateBrothersLists,
 } = require("../config/functions");
 const fs = require("fs");
-const { DBFFile } = require("dbffile");
 const ExcelJS = require("exceljs");
 const System = require("../models/systemModel");
 const path = require("path");
@@ -178,7 +168,7 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
   };
 
   ["A2", "A3", "A4", "A5", "I6", "I7"].forEach((cell) => {
-    worksheet[cell].s = cellStyles.title;
+    if (worksheet[cell]) worksheet[cell].s = cellStyles.title;
   });
 
   getAlphabet("fr").forEach((letter) => {
@@ -188,7 +178,7 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
   });
   let index = 0;
   selectedDossiers.forEach((record, i) => {
-    const rowIndex = index + 10 + i;
+    let rowIndex = index + 10 + i;
 
     XLSX.utils.sheet_add_aoa(worksheet, [[record.num_dos]], {
       origin: `A${rowIndex}`,
@@ -245,8 +235,15 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
       if (record.conjoin) {
         record.conjoin.forEach((person, x) => {
           if (person) {
+            if (x > 0) {
+              rowIndex++;
+              XLSX.utils.sheet_add_aoa(worksheet, [[record.num_dos]], {
+                origin: `A${rowIndex}`,
+              });
+              addPersonData(record.demandeur, "D");
+              index++;
+            }
             addPersonData(person, "C");
-            x > 0 ? index++ : index;
           }
         });
       }
@@ -254,6 +251,9 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
     }
   });
   const newFileName = `generatedEnq/newEnquetCNL_${new Date().toDateString()}.xlsx`;
+  // ensure output directory exists
+  if (!fs.existsSync(path.dirname(newFileName)))
+    fs.mkdirSync(path.dirname(newFileName), { recursive: true });
   XLSX.writeFile(workbook, newFileName, {
     cellStyles: true,
   });
@@ -274,14 +274,18 @@ const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
     const dateTimeString = getCurrentDateTimeString();
     const folderPath = `generatedEnq/CASNOS_${dateTimeString}`;
 
-    // Create the folder
-    fs.mkdirSync(folderPath);
+    // Create the folder (recursive safe)
+    if (!fs.existsSync(folderPath))
+      fs.mkdirSync(folderPath, { recursive: true });
 
     let newData = [];
     let fileCounter = 1;
 
     const processDossierBatch = async (dossiersBatch) => {
-      createRecord(dossiersBatch, newData, "CASNOS");
+      // accumulate records for this batch
+      for (const d of dossiersBatch) {
+        createRecord(d, newData, "CASNOS");
+      }
 
       const fileName = path.join(
         folderPath,
@@ -296,12 +300,10 @@ const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
       fileCounter++; // Increment the file counter
     };
 
-    for (let i = 0; i < dossierEnq.length; i++) {
-      createRecord(dossierEnq[i], newData, "CASNOS");
-
-      if ((i + 1) % 100 === 0 || i === dossierEnq.length - 1) {
-        await processDossierBatch(dossierEnq.slice(i - 99, i + 1));
-      }
+    // process in batches of 100
+    for (let i = 0; i < dossierEnq.length; i += 100) {
+      const batch = dossierEnq.slice(i, i + 100);
+      await processDossierBatch(batch);
     }
 
     await compressFolderToZip(folderPath);
@@ -336,11 +338,13 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
     }
 
     const fileName = `generatedEnq/new_EnquetCNAS.xlsx`;
+    if (!fs.existsSync(path.dirname(fileName)))
+      fs.mkdirSync(path.dirname(fileName), { recursive: true });
     const newWB = XLSX.utils.book_new();
     const newWS = XLSX.utils.json_to_sheet(newData);
     XLSX.utils.book_append_sheet(newWB, newWS, "Table1");
     XLSX.writeFile(newWB, fileName);
-    const fileCNAS = `new_EnquetCNAS.xlsx`;
+    const fileCNAS = fileName;
 
     res.download(fileCNAS);
   } catch (error) {
@@ -370,13 +374,15 @@ const getEnquetCadastreFile = asyncHandler(async (req, res) => {
     }
 
     const fileName = `generatedEnq/new_EnquetCadastre.xlsx`;
+    if (!fs.existsSync(path.dirname(fileName)))
+      fs.mkdirSync(path.dirname(fileName), { recursive: true });
     const newWB = XLSX.utils.book_new();
     const newWS = XLSX.utils.json_to_sheet(newData);
     XLSX.utils.book_append_sheet(newWB, newWS, "Table1");
     XLSX.writeFile(newWB, fileName);
-    const fileCNAS = `new_EnquetCadastre.xlsx`;
+    const fileCadastre = fileName;
 
-    res.download(fileCNAS);
+    res.download(fileCadastre);
   } catch (error) {
     console.error("Error creating enqCNAS file:", error);
     res.status(500).json("Error creating enqCNAS");
@@ -390,12 +396,14 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
     const data = await getFullDossier();
     const systemInfo = await System.findOne();
 
-    let dossiers =
-      dossiersList.length > 0
-        ? await dossiersList.map((e) =>
-            data.find((d) => d._id.toString() === e)
-          )
-        : data;
+    let dossiers;
+    if (dossiersList.length > 0) {
+      dossiers = dossiersList
+        .map((e) => data.find((d) => d._id.toString() === e))
+        .filter(Boolean);
+    } else {
+      dossiers = data;
+    }
     console.log("dossiersList: ", dossiersList);
     const dossierBrothers = await segregateBrothersLists(
       await getSimilarityKey(dossiers, "ar")
