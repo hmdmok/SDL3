@@ -253,7 +253,7 @@ const getEnquetCNLFile = asyncHandler(async (req, res) => {
       // index++;
     }
   });
-  const newFileName = `newEnquetCNL_${new Date().toDateString()}.xlsx`;
+  const newFileName = `generatedEnq/newEnquetCNL_${new Date().toDateString()}.xlsx`;
   XLSX.writeFile(workbook, newFileName, {
     cellStyles: true,
   });
@@ -272,7 +272,7 @@ const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
         : data;
 
     const dateTimeString = getCurrentDateTimeString();
-    const folderPath = path.join(__dirname, `CASNOS_${dateTimeString}`);
+    const folderPath = `generatedEnq/CASNOS_${dateTimeString}`;
 
     // Create the folder
     fs.mkdirSync(folderPath);
@@ -335,7 +335,7 @@ const getEnquetCNASFile = asyncHandler(async (req, res) => {
       createRecord(dossierEnq[i], newData, "CNAS");
     }
 
-    const fileName = `new_EnquetCNAS.xlsx`;
+    const fileName = `generatedEnq/new_EnquetCNAS.xlsx`;
     const newWB = XLSX.utils.book_new();
     const newWS = XLSX.utils.json_to_sheet(newData);
     XLSX.utils.book_append_sheet(newWB, newWS, "Table1");
@@ -369,7 +369,7 @@ const getEnquetCadastreFile = asyncHandler(async (req, res) => {
       createRecord(dossierEnq[i], newData, "Cadastre");
     }
 
-    const fileName = `new_EnquetCadastre.xlsx`;
+    const fileName = `generatedEnq/new_EnquetCadastre.xlsx`;
     const newWB = XLSX.utils.book_new();
     const newWS = XLSX.utils.json_to_sheet(newData);
     XLSX.utils.book_append_sheet(newWB, newWS, "Table1");
