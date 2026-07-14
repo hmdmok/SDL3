@@ -32,3 +32,4 @@ yarn-debug.log*
 yarn-error.log*
 node_modules
 personsPicUpload"node_modules/" 
+".env" 
