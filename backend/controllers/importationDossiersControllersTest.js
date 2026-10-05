@@ -18,12 +18,12 @@ const correctionDB = asyncHandler(async (req, res) => {
   //fix the dossiers that dont have id_commune set
   const updateResult = await Dossier.updateMany(
     { id_commune: { $exists: false } }, // Filter for documents without 'Id_commune'
-    { $set: { id_commune: systemInfo.communeCode } } // Set 'Id_commune' to your default value
+    { $set: { id_commune: systemInfo.communeCode } }, // Set 'Id_commune' to your default value
   );
 
   //fix the database from dossiers that have no demandeur
   const deleteDossWithNoDemResult = await Dossier.deleteMany(
-    { id_demandeur: { $exists: false } } // Delete documents without 'id_demandeur'
+    { id_demandeur: { $exists: false } }, // Delete documents without 'id_demandeur'
   );
   console.log("fixing:", deleteDossWithNoDemResult);
 
@@ -149,7 +149,7 @@ const correctionDB = asyncHandler(async (req, res) => {
   console.log(`Deleted ${deleteResult.deletedCount} duplicate documents`);
   // // if (!res.headersSent)
   res.json(
-    `${updateResult.modifiedCount} id_commune documents were updated, and ${deleteDossWithNoDemResult.deletedCount} documents were deleted.`
+    `${updateResult.modifiedCount} id_commune documents were updated, and ${deleteDossWithNoDemResult.deletedCount} documents were deleted.`,
   );
 });
 
@@ -240,7 +240,7 @@ async function processDossiers(data, creator, res, language) {
         const existingDossier = await Dossier.findOne({ num_dos: numKey });
         if (existingDossier) {
           let dossiers = await data2.find(
-            (d) => d._id.toString() === existingDossier._id.toString()
+            (d) => d._id.toString() === existingDossier._id.toString(),
           );
           numDos.push({
             _id: dossiers._id,
@@ -271,7 +271,7 @@ async function processDossiers(data, creator, res, language) {
                 existingDossier,
                 extra,
                 creator,
-                language
+                language,
               );
             }
           }
@@ -291,7 +291,7 @@ async function processDossiers(data, creator, res, language) {
                   createdDossier,
                   extra,
                   creator,
-                  language
+                  language,
                 );
               }
             }
@@ -307,7 +307,7 @@ async function processDossiers(data, creator, res, language) {
       res
         .status(200)
         .send(
-          `${dossierAddedCount} added, and ${dossierUpdatedCount} updated of ${dossiersCount} dossiers.`
+          `${dossierAddedCount} added, and ${dossierUpdatedCount} updated of ${dossiersCount} dossiers.`,
         );
   } catch (error) {
     console.log("Error processing dossiers:", error);
@@ -400,7 +400,7 @@ function extractDossierData(dossier, language, res) {
     console.error("Error extractDossierData:", error);
     throw new Error(
       "Error extractDossierData: " +
-        (error && error.message ? error.message : error)
+        (error && error.message ? error.message : error),
     );
   }
 }
@@ -479,7 +479,7 @@ async function updateExistingDossier(dossier, newData, creator, language) {
         if (dossier.id_conjoin[Ordre_conj - 1]) {
           // get conjoin
           const conjoin = await Person.findById(
-            dossier.id_conjoin[Ordre_conj - 1]
+            dossier.id_conjoin[Ordre_conj - 1],
           );
           // if (num_conj == "2") console.log("Updating conjoin:", Ordre_conj - 1);
           // update conjoin
@@ -551,7 +551,7 @@ async function updateExistingDossier(dossier, newData, creator, language) {
       "Error updateExistingDossier: " +
         (dossier?.num_dos || dossier?._id || "unknown") +
         " - " +
-        (error && error.message ? error.message : error)
+        (error && error.message ? error.message : error),
     );
   }
 }
@@ -700,7 +700,7 @@ async function createNewDossier(dossier, creator, language, row) {
       "Error createNewDossier: " +
         (num_dos || "unknown") +
         " - " +
-        (error && error.message ? error.message : error)
+        (error && error.message ? error.message : error),
     );
   }
 }
@@ -788,7 +788,8 @@ async function createConjoin(dossier1, language, creator) {
   } catch (error) {
     console.error("Error createConjoin", error);
     throw new Error(
-      "Error createConjoin: " + (error && error.message ? error.message : error)
+      "Error createConjoin: " +
+        (error && error.message ? error.message : error),
     );
   }
 }

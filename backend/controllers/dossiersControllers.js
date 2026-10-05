@@ -120,35 +120,35 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
       if (p_m_35_de_value.type === "m") {
         return (
           new Date(
-            convertDateFormat(dossier.demandeur?.date_n).jsDate
+            convertDateFormat(dossier.demandeur?.date_n).jsDate,
           ).getTime() >
           new Date(
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
             ).getFullYear() - 35,
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
             ).getMonth(),
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
-            ).getDate()
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
+            ).getDate(),
           ).getTime()
         );
       } else if (p_m_35_de_value.type === "p") {
         return (
           new Date(
-            convertDateFormat(dossier.demandeur?.date_n).jsDate
+            convertDateFormat(dossier.demandeur?.date_n).jsDate,
           ).getTime() <=
           new Date(
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
             ).getFullYear() - 35,
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
             ).getMonth(),
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
-            ).getDate()
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
+            ).getDate(),
           ).getTime()
         );
       } else {
@@ -160,27 +160,27 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
       if (p_m_35_dd === "m") {
         return (
           new Date(
-            convertDateFormat(dossier.demandeur?.date_n).jsDate
+            convertDateFormat(dossier.demandeur?.date_n).jsDate,
           ).getTime() >
           new Date(
             new Date(
-              convertDateFormat(dossier.date_depo).jsDate
+              convertDateFormat(dossier.date_depo).jsDate,
             ).getFullYear() - 35,
             new Date(convertDateFormat(dossier.date_depo).jsDate).getMonth(),
-            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate()
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate(),
           ).getTime()
         );
       } else if (p_m_35_dd === "p") {
         return (
           new Date(
-            convertDateFormat(dossier.demandeur?.date_n).jsDate
+            convertDateFormat(dossier.demandeur?.date_n).jsDate,
           ).getTime() <=
           new Date(
             new Date(
-              convertDateFormat(dossier.date_depo).jsDate
+              convertDateFormat(dossier.date_depo).jsDate,
             ).getFullYear() - 35,
             new Date(convertDateFormat(dossier.date_depo).jsDate).getMonth(),
-            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate()
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate(),
           ).getTime()
         );
       } else {
@@ -203,7 +203,7 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
       if (fromDate !== "") {
         fdCheck = !(
           new Date(
-            convertDateFormat(dossier.date_depo, "S").jsDate
+            convertDateFormat(dossier.date_depo, "S").jsDate,
           ).getTime() <=
           new Date(convertDateFormat(fromDate, "S").jsDate).getTime()
         );
@@ -211,7 +211,7 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
       if (toDate) {
         tdCheck = !(
           new Date(
-            convertDateFormat(dossier.date_depo, "S").jsDate
+            convertDateFormat(dossier.date_depo, "S").jsDate,
           ).getTime() >=
           new Date(convertDateFormat(toDate, "S").jsDate).getTime()
         );
@@ -249,19 +249,19 @@ const getDossierByFilters = asyncHandler(async (req, res) => {
           if (sort.type === "asc") {
             return (
               new Date(
-                convertDateFormat(b.demandeur.date_n, "S").jsDate
+                convertDateFormat(b.demandeur.date_n, "S").jsDate,
               ).getTime() -
               new Date(
-                convertDateFormat(a.demandeur.date_n, "S").jsDate
+                convertDateFormat(a.demandeur.date_n, "S").jsDate,
               ).getTime()
             );
           } else if (sort.type === "desc") {
             return (
               new Date(
-                convertDateFormat(a.demandeur.date_n, "S").jsDate
+                convertDateFormat(a.demandeur.date_n, "S").jsDate,
               ).getTime() -
               new Date(
-                convertDateFormat(b.demandeur.date_n, "S").jsDate
+                convertDateFormat(b.demandeur.date_n, "S").jsDate,
               ).getTime()
             );
           }
@@ -667,35 +667,35 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
       if (p_m_35_de_value.type === "m") {
         return (
           new Date(
-            convertDateFormat(dossier.demandeur?.date_n).jsDate
+            convertDateFormat(dossier.demandeur?.date_n).jsDate,
           ).getTime() >
           new Date(
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
             ).getFullYear() - 35,
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
             ).getMonth(),
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
-            ).getDate()
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
+            ).getDate(),
           ).getTime()
         );
       } else if (p_m_35_de_value.type === "p") {
         return (
           new Date(
-            convertDateFormat(dossier.demandeur?.date_n).jsDate
+            convertDateFormat(dossier.demandeur?.date_n).jsDate,
           ).getTime() <=
           new Date(
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
             ).getFullYear() - 35,
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
             ).getMonth(),
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
-            ).getDate()
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
+            ).getDate(),
           ).getTime()
         );
       } else {
@@ -707,27 +707,27 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
       if (p_m_35_dd === "m") {
         return (
           new Date(
-            convertDateFormat(dossier.demandeur?.date_n).jsDate
+            convertDateFormat(dossier.demandeur?.date_n).jsDate,
           ).getTime() >
           new Date(
             new Date(
-              convertDateFormat(dossier.date_depo).jsDate
+              convertDateFormat(dossier.date_depo).jsDate,
             ).getFullYear() - 35,
             new Date(convertDateFormat(dossier.date_depo).jsDate).getMonth(),
-            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate()
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate(),
           ).getTime()
         );
       } else if (p_m_35_dd === "p") {
         return (
           new Date(
-            convertDateFormat(dossier.demandeur?.date_n).jsDate
+            convertDateFormat(dossier.demandeur?.date_n).jsDate,
           ).getTime() <=
           new Date(
             new Date(
-              convertDateFormat(dossier.date_depo).jsDate
+              convertDateFormat(dossier.date_depo).jsDate,
             ).getFullYear() - 35,
             new Date(convertDateFormat(dossier.date_depo).jsDate).getMonth(),
-            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate()
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate(),
           ).getTime()
         );
       } else {
@@ -750,7 +750,7 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
       if (fromDate !== "") {
         fdCheck = !(
           new Date(
-            convertDateFormat(dossier.date_depo, "S").jsDate
+            convertDateFormat(dossier.date_depo, "S").jsDate,
           ).getTime() <=
           new Date(convertDateFormat(fromDate, "S").jsDate).getTime()
         );
@@ -758,7 +758,7 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
       if (toDate) {
         tdCheck = !(
           new Date(
-            convertDateFormat(dossier.date_depo, "S").jsDate
+            convertDateFormat(dossier.date_depo, "S").jsDate,
           ).getTime() >=
           new Date(convertDateFormat(toDate, "S").jsDate).getTime()
         );
@@ -796,19 +796,19 @@ const getDossierBrothersByFilters = asyncHandler(async (req, res) => {
           if (sort.type === "asc") {
             return (
               new Date(
-                convertDateFormat(b.demandeur.date_n, "S").jsDate
+                convertDateFormat(b.demandeur.date_n, "S").jsDate,
               ).getTime() -
               new Date(
-                convertDateFormat(a.demandeur.date_n, "S").jsDate
+                convertDateFormat(a.demandeur.date_n, "S").jsDate,
               ).getTime()
             );
           } else if (sort.type === "desc") {
             return (
               new Date(
-                convertDateFormat(a.demandeur.date_n, "S").jsDate
+                convertDateFormat(a.demandeur.date_n, "S").jsDate,
               ).getTime() -
               new Date(
-                convertDateFormat(b.demandeur.date_n, "S").jsDate
+                convertDateFormat(b.demandeur.date_n, "S").jsDate,
               ).getTime()
             );
           }
@@ -1020,35 +1020,35 @@ const getDossierBrothersPaged = asyncHandler(async (req, res) => {
       if (p_m_35_de_value.type === "m") {
         return (
           new Date(
-            convertDateFormat(dossier.demandeur?.date_n).jsDate
+            convertDateFormat(dossier.demandeur?.date_n).jsDate,
           ).getTime() >
           new Date(
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
             ).getFullYear() - 35,
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
             ).getMonth(),
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
-            ).getDate()
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
+            ).getDate(),
           ).getTime()
         );
       } else if (p_m_35_de_value.type === "p") {
         return (
           new Date(
-            convertDateFormat(dossier.demandeur?.date_n).jsDate
+            convertDateFormat(dossier.demandeur?.date_n).jsDate,
           ).getTime() <=
           new Date(
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
             ).getFullYear() - 35,
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
             ).getMonth(),
             new Date(
-              convertDateFormat(p_m_35_de_value.date_etude).jsDate
-            ).getDate()
+              convertDateFormat(p_m_35_de_value.date_etude).jsDate,
+            ).getDate(),
           ).getTime()
         );
       } else {
@@ -1061,27 +1061,27 @@ const getDossierBrothersPaged = asyncHandler(async (req, res) => {
       if (p_m_35_dd === "m") {
         return (
           new Date(
-            convertDateFormat(dossier.demandeur?.date_n).jsDate
+            convertDateFormat(dossier.demandeur?.date_n).jsDate,
           ).getTime() >
           new Date(
             new Date(
-              convertDateFormat(dossier.date_depo).jsDate
+              convertDateFormat(dossier.date_depo).jsDate,
             ).getFullYear() - 35,
             new Date(convertDateFormat(dossier.date_depo).jsDate).getMonth(),
-            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate()
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate(),
           ).getTime()
         );
       } else if (p_m_35_dd === "p") {
         return (
           new Date(
-            convertDateFormat(dossier.demandeur?.date_n).jsDate
+            convertDateFormat(dossier.demandeur?.date_n).jsDate,
           ).getTime() <=
           new Date(
             new Date(
-              convertDateFormat(dossier.date_depo).jsDate
+              convertDateFormat(dossier.date_depo).jsDate,
             ).getFullYear() - 35,
             new Date(convertDateFormat(dossier.date_depo).jsDate).getMonth(),
-            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate()
+            new Date(convertDateFormat(dossier.date_depo).jsDate).getDate(),
           ).getTime()
         );
       } else {
@@ -1104,7 +1104,7 @@ const getDossierBrothersPaged = asyncHandler(async (req, res) => {
       if (fromDate !== "") {
         fdCheck = !(
           new Date(
-            convertDateFormat(dossier.date_depo, "S").jsDate
+            convertDateFormat(dossier.date_depo, "S").jsDate,
           ).getTime() <=
           new Date(convertDateFormat(fromDate, "S").jsDate).getTime()
         );
@@ -1112,7 +1112,7 @@ const getDossierBrothersPaged = asyncHandler(async (req, res) => {
       if (toDate) {
         tdCheck = !(
           new Date(
-            convertDateFormat(dossier.date_depo, "S").jsDate
+            convertDateFormat(dossier.date_depo, "S").jsDate,
           ).getTime() >=
           new Date(convertDateFormat(toDate, "S").jsDate).getTime()
         );
@@ -1146,19 +1146,19 @@ const getDossierBrothersPaged = asyncHandler(async (req, res) => {
           if (sort.type === "asc") {
             return (
               new Date(
-                convertDateFormat(b.demandeur.date_n, "S").jsDate
+                convertDateFormat(b.demandeur.date_n, "S").jsDate,
               ).getTime() -
               new Date(
-                convertDateFormat(a.demandeur.date_n, "S").jsDate
+                convertDateFormat(a.demandeur.date_n, "S").jsDate,
               ).getTime()
             );
           } else if (sort.type === "desc") {
             return (
               new Date(
-                convertDateFormat(a.demandeur.date_n, "S").jsDate
+                convertDateFormat(a.demandeur.date_n, "S").jsDate,
               ).getTime() -
               new Date(
-                convertDateFormat(b.demandeur.date_n, "S").jsDate
+                convertDateFormat(b.demandeur.date_n, "S").jsDate,
               ).getTime()
             );
           }
@@ -1486,7 +1486,7 @@ const deleteDossier = asyncHandler(async (req, res) => {
   if (dossierData.id_conjoin.length > 0) {
     for (let i = 0; i < dossierData.id_conjoin.length; i++) {
       conjoinData[i] = await person.findByIdAndDelete(
-        dossierData.id_conjoin[i]
+        dossierData.id_conjoin[i],
       );
     }
   }
