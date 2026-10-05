@@ -861,12 +861,8 @@ const processDossier = async (
     record.notes,
     record.remark,
   ];
-  let addWorkSheet;
-  if (type === "exportFilter") addWorkSheet = worksheetPlus;
-  else
-    addWorkSheet = isDateBeforeQuota(record, triDossiers, quotaDate)
-      ? worksheetPlus
-      : worksheetMoin;
+  let addWorkSheet = worksheetPlus;
+
   if (type === "export") {
     addRowToWorksheet(addWorkSheet, rowDataExport, null, 29, workbook);
   } else if (type === "exportFilter") {

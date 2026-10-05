@@ -441,6 +441,8 @@ async function updateExistingDossier(dossier, newData, creator, language) {
       remark,
       num_i_n,
       num_i_n_conj,
+      gender_dem,
+      gender_conj,
     } = newData;
 
     // Update demandeur if exists
@@ -470,6 +472,7 @@ async function updateExistingDossier(dossier, newData, creator, language) {
         convertDateFormat(date_n_dem, "S").date || demandeur.date_n;
       demandeur.type_date_n = type_date_n_dem || demandeur.type_date_n;
       demandeur.stuation_f = stuation_f_dem || demandeur.stuation_f;
+      demandeur.gender = gender_dem || demandeur.gender;
       await demandeur.save();
     }
 
@@ -504,6 +507,7 @@ async function updateExistingDossier(dossier, newData, creator, language) {
             conjoin.date_n =
               convertDateFormat(date_n_conj, "S").date || conjoin.date_n;
             conjoin.type_date_n = type_date_n_conj || conjoin.type_date_n;
+            conjoin.gender = gender_conj || conjoin.gender;
 
             await conjoin.save();
           }

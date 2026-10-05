@@ -74,7 +74,7 @@ router
   .delete(protect, deleteDossier);
 router
   .route("/num/:num_dos")
-  .post(protect, uploadPersonPhoto.single("photo_link"), getDossierByNumDoss);
+  .post(uploadPersonPhoto.single("photo_link"), getDossierByNumDoss);
 router.route("/create").post(protect, createDossier);
 router.route("/enquetCNLs").post(getDossierByDates);
 router.route("/enqCNL").post(getEnquetCNLFile);
