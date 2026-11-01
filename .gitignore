@@ -31,5 +31,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 node_modules
-personsPicUpload"node_modules/" 
 ".env" 
+dump/
+*.accdb
+*.dbf
+*.mdb
+debug.log
+backend/tmp_*.json
