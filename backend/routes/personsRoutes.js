@@ -10,12 +10,12 @@ const {
 
 const router = express.Router();
 
-router.route("/").get(getPersons);
+router.route("/").get(protect, getPersons);
 router
   .route("/:id")
-  .get(getPersonById)
-  .put(updatePerson)
-  .delete(deletePerson);
-router.route("/create").post(createPerson);
+  .get(protect, getPersonById)
+  .put(protect, updatePerson)
+  .delete(protect, deletePerson);
+router.route("/create").post(protect, createPerson);
 
 module.exports = router;

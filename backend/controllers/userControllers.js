@@ -109,7 +109,7 @@ const getUsers = asyncHandler(async (req, res) => {
 
 const getUserById = asyncHandler(async (req, res) => {
   const userId = req.params.id;
-  const userData = await User.findById(userId);
+  const userData = await User.findById(userId).select("-password");
   if (userData) res.json(userData);
   else {
     res.status(400);

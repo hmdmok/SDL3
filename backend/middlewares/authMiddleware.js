@@ -15,12 +15,17 @@ const protect = asyncHandler(async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       req.user = await User.findById(decoded.id).select("-password");
-
-      next();
     } catch (error) {
       res.status(401);
       throw new Error("دخول غير مرخص, فشل في تذكرة الدخول");
     }
+
+    if (!req.user) {
+      res.status(401);
+      throw new Error("دخول غير مرخص, المستخدم غير موجود");
+    }
+
+    next();
   } else {
     res.status(401);
     throw new Error(" لا توجد  تذكرة دخول");

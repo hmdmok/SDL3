@@ -20,9 +20,24 @@ const path = require("path");
 
 const createRecord = (dossier, newData, type) => {
   const createNewRecord = (person, address, numAct, prefix) => ({
-    "N°": prefix === "CNAS" ? newData.length + 1 : undefined,
-    NUM_DOSS: prefix === "CNAS" ? dossier.num_dos : undefined,
-    CODE_P: prefix === "CASNOS" ? newData.length + 1 : "",
+    "N°": undefined,
+    NUM_DOSS: undefined,
+    CODE_P: newData.length + 1,
+    NOM_P: sanitizeInput(person.nom_fr || ""),
+    PRENOM_P: sanitizeInput(person.prenom_fr || ""),
+    DDN_P: convertDateFormat(person.date_n, "T").date3112 || "",
+    ADR_P: "",
+    NUM_ACT_P: sanitizeInput(numAct || ""),
+    PP: sanitizeInput(person.prenom_p_fr || ""),
+    NPM: sanitizeInput(`${person.nom_m_fr || ""} ${person.prenom_m_fr || ""}`),
+    LIB_SEXE: sanitizeInput(person.gender || ""),
+    CC: "",
+    NC: sanitizeInput(person.lieu_n_fr || ""),
+    WILAYA: sanitizeInput(person.wil_n || ""),
+  });
+
+  const createCnasRecord = (person, address, numAct, prefix) => ({
+    CODE_P: "",
     NOM_P: sanitizeInput(person.nom_fr || ""),
     PRENOM_P: sanitizeInput(person.prenom_fr || ""),
     DDN_P: convertDateFormat(person.date_n, "T").date3112 || "",
@@ -56,16 +71,29 @@ const createRecord = (dossier, newData, type) => {
   const { demandeur, conjoin } = dossier;
   const address = dossier.adress || "";
 
-  if (type === "CASNOS" || type === "CNAS") {
+  if (type === "CASNOS") {
     if (demandeur) {
       newData.push(
-        createNewRecord(demandeur, address, demandeur.num_act, type)
+        createNewRecord(demandeur, address, demandeur.num_act, type),
       );
     }
     if (conjoin) {
       conjoin.forEach((person) => {
         if (person)
           newData.push(createNewRecord(person, address, person.num_act, type));
+      });
+    }
+  }
+  if (type === "CNAS") {
+    if (demandeur) {
+      newData.push(
+        createCnasRecord(demandeur, address, demandeur.num_act, type),
+      );
+    }
+    if (conjoin) {
+      conjoin.forEach((person) => {
+        if (person)
+          newData.push(createCnasRecord(person, address, person.num_act, type));
       });
     }
   }
@@ -89,7 +117,7 @@ const getDossierByDates = asyncHandler(async (req, res) => {
   const dossierByDates = dossiers.filter(
     (dossier) =>
       new Date(dossier.date_depo) >= new Date(fromDate) &&
-      new Date(dossier.date_depo) <= new Date(toDate)
+      new Date(dossier.date_depo) <= new Date(toDate),
   );
 
   if (dossierByDates.length) {
@@ -289,7 +317,7 @@ const getEnquetCASNOSFile = asyncHandler(async (req, res) => {
 
       const fileName = path.join(
         folderPath,
-        `new_EnquetCASNOS_${fileCounter}.xlsx`
+        `new_EnquetCASNOS_${fileCounter}.xlsx`,
       );
       const newWB = XLSX.utils.book_new();
       const newWS = XLSX.utils.json_to_sheet(newData);
@@ -406,7 +434,7 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
     }
     console.log("dossiersList: ", dossiersList);
     const dossierBrothers = await segregateBrothersLists(
-      await getSimilarityKey(dossiers, "ar")
+      await getSimilarityKey(dossiers, "ar"),
     );
 
     const workbook = new ExcelJS.Workbook();
@@ -531,9 +559,9 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             worksheetFather,
             worksheetMother,
             worksheetUnique,
-            "Brothers"
+            "Brothers",
           );
-        })
+        }),
       );
       await Promise.all(
         filterBySearch2.map((dossier, index) => {
@@ -549,9 +577,9 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             worksheetFather,
             worksheetMother,
             worksheetUnique,
-            "Fathers"
+            "Fathers",
           );
-        })
+        }),
       );
 
       await Promise.all(
@@ -568,9 +596,9 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             worksheetFather,
             worksheetMother,
             worksheetUnique,
-            "Mothers"
+            "Mothers",
           );
-        })
+        }),
       );
       await Promise.all(
         dossierBrothers.remainingDossiers.map((dossier, index) => {
@@ -586,9 +614,9 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             worksheetFather,
             worksheetMother,
             worksheetUnique,
-            "Unique"
+            "Unique",
           );
-        })
+        }),
       );
     } else
       await Promise.all(
@@ -601,9 +629,9 @@ const getListBenefisiersFile = asyncHandler(async (req, res) => {
             type,
             photoFemme,
             worksheetPlus,
-            worksheetMoin
-          )
-        )
+            worksheetMoin,
+          ),
+        ),
       );
 
     const newFileName = `generatedEnq/List Benifisiers ${

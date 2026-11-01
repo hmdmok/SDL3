@@ -29,9 +29,9 @@ const router = express.Router();
 
 router
   .route("/:num")
-  .get(getScanDossierByNum)
-  .post(uploadDossierPhoto.single("scanedFile"), createScanDossier)
-  .put(uploadDossierPhoto.single("scanedFile"), updateScanDossier)
+  .get(protect, getScanDossierByNum)
+  .post(protect, uploadDossierPhoto.single("scanedFile"), createScanDossier)
+  .put(protect, uploadDossierPhoto.single("scanedFile"), updateScanDossier)
   .delete(protect, deleteScanDossier);
 
 module.exports = router;

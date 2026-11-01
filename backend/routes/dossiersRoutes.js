@@ -62,28 +62,28 @@ const uploadPersonPhoto = multer({
 
 const router = express.Router();
 
-router.route("/").get(getDossiers);
-router.route("/filtred").get(getDossierByFilters);
-router.route("/paged").get(getDossiersPaged);
-router.route("/brothers/filtred").get(getDossierBrothersByFilters);
-router.route("/brothers/paged").get(getDossierBrothersPaged);
+router.route("/").get(protect, getDossiers);
+router.route("/filtred").get(protect, getDossierByFilters);
+router.route("/paged").get(protect, getDossiersPaged);
+router.route("/brothers/filtred").get(protect, getDossierBrothersByFilters);
+router.route("/brothers/paged").get(protect, getDossierBrothersPaged);
 router
   .route("/:id")
-  .get(getDossierById)
+  .get(protect, getDossierById)
   .put(protect, updateDossier)
   .delete(protect, deleteDossier);
 router
   .route("/num/:num_dos")
   .post(protect, uploadPersonPhoto.single("photo_link"), getDossierByNumDoss);
 router.route("/create").post(protect, createDossier);
-router.route("/enquetCNLs").post(getDossierByDates);
-router.route("/enqCNL").post(getEnquetCNLFile);
-router.route("/listBenefisiers").post(getListBenefisiersFile);
-router.route("/enqCNLtest").post(getEnquetCNLFileTest);
-router.route("/enqCNAS").post(getEnquetCNASFile);
-router.route("/enqCadastre").post(getEnquetCadastreFile);
-router.route("/enqCNAStest").post(getEnquetCNASFileTest);
-router.route("/enqCASNOS").post(getEnquetCASNOSFile);
-router.route("/enqCASNOStest").post(getEnquetCASNOSFileTest);
+router.route("/enquetCNLs").post(protect, getDossierByDates);
+router.route("/enqCNL").post(protect, getEnquetCNLFile);
+router.route("/listBenefisiers").post(protect, getListBenefisiersFile);
+router.route("/enqCNLtest").post(protect, getEnquetCNLFileTest);
+router.route("/enqCNAS").post(protect, getEnquetCNASFile);
+router.route("/enqCadastre").post(protect, getEnquetCadastreFile);
+router.route("/enqCNAStest").post(protect, getEnquetCNASFileTest);
+router.route("/enqCASNOS").post(protect, getEnquetCASNOSFile);
+router.route("/enqCASNOStest").post(protect, getEnquetCASNOSFileTest);
 
 module.exports = router;

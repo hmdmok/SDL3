@@ -22,14 +22,15 @@ const router = express.Router();
 router
   .route("/")
   .post(
+    protect,
     uploadQuotaPhoto.single("quotascan"),
     quotaControllers.addNewQuota
   );
-router.route("/").get(quotaControllers.getQuotas);
+router.route("/").get(protect, quotaControllers.getQuotas);
 router
   .route("/:id")
-  .get(quotaControllers.getQuotaById)
-  .put(uploadQuotaPhoto.single("quotascan"), quotaControllers.editQuota)
-  .delete(quotaControllers.deleteQuota);
+  .get(protect, quotaControllers.getQuotaById)
+  .put(protect, uploadQuotaPhoto.single("quotascan"), quotaControllers.editQuota)
+  .delete(protect, quotaControllers.deleteQuota);
 
 module.exports = router;

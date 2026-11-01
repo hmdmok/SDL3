@@ -5,6 +5,16 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
 import store from "./store";
+import axios from "axios";
+
+// Attach the logged-in user's token to every API call that doesn't set one
+axios.interceptors.request.use((config) => {
+  const token = store.getState().userLogin?.userInfo?.token;
+  if (token && !config.headers.Authorization) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

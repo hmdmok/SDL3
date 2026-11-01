@@ -30,7 +30,7 @@ router.route("/").get(protect, userControllers.getUsers);
 router.route("/login").post(userControllers.authUser);
 router
   .route("/:id")
-  .get(userControllers.getUserById)
+  .get(protect, userControllers.getUserById)
   .put(protect, uploadUserPhoto.single("photo_link"), userControllers.editUser)
   .delete(protect, userControllers.deleteUser);
 

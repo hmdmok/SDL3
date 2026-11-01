@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.route("/").post(systemControllers.createSystem);
 router.route("/").get(systemControllers.getSystem);
-router.route("/:id").put(systemControllers.updateSystem);
+router.route("/:id").put(protect, systemControllers.updateSystem);
 
 module.exports = router;

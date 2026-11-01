@@ -32,15 +32,15 @@ const uploadDossiersEnq = multer({
 
 const router = express.Router();
 
-router.route("/enquetCNLs").post(getDossierByDates);
+router.route("/enquetCNLs").post(protect, getDossierByDates);
 router
   .route("/uploadDossierEnq")
-  .post(uploadDossiersEnq.single("dossierEnq"), uploadDossierEnq);
-router.route("/enqCNL").post(getEnquetCNLFile);
-router.route("/enqCNLtest").post(getEnquetCNLFileTest);
-router.route("/enqCNAS").post(getEnquetCNASFile);
-router.route("/enqCNAStest").post(getEnquetCNASFileTest);
-router.route("/enqCASNOS").post(getEnquetCASNOSFile);
-router.route("/enqCASNOStest").post(getEnquetCASNOSFile);
+  .post(protect, uploadDossiersEnq.single("dossierEnq"), uploadDossierEnq);
+router.route("/enqCNL").post(protect, getEnquetCNLFile);
+router.route("/enqCNLtest").post(protect, getEnquetCNLFileTest);
+router.route("/enqCNAS").post(protect, getEnquetCNASFile);
+router.route("/enqCNAStest").post(protect, getEnquetCNASFileTest);
+router.route("/enqCASNOS").post(protect, getEnquetCASNOSFile);
+router.route("/enqCASNOStest").post(protect, getEnquetCASNOSFile);
 
 module.exports = router;

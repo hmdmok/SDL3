@@ -24,11 +24,12 @@ const router = express.Router();
 router
   .route("/update")
   .post(
+    protect,
     uploadImportationFile.single("importation_File"),
     importationDossiersControllersTest.updateDossiers
   );
 
 
-router.route("/correctionDB").post(importationDossiersControllersTest.correctionDB);
+router.route("/correctionDB").post(protect, importationDossiersControllersTest.correctionDB);
 
 module.exports = router;
